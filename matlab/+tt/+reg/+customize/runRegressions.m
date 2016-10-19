@@ -10,13 +10,15 @@ function rr = runRegressions(allExpData, varargin)
         allED = allExpData.d; 
     else
         allED = allExpData;
-    end;
+    end
+    edArray = tt.util.structToArray(allED);
     
-    %CUSTOM: If this is a number-line experiment, change 1st argument to 'NL'
+    %CUSTOM: choose one of these two
     rr = treg.createEmptyRR('DC', allED.general.setName);
+    rr = treg.createEmptyRR('NL', allED.general.setName, edArray(1).MaxTarget);
     
-    for subject = tt.inf.listInitials(allED)
-        rr.(subject{1}) = runForOneSubj(allED.(subject{1}), regArgs);
+    for expData = edArray
+        rr.(expData.SubjectInitials) = runForOneSubj(expData, regArgs);
     end
     
     rr.avg = treg.averageRegressionResults(rr);
