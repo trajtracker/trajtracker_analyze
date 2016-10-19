@@ -1,0 +1,32 @@
+function p = findPrecision(x, maxPrecision)
+% prec = findPrecision(x[, max]) - find the decimal precision of a number.
+% The optional MAX argument specifies a maximal precision to look for
+% (default: 20).
+% 
+% Written by Dror Dotan, 2016
+
+    if ~exist('maxPrecision', 'var')
+        maxPrecision = 20;
+    end
+    
+    if isempty(x)
+        p = 0;
+    elseif length(x) == 1
+        p = find(mod(abs(x) .* (10 .^ (0:maxPrecision)),1) < .0001, 1) - 1;
+    else
+        tens = (10 .^ (0:maxPrecision));
+        p = max(arrayfun(@(xx)findPrecisionForOneNumber(xx, tens), x)) - 1;
+    end
+
+    if isempty(p)
+        p = maxPrecision;
+    end
+    
+    %-------------------------------------------
+    function prec = findPrecisionForOneNumber(n, tens)
+        tmp = abs(n) .* tens;
+        prec = find(abs(tmp-round(tmp)) < .0001, 1);
+    end
+    
+end
+
