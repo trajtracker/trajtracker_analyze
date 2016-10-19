@@ -44,7 +44,7 @@ function nOutliers = updateOutlierTrajectories(expData)
             end
             
             % Get the average trajectory for trials of this target
-            avgTrajectory = common.preprocess.averageTrajectoryByNormTime(expData.Trials(trialsOfTarget), normTrajLength, 'median');
+            avgTrajectory = tt.preprocess.averageTrajectoryByNormTime(expData.Trials(trialsOfTarget), normTrajLength, 'median');
             x = avgTrajectory(:,2);
             y = avgTrajectory(:,3);
             trajLength = tt.preprocess.getTrajectoryLength(x, y);

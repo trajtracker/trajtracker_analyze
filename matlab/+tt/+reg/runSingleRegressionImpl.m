@@ -102,7 +102,7 @@ function oneRegResults = runSingleRegressionImpl(regressionType, predictors, dep
             error('Unknown regression type (%s). Supported types: step, reg, corr, pointbiserial, logglm.', regressionType);
     end
 
-    oneRegResults.adj_r2_per_predictor = calcAdjRSquare(oneRegResults.r2_per_predictor, length(dependentVar), size(predictors,2));
+    oneRegResults.adj_r2_per_predictor = tt.reg.calcAdjRSquare(oneRegResults.r2_per_predictor, length(dependentVar), size(predictors,2));
 
     %-------------------------------------------
     function [printWarnings] = parseArgs(args)

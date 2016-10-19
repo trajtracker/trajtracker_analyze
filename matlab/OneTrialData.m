@@ -166,7 +166,7 @@ classdef OneTrialData < handle
             x = spline(normTime, self.xValues, requiredTimePercentages);
             y = spline(normTime, self.yValues, requiredTimePercentages);
             
-            ep = self.Trajectory(:,TrajCols.InstImpliedEP)';
+            ep = self.Trajectory(:,TrajCols.ImpliedEP)';
             validIndices = logical(~isnan(ep));
             instImpliedEP = spline(normTime(validIndices), ep(validIndices), requiredTimePercentages);
             
@@ -204,7 +204,7 @@ classdef OneTrialData < handle
             end
             
             if (~ exist('trajColumns', 'var'))
-                trajColumns = [TrajCols.X, TrajCols.Y, TrajCols.InstImpliedEP];
+                trajColumns = [TrajCols.X, TrajCols.Y, TrajCols.ImpliedEP];
             end
             
             requiredTimes = (0:samplingRate:samplingRate*(numPoints-1))';       % The required values of "AbsTime"

@@ -70,12 +70,12 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 currMeasureDesc = 'y speed';
                 
             case {'ep', 'iep'}
-                currMeasure = getTrajectoryColumn(trials, TrajCols.InstImpliedEP, rowNums);
+                currMeasure = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 currMeasureDesc = 'Implied endpoint';
                 
             case {'rldir', 'rldir_like_final', 'rldir_like_final01'}
                 % Currently pointing to right/left
-                iep = getTrajectoryColumn(trials, TrajCols.InstImpliedEP, rowNums);
+                iep = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 if isNL
                     currDir = (iep > expData.MaxTarget/2) * 2 - 1;
                 else
@@ -99,7 +99,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 
             case 'iep_vs_expected_response'
                 % Implied endpoint, multiplied by expected response
-                iep = getTrajectoryColumn(trials, TrajCols.InstImpliedEP, rowNums);
+                iep = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 expectedResp = sign(arrayfun(@(t)t.RequiredResponse, trials) - 0.5); % code as -1 or +1
                 for ii = 1:size(iep, 2)
                     iep(:, ii) = iep(:, ii) .* expectedResp;

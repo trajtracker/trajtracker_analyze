@@ -1,5 +1,8 @@
 % 
-% tt.nl - functions for handling number-line experiments
+% -----------------------------------------
+% -- TrajTracker: package tt.nl          --
+% -----------------------------------------
+% Functions for handling number-line experiments
 % 
 % <a href="matlab:help tt.nl.xToNumber">tt.nl.xToNumber</a>: 
 % Convert number-line x coordinates to the corresponding target number
@@ -11,11 +14,6 @@
 % Get the number line length/2, in x-coord units
 % 
 % <a href="matlab:help tt.nl.">tt.nl.</a>: 
-% 
-% 
-% 
-% 
-% 
 % 
 % 
 % 

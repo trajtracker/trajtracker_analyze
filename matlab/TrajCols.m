@@ -1,11 +1,5 @@
-%===============================================================
-%
-%  TrajCols - Trajectory columns
-%
-% This class defines the column numbers in the trajectory matrix.
-%
-%===============================================================
 classdef TrajCols
+% The columns in a trial's trajectory matrix
     
     methods(Static)
         
@@ -21,58 +15,43 @@ classdef TrajCols
         function v = Y()
             v = 4;
         end
-        function v = XRelative() % The X value, relatively to the starting position
+        function v = XClean()    % The X value, cleaned from the initial-direction deviation
             v = 5;
         end
-        function v = XClean()    % The X value, cleaned from the initial-direction deviation
+        function v = R()
             v = 6;
         end
-        function v = R()
+        function v = Theta()
             v = 7;
         end
-        function v = InstTheta()
+        function v = ImpliedEP()
             v = 8;
         end
-        function v = InstImpliedEP() % based on dx/dy
+        function v = RadialVelocity()   % d(radius)/dt
             v = 9;
         end
-        function v = RadialVelocity()
+        function v = RadialAccel()
             v = 10;
         end
-        function v = RadialAccel()
+        function v = XVelocity()        % instantaneous x velocity
             v = 11;
         end
-        function v = XVelocity() % instantaneous velocity
+        function v = XAcceleration()    % instantaneous acceleration
             v = 12;
         end
-        function v = XAcceleration()    % instantaneous acceleration
+        function v = AngularVelocity()  % d(theta)/dt
             v = 13;
         end
-        function v = AngularVelocity() 
+        function v = YVelocity()        % instantaneous y velocity
             v = 14;
         end
-        function v = YVelocity() % instantaneous velocity
+        function v = YAcceleration()
             v = 15;
         end
-        function v = YAcceleration()
-            v = 16;
-        end
         function v = NUM_COLS() 
-            v = 16;
+            v = 15;
         end
 
-        % Additional columns - not always used
-        function v = ImpliedEPTimeBased() % based on dx/dt
-            v = 17;
-        end
-        function v = DxDt()
-            v = 18;
-        end
-        function v = SmImpliedEp()
-            v = 19;
-        end
-        
-        
         function col = colByName(colName)
             [~, colNumByName ] = TrajCols.getAllCols();
             if isfield(colNumByName, colName)
@@ -92,7 +71,7 @@ classdef TrajCols
                 method = methods(i);
                 if (method.Static && isempty(method.InputNames) && length(method.OutputNames) == 1 && strcmp(method.OutputNames{1}, 'v'))
                     v = eval(strcat('TrajCols.', method.Name));
-                    nameByColNum{v} = method.Name;
+                    nameByColNum{v} = method.Name; %#ok<AGROW>
                     colNumByName.(method.Name) = v;
                     codes = [codes v]; %#ok<AGROW>
                 end

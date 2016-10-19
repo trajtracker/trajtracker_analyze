@@ -29,6 +29,7 @@ classdef OneRR < handle
     
     methods
         
+        %---------------------------------------------------------------------
         function self = OneRR(subjInitials, regType, predNames, depVar, times)
             
             self.SubjectInitials = subjInitials;
@@ -45,10 +46,12 @@ classdef OneRR < handle
             self.NSubjects = 1;
         end
         
+        %---------------------------------------------------------------------
         function predRes = addPredResults(self, predRes)
             self.PredResults.(lower(predRes.PredName)) = predRes;
         end
         
+        %---------------------------------------------------------------------
         function onePredResults = getPredResult(self, predName)
             predName = lower(predName);
             if isfield(self.PredResults, predName)
@@ -58,6 +61,18 @@ classdef OneRR < handle
             end
         end
         
+        %---------------------------------------------------------------------
+        function desc = getPredDesc(self, predName)
+            predName = lower(predName);
+            [ok, loc] = ismember(lower(predName), lower(self.predictorNames));
+            if ok
+                desc = self.PredictorDesc{loc};
+            else
+                desc = '';
+            end
+        end
+        
+        %---------------------------------------------------------------------
         %-- Get results (e.g., the b or beta values) of one predictor results
         %-- attrName: e.g., 'b', 'beta', 'p', etc. You can omit attrName 
         %--           and provide a single argument "pred.attr" 
@@ -79,6 +94,8 @@ classdef OneRR < handle
             value = pr.(attrName);
             
         end
+        
+        
         
     end
     

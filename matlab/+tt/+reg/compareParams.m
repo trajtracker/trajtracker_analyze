@@ -62,6 +62,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         expectPositiveBValue = true(1, length(paramNames));
     end
     
+    anyRR = allRR{1}.avg.(regressionKeys{1});
     
     [params, times, subjIDs] = getAllParamValues(allRR, regressionKeys, paramNames, pValNames, subjIDs);
     groupSubjectsArg = getGroupingArg(expDataForGrouping, subjIDs);
@@ -103,6 +104,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         
     end
     
+    updateParamName(result, paramNames, allRR);
     updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs, paramMultiplyFactors);
     
     %-- Compare two parameters vs. one another
@@ -167,7 +169,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
             return;
         end
         
-        [groupPerSubj, groupNames] = tt.inf.getSubjectGroupIDs(expDataForGrouping, subjIDs);
+        [groupPerSubj, groupNames] = tt.inf.getSubjectGroups(expDataForGrouping, subjIDs);
         if length(groupNames) > 1
             fprintf('%d groups: %s, %s\n', length(groupNames), groupNames{1}, groupNames{2});
             groupSubjectsArg = {'Group', groupPerSubj};
@@ -262,6 +264,18 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
             result.MaxTarget = allRR{1}.general.MaxTarget;
         end
         
+    end
+
+    %--------------------------------------------------------------------
+    function updateParamName(result, paramNames, allRR)
+        
+        nParams = length(paramNames);
+        for i = 1:nParams
+            ind = find(paramNames{i}=='.', 1);
+            name = paramNames{i}(1:ind-1);
+            result.cmpParam(i).ParamName = name;
+            result.cmpParam(i).ParamDesc = allRR{1}.avg.(regressionKeys{i}).getPredDesc(name);
+        end
     end
 
     %--------------------------------------------------------------------

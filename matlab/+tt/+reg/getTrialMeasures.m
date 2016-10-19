@@ -159,7 +159,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
     %-------------------------------------------------------------------
     % Parse a measure as one of the known list
     % 
-    function [currMeasure, measureName, measureArgs, measureDesc] = parseMeasure(measureName, measureArgs, trials, targets)
+    function [currMeasure, measureName, measureDesc] = parseMeasure(measureName, measureArgs, trials, targets)
         
         measureDesc = '';
         
@@ -290,7 +290,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
             case {'ldrfix', 'refpt'}
                 args = tt.reg.parseMeasureArgs(measureArgs, {'nseg'}, true, false, 'RefPoints');
                 nSegments = iif(isempty(args{1}), 2, args{1});
-                currMeasure = logDistanceRatio(targets, expData.MaxTarget, nSegments) - targets;
+                currMeasure = refPointsMapping(targets, expData.MaxTarget, nSegments) - targets;
                 measureDesc = iif(isempty(args{1}), 'Ref points', sprintf('%d ref points', nSegments+1));
 
             %-------- Decision experiments -----------

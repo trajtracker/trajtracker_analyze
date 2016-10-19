@@ -55,9 +55,6 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
     trajData(:, TrajCols.X) = x;
     trajData(:, TrajCols.Y) = y;
 
-    % Relative X: the X value relative to the trajectory starting point
-    trajData(:, TrajCols.XRelative) = x - x(1);
-
     % Translate x,y to r,theta notation
     r = sqrt(x.^2 + y.^2);
     trajData(:, TrajCols.R) = r;
@@ -82,7 +79,7 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
 
     % Angular direction and its change
     [instTheta, trajSlope] = calculateInstantaneousTheta(x, y);
-    trajData(:, TrajCols.InstTheta) = instTheta;
+    trajData(:, TrajCols.Theta) = instTheta;
     trajData(:, TrajCols.AngularVelocity) = [0; diff(smoothg(instTheta, args.coordSmoothingSd/samplingRate)) / samplingRate];
     
     trajData(:, TrajCols.XClean) = NaN;

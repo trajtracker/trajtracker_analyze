@@ -109,6 +109,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     %-- Get dependent and independent factors
     [predictors, predNames, predDesc, dependentVar, depVarDesc, rowNums, includeTrial] = getRegressionData(trialsToRegress, timePoints);
     predNames = [{'const'} predNames];
+    predDesc = [{'Intercept'} predDesc];
     
     [trialsToRegress, predictors, dependentVar, rowNums, includeTrial, nTimePoints] = ...
         removeUnregressableTrials(trialsToRegress, predictors, dependentVar, rowNums, includeTrial);

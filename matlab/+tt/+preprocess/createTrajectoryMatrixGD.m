@@ -25,6 +25,6 @@ function trajMatrix = createTrajectoryMatrixGD(absTimes, x, y, expData, args)
     impliedEP = min(impliedEP, 1);
     impliedEP = max(impliedEP, -1);
     
-    trajMatrix(:, TrajCols.InstImpliedEP) = impliedEP;
+    trajMatrix(:, TrajCols.ImpliedEP) = impliedEP;
     
 end

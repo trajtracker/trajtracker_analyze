@@ -4,6 +4,9 @@ classdef OnePredGrpRes < handle
     properties
         TestType
         
+        ParamName
+        ParamDesc
+        
         values    % Column vector (value per time point)
         sd_values % Column vector (value per time point)
         valuesPerGroup    % timepoints x ngroups matrix (only when grouping is used)

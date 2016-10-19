@@ -1,7 +1,6 @@
-function [groupIDPerSubj, groupNames, subjectsPerGroup] = getSubjectGroupIDs(allExpData, subjIDs)
-%[grpPerSubj, names, subjPerGrp] = getSubjectGroupIDs(allExpData, subjIDs) -
-% Get the group ID of each of the subject.
-% 
+function [groupIDPerSubj, groupNames, subjectsPerGroup] = getSubjectGroups(allExpData, subjIDs)
+%[grpPerSubj, names, subjPerGrp] = getSubjectGroups(allExpData, subjIDs) -
+% Get the group of each of the subject (expData.Group)
 %
 % groupIDPerSubj: array with group ID per subject. String group IDs are
 %                 translated into integer IDs.

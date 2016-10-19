@@ -20,8 +20,8 @@ function trajMatrix = createTrajectoryMatrixNL(absTimes, x, y, maxTarget, args)
     impliedEP = min(impliedEP, maxTarget*1.05);
     impliedEP = max(impliedEP, -maxTarget*0.05);
     MAX_INFORMATIVE_THETA = pi*85/180;
-    impliedEP(logical(abs(trajMatrix(:, TrajCols.InstTheta)) > MAX_INFORMATIVE_THETA)) = NaN;
+    impliedEP(logical(abs(trajMatrix(:, TrajCols.Theta)) > MAX_INFORMATIVE_THETA)) = NaN;
 
-    trajMatrix(:, TrajCols.InstImpliedEP) = impliedEP;
+    trajMatrix(:, TrajCols.ImpliedEP) = impliedEP;
     
 end
