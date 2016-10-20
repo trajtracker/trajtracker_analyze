@@ -207,8 +207,8 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
                     end
                 end
                 
-                paramNames = arrayfun(@(p){[bFactor '_' p{1}]}, rr1.avg.(regressionKeys).predictorNames(ind1:end));
-                pValNames = arrayfun(@(p){['p_' p{1}]}, rr1.avg.(regressionKeys).predictorNames(ind1:end));
+                paramNames = arrayfun(@(p){[p{1} '.' bFactor]}, rr1.avg.(regressionKeys).predictorNames(ind1:end));
+                pValNames = arrayfun(@(p){[p{1} '.p']}, rr1.avg.(regressionKeys).predictorNames(ind1:end));
                 regressionKeys = arrayfun(@(i){regressionKeys}, 1:length(paramNames));
                 
             else
