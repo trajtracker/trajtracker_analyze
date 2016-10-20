@@ -1,5 +1,5 @@
 function [measures, outMeasureNames, measureDescs] = getMyTrialMeasures(expData, trials, measureNames)
-% [measures, varNames, measureDescs] = getMyTrialMeasures(expData, trials, measureNames) -
+% [measures, outMeasureNames, measureDescs] = getMyTrialMeasures(expData, trials, measureNames) -
 % Get values of regression measures that have one value per trial.
 %
 % trials - a column vector of trials (from the given expData)
@@ -36,7 +36,7 @@ function [measures, outMeasureNames, measureDescs] = getMyTrialMeasures(expData,
             otherwise
                 %-- Call default function
                 [currMeasure, vn, currMeasureDesc] = tt.reg.getTrialMeasures(expData, trials, measureNames(iMeasure));
-                outMeasureNames{iMeasure} = vn;
+                outMeasureNames{iMeasure} = vn{1};
         end
         
         if isempty(currMeasure)
