@@ -6,10 +6,9 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
 % Optional arguments:
 % -------------------
 % Trials <x>: Which trials to use -
-%     All (default) - all trials
-%     AvgAbs - average trials, abs x
-%     AvgClean - average trials, clean x
-%     AvgNorm - average trials, norm
+%     All (default) - expData.Trials
+%     AvgAbs - expData.AvgTrialsAbs
+%     AvgNorm - expData.AvgTrialsNorm
 % PerSubj: If multiple subjects were provided, return an array with values
 %     of all subjects (if this flag is not specified: return mean of
 %     means).

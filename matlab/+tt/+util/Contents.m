@@ -9,3 +9,5 @@
 % <a href="matlab:help tt.reg.filterDataset">filterDataset</a>: Filter a dataset  (a struct with one entry per subject) on a per-trial basis
 % <a href="matlab:help tt.reg.getAllTrials">getAllTrials</a>: Get all trials from multiple types of trial-container objects.
 % <a href="matlab:help tt.reg.getLongestTrial">getLongestTrial</a>: Find the longest trial in an array 
+%
+% <a href="matlab:help tt.reg.compareDatasets">compareDatasets</a>: Compare value between two or more datasets.
