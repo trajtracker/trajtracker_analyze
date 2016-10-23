@@ -1,11 +1,14 @@
-% =========================================
-% ==   TrajTracker processing scripts    ==
-% =========================================
-%  to see this help again, run "help tt"
+% =======================================
+% ==   TrajTracker analysis toolbox    ==
+% =======================================
+% - To see this help again, run "help tt"
+% - If you're new to this toolbox or just want some explanations, run <a href="matlab:help tt.Help">help tt.Help</a>
 % 
-% <a href="matlab:help tt.loadSubjects">tt.loadSubjects</a> - load an already-preprocessed dataset
+% Preprocess/load data:
 % <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a> - prepare a dataset
+% <a href="matlab:help tt.loadSubjects">tt.loadSubjects</a> - load an already-preprocessed dataset
 % 
+% Sub-packages:
 % <a href="matlab:help tt.inf">tt.inf</a>: extract various information from TrajTracker's data objects
 % <a href="matlab:help tt.util">tt.util</a>: utility functions
 % <a href="matlab:help tt.preprocess">tt.preprocess</a>: pre-processing functions
@@ -18,11 +21,12 @@
 % <a href="matlab:help tt.dc">tt.dc</a>: for discrete-decision experiments
 % 
 % 
-% If you're new to TrajTracker and not sure where to start, try <a href="matlab:help tt.preprocess.preprocessSet">tt.preprocess.preprocessSet</a>
-% and <a href="matlab:help ExperimentData">ExperimentData</a>.
-% 
-% The TrajTracker package is Licensed under the Academic Free License version 3.0
+% The toolbox is Licensed under the Academic Free License version 3.0
 % http://opensource.org/licenses/AFL-3.0
 % Copyright (c) 2016 Dror Dotan
-% 
+% THIS TOOLBOX IS PROVIDED AS-IS, WITH ABSOLUTELY NO WARRANTY.
 % If you find any bugs, please let us know at dror.dotan@gmail.com
+% 
+% After using the toolbox, we would appreciate it if you cite us. 
+% Run <a href="matlab:tt.citation">tt.citation()</a> to see details.
+% 
