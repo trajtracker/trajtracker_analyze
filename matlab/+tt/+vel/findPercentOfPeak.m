@@ -6,7 +6,7 @@ function findPercentOfPeak(allExpData, pcntOfPeak, varargin)
 
     [customAttrNames] = parseArgs(varargin);
     
-    nl.basic.doPerTrial(allExpData, @processTrial);
+    tt.util.doPerTrial(allExpData, @processTrial);
 
     
     %----------------------------------------------------

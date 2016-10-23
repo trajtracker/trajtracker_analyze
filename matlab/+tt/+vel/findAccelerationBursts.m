@@ -25,7 +25,7 @@ function findAccelerationBursts(allExpData, varargin)
     samplingRate = allED(1).SamplingRate;
     minNSamples = round(minDuration / samplingRate);
     
-    nl.basic.doPerTrial(allExpData, @processTrial, 'Trials');
+    tt.util.doPerTrial(allExpData, @processTrial, 'Trials');
     
     
     %-------------------------------------------------

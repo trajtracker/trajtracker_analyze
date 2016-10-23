@@ -40,7 +40,7 @@ function plotVelocityProfile(expData, varargin)
     selectedXCoord = [];
     nTrialsProcessed = 0;
     
-    [trialInd, trialsToPlot, smoothArgs, onsetsAttr, peakTimesAttr, plotThresholdBothSides, peakVelocitiesAttr, ...
+    [trialInd, trialsToPlot, getVelocityArgs, onsetsAttr, peakTimesAttr, plotThresholdBothSides, peakVelocitiesAttr, ...
         showRefValue, getRefValueFunc, condName, customOutFilename, onFinishedCallback, customButtonCallback, ...
         onKeyCallback, customButtonLabel, interactive, showTargetNumber, plotOnsetsAndPeaks, plotAcceleration, ...
         plotAccelerationBursts, yLim, maxX, recalcVelocity, startAtTrial, isTargetOnRightSideFunc, getTargetFunc, ...
@@ -111,7 +111,7 @@ function plotVelocityProfile(expData, varargin)
         yLim = [999999,-999999];
         for trial = expData.Trials
             if recalcVelocity
-                velInfo = tt.vel.getTrialVelocity(trial, smoothArgs);
+                velInfo = tt.vel.getTrialVelocity(trial, getVelocityArgs);
                 yLim(1) = min([yLim(1); velInfo.velocity]);
                 yLim(2) = max([yLim(2); velInfo.velocity]);
             else
@@ -144,7 +144,7 @@ function plotVelocityProfile(expData, varargin)
         for iAxis = 1:length(velocityAxes)
             
             if (recalcVelocity)
-                velInfo = tt.vel.getTrialVelocity(trial, 'Axis', velocityAxes{iAxis}, 'Acc', smoothArgs);
+                velInfo = tt.vel.getTrialVelocity(trial, 'Axis', velocityAxes{iAxis}, 'Acc', getVelocityArgs);
                 times = velInfo.times;
                 velocity = velInfo.velocity;
                 acceleration = velInfo.acceleration / 10;

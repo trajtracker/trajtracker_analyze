@@ -23,8 +23,6 @@ function foundErrors = setTrialVelocityOnsetTime(allExpData, subjInitials, trial
         foundErrors = true;
     end
 
-    vi = tt.vel.getTrialVelocity(trial, 'Smooth', 'Gauss', 0.02);
-
     trial.Custom.XVelocityOnsetTimes = onsetTimes;
     trial.Custom.XVelocityOnsetRows = arrayfun(@(t)find(trial.Trajectory(:, TrajCols.AbsTime) >= t, 1), onsetTimes);
     if isempty(onsetTimes)
@@ -41,8 +39,8 @@ function foundErrors = setTrialVelocityOnsetTime(allExpData, subjInitials, trial
 
     trial.Custom.XVelocityPeakTimes = peakTimes;
     trial.Custom.XVelocityPeakRows = arrayfun(@(t)find(trial.Trajectory(:,TrajCols.AbsTime) >= t, 1), peakTimes);
-    rows = arrayfun(@(t)find(vi.times >= t, 1), peakTimes);
-    trial.Custom.XVelocityPeaks = vi.velocity(rows);
+    rows = arrayfun(@(t)find(trial.Trajectory(:, TrajCols.AbsTime) >= t-0.0001, 1), peakTimes);
+    trial.Custom.XVelocityPeaks = trial.Trajectory(rows, TrajCols.XVelocity);
 
     if isempty(peakTimes)
 
@@ -54,7 +52,7 @@ function foundErrors = setTrialVelocityOnsetTime(allExpData, subjInitials, trial
 
         % Validae that peak is in the correct direction
         targetIsLeft = trial.Target < expData.MaxTarget/2;
-        peakIsLeft = vi.velocity(rows(1)) < 0;
+        peakIsLeft = trial.Trajectory(rows(1), TrajCols.XVelocity) < 0;
         if (targetIsLeft ~= peakIsLeft)
             DIRECTIONS = {'rightwards', 'leftwards'};
             fprintf('Error in manually-encoded velocity of %s(%s), trial #%d: target=%d but the velocity goes %s\n', ...

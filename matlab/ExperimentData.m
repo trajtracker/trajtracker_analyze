@@ -313,17 +313,4 @@ classdef ExperimentData < handle
         
     end
     
-    methods(Static)
-        
-        function filteredTrials = filterTrialList(srcTrials, filterFunction)
-            doInclude = arrayfun(@(t)filterFunction(t), srcTrials);
-            filteredTrials = srcTrials(logical(doInclude));
-        end
-        
-        function v = getValidTrials(trials)
-            v = trials(arrayfun(@(t)t.TrialNum >= 0, trials));
-        end
-        
-    end
-    
 end

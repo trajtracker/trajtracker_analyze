@@ -1,5 +1,5 @@
 function result = filterTrials(inObj, filterFuncs)
-% [result, filterInds] = filterTrials(data, filter/s) - get subset of trials
+% [trials, filterInds] = filterTrials(data, filter/s) - get subset of trials
 % Returns a list of trials matching the filters
 % 
 % data: list of trilas, expData, or struct of expData's
@@ -39,7 +39,7 @@ function result = filterTrials(inObj, filterFuncs)
             if isstruct(ed)
                 processStruct(ed);
             elseif isa(ed, 'ExperimentData')
-                ttt = tt.common.filterTrialList(ed.Trials, filterFuncs, ed);
+                ttt = tt.util.filterTrialList(ed.Trials, filterFuncs, ed);
                 result = [result ttt];
             else
                 error('Invalid element in cell array');
