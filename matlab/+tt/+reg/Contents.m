@@ -17,6 +17,7 @@
 % <a href="matlab:help tt.reg.getSubjInitials">getSubjInitials</a>: Get list of subjects.
 % <a href="matlab:help tt.reg.toRRArray">toRRArray</a>: convert a results struct to array with
 %               one entry per subject.
+% <a href="matlab:help tt.reg.toRRArray">toRRArray</a>: Convert a results struct into an array (one entry per subject).
 % 
 % Processing regression results:
 % <a href="matlab:help tt.reg.compareParams">compareParams</a>: Analyze regression results from multiple subjects.

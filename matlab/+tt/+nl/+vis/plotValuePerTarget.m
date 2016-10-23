@@ -1,5 +1,5 @@
-function [data, meanData, seData] = plotPerTarget(varargin)
-% plotPerTarget(...) - plot some value per target number. The plotted value
+function [data, meanData, seData] = plotValuePerTarget(varargin)
+% plotValuePerTarget(...) - plot some value per target number. The plotted value
 % is the average of per-subject values.
 % The function can plot one line per condition, and also plot the value
 % with several smoothing levels (one line per smoothing).

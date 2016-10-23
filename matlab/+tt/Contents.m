@@ -7,11 +7,15 @@
 % <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a> - prepare a dataset
 % 
 % <a href="matlab:help tt.inf">tt.inf</a>: extract various information from TrajTracker's data objects
+% <a href="matlab:help tt.util">tt.util</a>: utility functions
 % <a href="matlab:help tt.preprocess">tt.preprocess</a>: pre-processing functions
 % <a href="matlab:help tt.reg">tt.reg</a>: run regressions & analyze results
-% <a href="matlab:help tt.util">tt.util</a>: utility functions
 % <a href="matlab:help tt.vel">tt.vel</a>: analyze velocities
 % <a href="matlab:help tt.vis">tt.vis</a>: visualization (plots)
+% <a href="matlab:help tt.curve">tt.curve</a>: find & use curves in trajectries
+% 
+% <a href="matlab:help tt.nl">tt.nl</a>: for number-line experiments
+% <a href="matlab:help tt.dc">tt.dc</a>: for discrete-decision experiments
 % 
 % 
 % If you're new to TrajTracker and not sure where to start, try <a href="matlab:help tt.preprocess.preprocessSet">tt.preprocess.preprocessSet</a>

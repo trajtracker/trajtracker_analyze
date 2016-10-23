@@ -1,19 +1,12 @@
-% 
 % -----------------------------------------
 % -- TrajTracker: package tt.nl          --
 % -----------------------------------------
 % Functions for handling number-line experiments
 % 
-% <a href="matlab:help tt.nl.xToNumber">tt.nl.xToNumber</a>: 
-% Convert number-line x coordinates to the corresponding target number
+% <a href="matlab:help tt.nl.xToNumber">xToNumber</a>, <a href="matlab:help tt.nl.numberToX">numberToX</a>:  Convert x coordinates <-> target number
+% <a href="matlab:help tt.nl.MaxLogicalXValue">MaxLogicalXValue</a>: Get the number line physical length
 % 
-% <a href="matlab:help tt.nl.numberToX">tt.nl.numberToX</a>: 
-% Convert a target number to the corresponding number-line x coordinates
-% 
-% <a href="matlab:help tt.nl.MaxLogicalXValue">tt.nl.MaxLogicalXValue</a>: 
-% Get the number line length/2, in x-coord units
-% 
-% <a href="matlab:help tt.nl.">tt.nl.</a>: 
-% 
-% 
+% In the "tt.nl.vis" package:
+% <a href="matlab:help tt.nl.vis.plotMeanTraj">plotMeanTraj</a>: Plot average trajectories.
+% <a href="matlab:help tt.nl.vis.plotValuePerTarget">plotValuePerTarget</a>: Plot a value-per-target graph.
 % 
