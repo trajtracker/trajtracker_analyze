@@ -41,7 +41,7 @@ function avgTrial = createAvgTrial(expData, trials, absOrNorm, aggregationFunc)
             return;
         end
         
-        longestTrial = getLongestTrial(trials);
+        longestTrial = tt.util.getLongestTrial(trials);
         
         medianTrial = createNewTrial(trials(1).Target, trials(1).Target);
         if strcmp(expData.ExperimentPlatform, 'NL')

@@ -83,7 +83,7 @@ function oneRegResults = runSingleRegressionImpl(regressionType, predictors, dep
             oneRegResults.r2_per_predictor = [NaN r^2];
             oneRegResults.regressionPVal = NaN;
             
-        case 'logglm'
+        case {'logistic', 'logglm'}
 
             [b, ~, stats] = glmfit(predictors, dependentVar, 'binomial');
             

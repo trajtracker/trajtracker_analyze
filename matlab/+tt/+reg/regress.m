@@ -90,12 +90,13 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 % RMessage: message to print to console when starting the regression.
 %           Available keywords: $SUBJID$, $NTRIALS$, $NTP$ (# time points)
 % V: verbose - print more debug messages
+% Silent: don't print anything
 
     [timePoints, trimTimePointsByTrajEnd, getTrialsFunc, trialFilters, consolidateTrialsFunc, ...
         timePointFilters, fixedDepVar, fixedPred, ...
         minSamplesToPredictorsRatio, getTrialMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
         timePointToRowFunc, getTimePerTpFunc, verbose, ...
-        regressionStartMsg, printRegressionMsg] = parseArgs(varargin, expData);
+        regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(varargin, expData);
     
     nPredictors = length(predictorSpec)+1;
     
@@ -142,7 +143,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         if sum(includeTrial(:,iTP)) == 0 || sum(includeTrial(:,iTP)) < nPredictors * minSamplesToPredictorsRatio
             %-- No trials to regress, or not enough trials to regress
             result = updateResults(result, tt.reg.invalidRegResultsImpl(nPredictors), iTP);
-            fprintf('X');
+            if ~isSilent, fprintf('X'); end
             continue;
         end
         
@@ -154,12 +155,12 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         result = updateResults(result, oneRR, iTP);
         
         if nTimePoints > 1
-            fprintf(iif(isnan(oneRR.beta(end)), 'X', '.'));
+            if ~isSilent, fprintf(iif(isnan(oneRR.beta(end)), 'X', '.')); end
         end
         
     end
     
-    fprintf(regressionEndMsg);
+    if ~isSilent, fprintf(regressionEndMsg); end
     
     result.MaxMovementTime = expData.MaxMovementTime;
     
@@ -190,7 +191,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         regressionStartMsg = strrep(regressionStartMsg, '$NTP$', num2str(nTimePoints));
         regressionStartMsg = strrep(regressionStartMsg, '$NTRIALS$', num2str(nTrials));
         
-        fprintf(regressionStartMsg);
+        if ~isSilent, fprintf(regressionStartMsg); end
     end
 
     %-------------------------------------------
@@ -253,7 +254,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     %-------------------------------------------
     %-- Get absolute time per time point
     function times = getTimesSameRow(~, trialsToRegress, rowNums)
-        [longestTrial, ltInd] = getLongestTrial(trialsToRegress);
+        [longestTrial, ltInd] = tt.util.getLongestTrial(trialsToRegress);
         times = longestTrial.Trajectory(rowNums(ltInd, :), TrajCols.AbsTime);
     end
 
@@ -389,7 +390,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             timePointFilters, fixedDepVar, fixedPred, ...
             minSamplesToPredictorsRatio, getMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
             timePointToRowFunc, getTimePerTpFunc, verbose, ...
-            regressionStartMsg, printRegressionMsg] = parseArgs(args, expData)
+            regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(args, expData)
 
         timePoints = [];
         trimRowNumbersByTrajEnd = true;
@@ -409,6 +410,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         verbose = false;
         minSamplesToPredictorsRatio = 3;
         is_y = false;
+        isSilent = false;
         
         regressionStartMsg = '';
         printRegressionMsg = true;
@@ -491,6 +493,10 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
                     
                 case 'v'
                     verbose = true;
+                    
+                case 'silent'
+                    isSilent = true;
+                    verbose = false;
                     
                 otherwise
                     error('Unsupported argument "%s"!', args{1});
