@@ -6,20 +6,23 @@ function velInfo = getTrialVelocity(trial, varargin)
 % Optional args:
 % Acc - also calculate acceleration
 % Axis X|Y - which velocity to get
-% Smooth Gauss <sd> - Use Gaussian smoothing
-% Smooth Conv <conv-vector> - Use convolution smoothing
+% CSmooth <args> - Smooth coordinates before deriving them into velocity
+% VSmooth <args> - Smooth velocity before deriving it into acceleration
+%        The smoothing arguments are either of:
+%        Gauss <sd> - Gaussian smoothing, specify standard deviation
+%        Conv <conv-vector> - Convolution with the given vector
 
-    [xCol, velXY, showAcc, smoothFunc] = parseArgs(varargin);
+    [xCol, velXY, showAcc, coordSmoothFunc, velSmoothFunc] = parseArgs(varargin);
     
     samplingRate = diff(trial.Trajectory(1:2, TrajCols.AbsTime));
     
     if velXY
         % Instantaneous velocity - in whatever direction
-        x = smoothFunc(trial.Trajectory(:, TrajCols.X));
-        y = smoothFunc(trial.Trajectory(:, TrajCols.Y));
+        x = coordSmoothFunc(trial.Trajectory(:, TrajCols.X));
+        y = coordSmoothFunc(trial.Trajectory(:, TrajCols.Y));
         velocity = sqrt(diff(x) .^ 2 + diff(y) .^ 2) / samplingRate;
     else
-        coords = smoothFunc(trial.Trajectory(:, xCol));
+        coords = coordSmoothFunc(trial.Trajectory(:, xCol));
         velocity = diff(coords) / samplingRate;
     end
 
@@ -29,7 +32,7 @@ function velInfo = getTrialVelocity(trial, varargin)
     velInfo.times = trial.Trajectory(:, TrajCols.AbsTime);
     
     if (showAcc)
-        velocity = smoothFunc(velocity);
+        velocity = velSmoothFunc(velocity);
         velInfo.acceleration = [0; 0; diff(velocity)] / samplingRate;
     end
 
@@ -41,12 +44,13 @@ function velInfo = getTrialVelocity(trial, varargin)
     end
 
     %----------------------------------------------------------
-    function [xCol, velXY, showAcc, smoothFunc] = parseArgs(args)
+    function [xCol, velXY, showAcc, coordSmoothFunc, velSmoothFunc] = parseArgs(args)
         
         showAcc = false;
         xCol = TrajCols.X;
         velXY = false;
-        smoothFunc = @(x)x;
+        coordSmoothFunc = @(x)x;
+        velSmoothFunc = @(x)x;
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -69,21 +73,43 @@ function velInfo = getTrialVelocity(trial, varargin)
                     end
                     args = args(2:end);
                     
-                case 'smooth'
+                case 'csmooth'
                     smoothMethod = args{2};
                     switch(lower(smoothMethod))
                         case 'conv'
                             convVector = args{3};
                             args = args(2:end);
                             convVector = convVector / sum(convVector);
-                            smoothFunc = @(x)smoothConv(x, convVector); 
+                            coordSmoothFunc = @(x)smoothConv(x, convVector); 
                             
                         case 'gauss'
                             stDev = args{3};
                             args = args(2:end);
                             dt = diff(trial.Trajectory(1:2, TrajCols.AbsTime));
                             if (stDev > 0)
-                                smoothFunc = @(x)smoothg(x, stDev / dt);
+                                coordSmoothFunc = @(x)smoothg(x, stDev / dt);
+                            end
+                            
+                        otherwise
+                            error('Invalid smoothing method "%s"', smoothMethod);
+                    end
+                    args = args(2:end);
+                    
+                case 'vsmooth'
+                    smoothMethod = args{2};
+                    switch(lower(smoothMethod))
+                        case 'conv'
+                            convVector = args{3};
+                            args = args(2:end);
+                            convVector = convVector / sum(convVector);
+                            velSmoothFunc = @(x)smoothConv(x, convVector); 
+                            
+                        case 'gauss'
+                            stDev = args{3};
+                            args = args(2:end);
+                            dt = diff(trial.Trajectory(1:2, TrajCols.AbsTime));
+                            if (stDev > 0)
+                                velSmoothFunc = @(x)smoothg(x, stDev / dt);
                             end
                             
                         otherwise

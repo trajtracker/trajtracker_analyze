@@ -10,8 +10,7 @@ function plotVelocityProfile(expData, varargin)
 % TrialInd <#> : index of first trial to show
 % TrialNum <#> : plot trial with this TrialNum
 % Target <num/s>: show this target number(s)
-% SmoothArgs <cell-array>: smoothing parameters for tt.vel.getTrialVelocity
-% SmoothSD <stdev>: Gaussian smoothing parameter for tt.vel.getTrialVelocity
+% GetVelArgs <cell-array>: parameters for tt.vel.getTrialVelocity
 % ThreshAttr <...>: a custom attribute that contains the peak velocity
 %                   threshold. Specify "e.attr" or "t.attr" for 
 %                   experiment / trial attributes, or "None".
@@ -385,14 +384,13 @@ function plotVelocityProfile(expData, varargin)
     end
     
     %------------------------------------------------
-    function [trialInd, trialsToPlot, smoothArgs, onsetsAttr, peakTimesAttr, plotThresholdBothSides, ...
+    function [trialInd, trialsToPlot, getVelArgs, onsetsAttr, peakTimesAttr, plotThresholdBothSides, ...
             peakVelocitiesAttr, showRefValue, getRefValueFunc, condName, customOutFilename, ...
             onFinishedCallback, customButtonCallback, onKeyCallback, customButtonLabel, interactive, ...
             showTargetNumber, plotOnsetsAndPeaks, plotAcceleration, plotAccelerationBursts, userYLim, maxX, ...
             recalcVelocity, startAtTrial, isTargetOnRightSideFunc, getTargetFunc, velocityAxes, flipXDirTrialFilter] = parseArgs(args, expData)
         
-        smoothArgs = {'Gauss', 0.02};
-        smoothArgsChanged = false;
+        getVelArgs = {};
         trialInd = 1;
         showRefValue = true;
         getRefValueFunc = @(expData,trial)getStructAttrSafe(expData.Custom, 'PeakVelocityThreshold');
@@ -424,14 +422,8 @@ function plotVelocityProfile(expData, varargin)
         args = stripArgs(args);
         while ~isempty(args)
             switch(lower(args{1}))
-                case 'smoothsd'
-                    smoothArgs = {'Gauss', args{2}};
-                    smoothArgsChanged = true;
-                    args = args(2:end);
-                    
-                case 'smooth'
-                    smoothArgs = args{2};
-                    smoothArgsChanged = true;
+                case 'getVelArgs'
+                    getVelArgs = args{2};
                     args = args(2:end);
                     
                 case 'trialind'
@@ -584,11 +576,9 @@ function plotVelocityProfile(expData, varargin)
             error('"AttrPrefix" not specified!');
         end
         
-        if smoothArgsChanged && ~recalcVelocity
-            fprintf('WARNING: Smoothing arguments are ignored when taking the velocity from the trial\n');
+        if ~recalcVelocity && ~isempty(getVelArgs)
+            fprintf('plotVelocityProfile WARNING: The "GelVelArgs" flag will be ignored because velocity info is taken from the trial\n');
         end
-        
-        smoothArgs = [{'Smooth'} smoothArgs];
         
         if length(velocityAxes) > 1 && plotOnsetsAndPeaks
             error('Onset & peak cannot be plotted when you plot both x and y velocities!');
