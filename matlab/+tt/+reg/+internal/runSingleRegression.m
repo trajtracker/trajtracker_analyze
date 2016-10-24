@@ -1,5 +1,5 @@
-function oneRegResults = runSingleRegressionImpl(regressionType, predictors, dependentVar, varargin)
-%result = runSingleRegressionImpl(regressionType, predictors, dependentVar) - 
+function oneRegResults = runSingleRegression(regressionType, predictors, dependentVar, varargin)
+%result = runSingleRegression(regressionType, predictors, dependentVar) - 
 % used by regression functions
 
     [printWarnings] = parseArgs(varargin);

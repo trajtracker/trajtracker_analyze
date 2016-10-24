@@ -21,12 +21,12 @@
 % <a href="matlab:help tt.dc">tt.dc</a>: for discrete-decision experiments
 % 
 % 
-% The toolbox is Licensed under the Academic Free License version 3.0
-% http://opensource.org/licenses/AFL-3.0
+% THIS TOOLBOX IS PROVIDED AS-IS, WITH ABSOLUTELY NO WARRANTY. It is Licensed under
+% the Academic Free License version 3.0 http://opensource.org/licenses/AFL-3.0
 % Copyright (c) 2016 Dror Dotan
-% THIS TOOLBOX IS PROVIDED AS-IS, WITH ABSOLUTELY NO WARRANTY.
-% If you find any bugs, please let us know at dror.dotan@gmail.com
 % 
-% After using the toolbox, we would appreciate it if you cite us. 
-% Run <a href="matlab:tt.citation">tt.citation()</a> to see details.
+% If you find any bugs, please let us know via the project's page in github:
+% https://github.com/droralef/trajtracker/issues
+% 
+% To see how to cite this toolbox in publications, run <a href="matlab:tt.citation">tt.citation()</a>
 % 

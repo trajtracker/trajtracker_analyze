@@ -142,7 +142,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         
         if sum(includeTrial(:,iTP)) == 0 || sum(includeTrial(:,iTP)) < nPredictors * minSamplesToPredictorsRatio
             %-- No trials to regress, or not enough trials to regress
-            result = updateResults(result, tt.reg.invalidRegResultsImpl(nPredictors), iTP);
+            result = updateResults(result, tt.reg.internal.invalidRegResults(nPredictors), iTP);
             if ~isSilent, fprintf('X'); end
             continue;
         end
@@ -150,7 +150,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         currPred = predictors(includeTrial(:,iTP), :, iif(fixedPred, 1, iTP));
         currDepVar = dependentVar(includeTrial(:,iTP), iif(fixedDepVar, 1, iTP));
         
-        oneRR = tt.reg.runSingleRegressionImpl(regressionType, currPred, currDepVar, 'Silent');
+        oneRR = tt.reg.internal.runSingleRegression(regressionType, currPred, currDepVar, 'Silent');
         
         result = updateResults(result, oneRR, iTP);
         

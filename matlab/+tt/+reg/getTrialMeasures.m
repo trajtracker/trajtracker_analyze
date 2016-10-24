@@ -89,7 +89,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
             
         elseif ischar(descriptor)
             %-- A known measure (string): parse it
-            [measureName, measureArgs] = tt.reg.parseMeasureName(descriptor);
+            [measureName, measureArgs] = tt.reg.internal.parseMeasureName(descriptor);
             currMeasureDesc = '';
 
             %-- Parse the measure: either a custom attribute or a specific measure
@@ -288,7 +288,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
 
             %-- Reference points
             case {'ldrfix', 'refpt'}
-                args = tt.reg.parseMeasureArgs(measureArgs, {'nseg'}, true, false, 'RefPoints');
+                args = tt.reg.internal.parseMeasureArgs(measureArgs, {'nseg'}, true, false, 'RefPoints');
                 nSegments = iif(isempty(args{1}), 2, args{1});
                 currMeasure = refPointsMapping(targets, expData.MaxTarget, nSegments) - targets;
                 measureDesc = iif(isempty(args{1}), 'Ref points', sprintf('%d ref points', nSegments+1));

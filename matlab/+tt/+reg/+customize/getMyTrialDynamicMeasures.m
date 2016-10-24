@@ -35,7 +35,7 @@ function [measures, outMeasureNames, measureDescs] = getMyTrialDynamicMeasures(e
 
         currMeasure = []; %#ok<NASGU>
         
-        [measureName, measureArgs] = tt.reg.parsePredictorName(inMeasureNames{iMeasure}); %#ok<ASGLU>
+        [measureName, measureArgs] = tt.reg.internal.parseMeasureName(inMeasureNames{iMeasure}); %#ok<ASGLU>
         currMeasureDesc = ''; %#ok<NASGU>
 
         switch(measureName)

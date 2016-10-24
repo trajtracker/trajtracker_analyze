@@ -1,4 +1,4 @@
-function rr = invalidRegResultsImpl(nPredictors)
+function rr = invalidRegResults(nPredictors)
 
     rr = struct;
     rr.beta = NaN(nPredictors, 1);

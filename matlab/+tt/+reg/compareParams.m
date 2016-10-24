@@ -83,14 +83,14 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
                 if isempty(groupSubjectsArg)
                     disp('WARNING: without grouping subjects, why use ANOVA? Consider setting paramsMethod=TZero');
                 end
-                cmp = tt.reg.compareParamValuesImpl({currParam, zeroValues}, 'RMAnova', groupSubjectsArg, arg1Larger);
+                cmp = tt.reg.internal.compareParamValues({currParam, zeroValues}, 'RMAnova', groupSubjectsArg, arg1Larger);
                 
             case COMPARE_TO_ZERO_WITH_T
-                cmp = tt.reg.compareParamValuesImpl({currParam, zeroValues}, 'PT', groupSubjectsArg, arg1Larger);
+                cmp = tt.reg.internal.compareParamValues({currParam, zeroValues}, 'PT', groupSubjectsArg, arg1Larger);
                 
             case COMPARE_TO_ITSELF
                 singleParamComparisonDeltaInds = ceil(singleParamComparisonDelay / (times(2)-times(1)));
-                cmp = tt.reg.compareParamValuesImpl({currParam, currParam}, 'RMAnova', groupSubjectsArg, 'ValOffset', [0 singleParamComparisonDeltaInds]);
+                cmp = tt.reg.internal.compareParamValues({currParam, currParam}, 'RMAnova', groupSubjectsArg, 'ValOffset', [0 singleParamComparisonDeltaInds]);
                 
             otherwise
                 error('Unsupported single-param comparison mode');
@@ -120,9 +120,9 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         end
         
         if isempty(groupSubjectsArg);
-            result.comparePair = tt.reg.compareParamValuesImpl(params(comparedIndices), 'PT', cmpArgs);
+            result.comparePair = tt.reg.internal.compareParamValues(params(comparedIndices), 'PT', cmpArgs);
         else
-            result.comparePair = tt.reg.compareParamValuesImpl(params(comparedIndices), 'RMAnova', groupSubjectsArg, cmpArgs);
+            result.comparePair = tt.reg.internal.compareParamValues(params(comparedIndices), 'RMAnova', groupSubjectsArg, cmpArgs);
         end
         result.comparedIndices = comparedIndices;
     end

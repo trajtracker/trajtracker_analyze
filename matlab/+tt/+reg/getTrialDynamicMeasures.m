@@ -43,7 +43,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
             continue;
         end
         
-        [measureName, measureArgs] = tt.reg.parseMeasureName(inMeasureNames{iMeasure}); %#ok<ASGLU>
+        [measureName, measureArgs] = tt.reg.internal.parseMeasureName(inMeasureNames{iMeasure}); %#ok<ASGLU>
         currMeasureDesc = ''; %#ok<NASGU>
         
         switch(measureName)

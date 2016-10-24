@@ -22,7 +22,7 @@ function [measures, outMeasureNames, measureDescs] = getMyTrialMeasures(expData,
         
         currMeasure = []; %#ok<NASGU>
         
-        [measureName, measureArgs] = tt.reg.parsePredictorName(measureNames{iMeasure}); %#ok<ASGLU>
+        [measureName, measureArgs] = tt.reg.internal.parseMeasureName(measureNames{iMeasure}); %#ok<ASGLU>
         currMeasureDesc = ''; %#ok<NASGU>
         
         switch(measureName)
