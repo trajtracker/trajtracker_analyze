@@ -18,14 +18,14 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
 %     values are aggregated within-subject.
 % AggFuncBetween <mean (default) / median / std>: choose function by which
 %     values are aggregated beteen subjects.
-% NoNAN: remove NaN values before aggregating
 % TrialFilter @(trial)->BOOL: filter some trials
 % 
 % The following arguments specify the value to get. You must provide
 % exactly one of them:
-% Prop <property-name>: the value is trial.(property)
-% CustomProp <custom-property-name>: the value is trial.Custom.(property)
+% Attr <attr-name>: the value is trial.(attr)
+% CustomAttr <custom-attribute-name>: the value is trial.Custom.(attr)
 % Getter @(trial)->number: a function that extracts value from a trial
+% Safe: Ignore missing/NaN values (by default, these may cause error or a NaN result)
 % 
 % Return values:
 % --------------
@@ -33,19 +33,19 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
 % subjIDs - the list of subject IDs corresponding with a per-subject
 %           return value
 
-    [getPropertyFunc, trialSetProperty, perSubject, perTarget, withinSubjAggFunc, ...
-        betweenSubjAggFunc, removeNANs, subjIDs, trialFilter] = parseArgs(varargin);
+    [getTrialValueFunc, trialSet, perSubject, perTarget, withinSubjAggFunc, ...
+        betweenSubjAggFunc, safeGet, subjIDs, trialFilters] = parseArgs(varargin);
     
     if isa(inObj, 'ExperimentData')
-        result = getMeanTrialPropertyOneSubj(inObj, trialSetProperty, getPropertyFunc, withinSubjAggFunc, perTarget, removeNANs, trialFilter);
+        result = getMeanTrialValueOneSubj(inObj, trialSet, getTrialValueFunc, withinSubjAggFunc, perTarget, safeGet, trialFilters);
         subjIDs = {inObj.SubjectInitials};
     elseif isstruct(inObj)
-        [result, subjIDs] = getMeanTrialPropertyMultiSubj(inObj, trialSetProperty, getPropertyFunc, withinSubjAggFunc, betweenSubjAggFunc, perSubject, perTarget, removeNANs, subjIDs, trialFilter);
+        [result, subjIDs] = getMeanTrialValueMultiSubj(inObj, trialSet, getTrialValueFunc, withinSubjAggFunc, betweenSubjAggFunc, perSubject, perTarget, safeGet, subjIDs, trialFilters);
     end
     
     
     %---------------------------------------------------------------
-    function [result, subjIDs] = getMeanTrialPropertyMultiSubj(allExpData, trialSetProperty, getPropertyFunc, withinSubjAggFunc, betweenSubjAggFunc, perSubject, perTarget, removeNANs, subjIDs, trialFilter)
+    function [result, subjIDs] = getMeanTrialValueMultiSubj(allExpData, trialSet, getTrialValueFunc, withinSubjAggFunc, betweenSubjAggFunc, perSubject, perTarget, safeGet, subjIDs, trialFilters)
         
         if isempty(subjIDs)
             subjIDs = tt.inf.listInitials(allExpData);
@@ -60,7 +60,7 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
             
             vals = [];
             for ed = allED
-                v = getMeanTrialPropertyOneSubj(ed, trialSetProperty, getPropertyFunc, withinSubjAggFunc, perTarget, removeNANs, trialFilter);
+                v = getMeanTrialValueOneSubj(ed, trialSet, getTrialValueFunc, withinSubjAggFunc, perTarget, safeGet, trialFilters);
                 vals = [vals; v]; %#ok<AGROW>
             end
             
@@ -76,7 +76,7 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
             
         else
             
-            result = arrayfun(@(ed)getMeanTrialPropertyOneSubj(ed, trialSetProperty, getPropertyFunc, withinSubjAggFunc, perTarget, removeNANs, trialFilter), allED)';
+            result = arrayfun(@(ed)getMeanTrialValueOneSubj(ed, trialSet, getTrialValueFunc, withinSubjAggFunc, perTarget, safeGet, trialFilters), allED)';
             if (~ perSubject)
                 result = betweenSubjAggFunc(result);
             end
@@ -86,10 +86,9 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
     end
     
     %---------------------------------------------------------------
-    function result = getMeanTrialPropertyOneSubj(expData, trialSetProperty, getPropertyFunc, withinSubjAggFunc, perTarget, removeNANs, trialFilter)
+    function result = getMeanTrialValueOneSubj(expData, trialSet, getTrialValueFunc, withinSubjAggFunc, perTarget, safeGet, trialFilters)
         
-        allTrials = expData.(trialSetProperty);
-        allTrials = allTrials(arrayfun(trialFilter, allTrials));
+        allTrials = tt.util.filterTrialList(expData.(trialSet), trialFilters);
         
         if (perTarget)
             if ~isa(expData, 'NLExperimentData')
@@ -100,18 +99,22 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
             
             result = NaN(1, length(expData.MaxTarget+1));
             for target = 0:expData.MaxTarget
-                vals = arrayfun(getPropertyFunc, allTrials(trialTargets == target));
-                if (removeNANs)
+                if (safeGet)
+                    vals = myarrayfun(getTrialValueFunc, allTrials(trialTargets == target));
                     vals = vals(~isnan(vals));
+                else
+                    vals = arrayfun(getTrialValueFunc, allTrials(trialTargets == target));
                 end
                 result(target+1) = withinSubjAggFunc(vals);
             end
             
         else
             
-            vals = arrayfun(getPropertyFunc, allTrials);
-            if (removeNANs)
+            if (safeGet)
+                vals = myarrayfun(getTrialValueFunc, allTrials);
                 vals = vals(~isnan(vals));
+            else
+                vals = arrayfun(getTrialValueFunc, allTrials);
             end
             result = withinSubjAggFunc(vals);
         end
@@ -119,16 +122,17 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
     end
     
     %---------------------------------------------------------------
-    function [getPropertyFunc, trialSetProperty, perSubject, perTarget, withinSubjAggFunc, betweenSubjAggFunc, ...
-              removeNANs, subjIDs, trialFilter] = parseArgs(args)
+    function [getTrialValueFunc, trialSet, perSubject, perTarget, withinSubjAggFunc, betweenSubjAggFunc, ...
+              safeGet, subjIDs, trialFilters] = parseArgs(args)
         
-        removeNANs = 0;
-        trialSetProperty = 'Trials';
+        safeGet = false;
+        trialSet = 'Trials';
         perSubject = 0;
         perTarget = 0;
         subjIDs = [];
-        trialFilter = @(trial)true;
-        getPropertyFunc = [];
+        trialFilters = {};
+        getTrialValueFunc = [];
+        customAttrName = '';
         
         AGG_FUNCS = struct('mean', @(x)mean(x), 'median', @(x)median(x), 'std', @(x)std(x));
         
@@ -142,13 +146,13 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
                 case 'trials'
                     switch(lower(args{2}))
                         case 'trials'
-                            trialSetProperty = 'Trials';
+                            trialSet = 'Trials';
                             
                         case 'avgabs'
-                            trialSetProperty = 'AvgTrialsAbs';
+                            trialSet = 'AvgTrialsAbs';
                             
                         case 'avgnorm'
-                            trialSetProperty = 'AvgTrialsNorm';
+                            trialSet = 'AvgTrialsNorm';
                             
                         otherwise
                             error('Unknown trial set: %s', args{2});
@@ -168,29 +172,29 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
                     betweenSubjAggFunc = AGG_FUNCS.(lower(args{2}));
                     args = args(2:end);
                     
-                case 'nonan'
-                    removeNANs = 1;
-                    
                 case 'subjids'
                     subjIDs = args{2};
                     args = args(2:end);
                     
                 case 'trialfilter'
-                    trialFilter = args{2};
+                    trialFilters = [trialFilters args(2)]; %#ok<AGROW>
                     args = args(2:end);
                     
-                case 'prop'
-                    propName = args{2};
+                case 'attr'
+                    attrName = args{2};
                     args = args(2:end);
-                    getPropertyFunc = @(t)t.(propName);
+                    getTrialValueFunc = @(t)t.(attrName);
                     
-                case 'customprop'
-                    propName = args{2};
+                case 'customattr'
+                    customAttrName = args{2};
                     args = args(2:end);
-                    getPropertyFunc = @(t)t.Custom.(propName);
+                    getTrialValueFunc = @(t)t.Custom.(customAttrName);
+                    
+                case 'safe'
+                    safeGet = true;
                     
                 case 'getter'
-                    getPropertyFunc = args{2};
+                    getTrialValueFunc = args{2};
                     args = args(2:end);
                     
                 otherwise
@@ -201,8 +205,13 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
             args = stripArgs(args(2:end));
         end
         
-        if isempty(getPropertyFunc)
-            error('Specify the property to get!');
+        if isempty(getTrialValueFunc)
+            error('Specify the value to get!');
+        end
+        
+        if safeGet && ~isempty(customAttrName)
+            filter = @(trial)isfield(trial.Custom, customAttrName);
+            trialFilters = [trialFilters {filter}];
         end
         
     end
