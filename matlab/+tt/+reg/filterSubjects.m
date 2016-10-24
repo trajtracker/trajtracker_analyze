@@ -11,7 +11,7 @@ function rr = filterSubjects(oldrr, varargin)
     [exclude, saveFN, subjIDs] = parseArgs(varargin);
     
     rr = getStructFields(oldrr, subjIDs, exclude);
-    rr.avg = treg.averageRegressionResults(rr);
+    rr.avg = tt.reg.averageRegressionResults(rr);
     rr.general = oldrr.general;
     
     if ~isempty(saveFN)

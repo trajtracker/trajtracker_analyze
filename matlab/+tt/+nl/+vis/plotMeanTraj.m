@@ -198,7 +198,7 @@ function plotMeanTraj(expData, varargin)
         
         if (nTargets == expData.MaxTarget+1)
             
-            colors = nl.vis.targetColorScale(nTargets-1);
+            colors = tt.nl.vis.targetColorScale(nTargets-1);
             
         else
             

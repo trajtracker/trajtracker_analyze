@@ -14,14 +14,14 @@ function rr = runRegressions(allExpData, varargin)
     edArray = tt.util.structToArray(allED);
     
     %CUSTOM: choose one of these two
-    rr = treg.createEmptyRR('DC', allED.general.setName);
-    rr = treg.createEmptyRR('NL', allED.general.setName, edArray(1).MaxTarget);
+    rr = tt.reg.createEmptyRR('DC', allED.general.setName);
+    rr = tt.reg.createEmptyRR('NL', allED.general.setName, edArray(1).MaxTarget);
     
     for expData = edArray
         rr.(expData.SubjectInitials) = runForOneSubj(expData, regArgs);
     end
     
-    rr.avg = treg.averageRegressionResults(rr);
+    rr.avg = tt.reg.averageRegressionResults(rr);
     
     if ~isempty(outFN)
         outDirName = [TrajTrackerDataPath '/' allED.general.setName '/binary/', outFN];

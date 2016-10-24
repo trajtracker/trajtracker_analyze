@@ -17,7 +17,7 @@ function outDS = filterDataset(inDS, filterFunc, varargin)
         outDS = struct;
         
         outDS.raw = processDataset(inDS.raw, dsDir, doSave);
-        outDS.raw.avg = nl.preprocess.createAvgExpData(outDS.raw);
+        outDS.raw.avg = tt.preprocess.createAvgExpData(outDS.raw);
         outDS.raw.all = tt.preprocess.createExpDataAll(tt.util.structToArray(outDS.raw));
         
         outDS.d = processDataset(inDS.d, dsDir, false);
