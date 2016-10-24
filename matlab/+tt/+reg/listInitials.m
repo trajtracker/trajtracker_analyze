@@ -1,5 +1,6 @@
 function allInitials = listInitials(allRegResults)
-% allInitials = listInitials(allRegResults)
+% allInitials = listInitials(allRegResults) - Get initials of all
+% subjects from a regression-results struct
 
     subjectNames = fieldnames(allRegResults);
     allInitials = {};

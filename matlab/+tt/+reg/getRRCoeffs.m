@@ -78,7 +78,7 @@ function [values, times, subjIDs] = getRRCoeffs(allRR, regressionKey, paramName,
         end
         
         if isempty(subjIDs)
-            subjIDs = tt.reg.getSubjInitials(allRR);
+            subjIDs = tt.reg.listInitials(allRR);
         end
         
     end
