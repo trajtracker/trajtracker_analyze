@@ -23,6 +23,9 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
     
     samplingRate = getFixedSamplingRate(absTimes);
     
+    xRaw = x;
+    yRaw = y;
+    
     if (args.coordSmoothingSd > 0)
         % Smooth X and Y
         nTP = length(x);
@@ -47,6 +50,9 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
     
     trajData = NaN(length(x), TrajCols.NUM_COLS);
 
+    trajData(:, TrajCols.XRaw) = xRaw;
+    trajData(:, TrajCols.YRaw) = yRaw;
+    
     trajData(:, TrajCols.AbsTime) = absTimes;
 
     movementTime = absTimes(end);
@@ -82,9 +88,6 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
     trajData(:, TrajCols.Theta) = instTheta;
     trajData(:, TrajCols.AngularVelocity) = [0; diff(smoothg(instTheta, args.coordSmoothingSd/samplingRate)) / samplingRate];
     
-    trajData(:, TrajCols.XClean) = NaN;
-    
-
     %------------------------------------------------------------------
     function t = getFixedSamplingRate(times)
         deltaT = diff(times);

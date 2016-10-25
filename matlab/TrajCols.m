@@ -15,41 +15,44 @@ classdef TrajCols
         function v = Y()
             v = 4;
         end
-        function v = XClean()    % The X value, cleaned from the initial-direction deviation
+        function v = XRaw()    % Unsmoothed coordinates
             v = 5;
         end
-        function v = R()
+        function v = YRaw()    % Unsmoothed coordinates
             v = 6;
         end
-        function v = Theta()
+        function v = R()
             v = 7;
         end
-        function v = ImpliedEP()
+        function v = Theta()
             v = 8;
         end
-        function v = RadialVelocity()   % d(radius)/dt
+        function v = ImpliedEP()
             v = 9;
         end
-        function v = RadialAccel()
+        function v = RadialVelocity()   % d(radius)/dt
             v = 10;
         end
-        function v = XVelocity()        % instantaneous x velocity
+        function v = RadialAccel()
             v = 11;
         end
-        function v = XAcceleration()    % instantaneous acceleration
+        function v = XVelocity()        % instantaneous x velocity
             v = 12;
         end
-        function v = AngularVelocity()  % d(theta)/dt
+        function v = XAcceleration()    % instantaneous acceleration
             v = 13;
         end
-        function v = YVelocity()        % instantaneous y velocity
+        function v = AngularVelocity()  % d(theta)/dt
             v = 14;
         end
-        function v = YAcceleration()
+        function v = YVelocity()        % instantaneous y velocity
             v = 15;
         end
+        function v = YAcceleration()
+            v = 16;
+        end
         function v = NUM_COLS() 
-            v = 15;
+            v = 16;
         end
 
         function col = colByName(colName)

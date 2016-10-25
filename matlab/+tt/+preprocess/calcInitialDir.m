@@ -95,10 +95,10 @@ function calcInitialDir(expData, trialSet, varargin)
         trial.InitialDirectionTheta = theta;
         trial.InitialDirectionX0 = x0;
         
-        updateCleanX(trial, x0, x_by_y_slope);
-        if ~isempty(trial.NormalizedTrajectory)
-            updateCleanXNorm(trial, x0, x_by_y_slope);
-        end
+%         updateCleanX(trial, x0, x_by_y_slope);
+%         if ~isempty(trial.NormalizedTrajectory)
+%             updateCleanXNorm(trial, x0, x_by_y_slope);
+%         end
         
         if (verboseMode)
             fprintf('      x0=%f, slope=%f, p=%f\n', x0, x_by_y_slope, p);
@@ -141,17 +141,17 @@ function calcInitialDir(expData, trialSet, varargin)
 
     end
 
-    function updateCleanX(trial, x0, x_by_y_slope)
-        trialX = trial.Trajectory(:, TrajCols.X);
-        trialY = trial.Trajectory(:, TrajCols.Y);
-        deviations = trialY .* x_by_y_slope + x0;
-        trial.Trajectory(:,TrajCols.XClean) = trialX - deviations;
-    end
-
-    function updateCleanXNorm(trial, x0, x_by_y_slope)
-        trialX = trial.NormalizedTrajectory(:, TrajCols.X);
-        trialY = trial.NormalizedTrajectory(:, TrajCols.Y);
-        deviations = trialY .* x_by_y_slope + x0;
-        trial.NormalizedTrajectory(:,TrajCols.XClean) = trialX - deviations;
-    end
+%     function updateCleanX(trial, x0, x_by_y_slope)
+%         trialX = trial.Trajectory(:, TrajCols.X);
+%         trialY = trial.Trajectory(:, TrajCols.Y);
+%         deviations = trialY .* x_by_y_slope + x0;
+%         trial.Trajectory(:,TrajCols.XClean) = trialX - deviations;
+%     end
+% 
+%     function updateCleanXNorm(trial, x0, x_by_y_slope)
+%         trialX = trial.NormalizedTrajectory(:, TrajCols.X);
+%         trialY = trial.NormalizedTrajectory(:, TrajCols.Y);
+%         deviations = trialY .* x_by_y_slope + x0;
+%         trial.NormalizedTrajectory(:,TrajCols.XClean) = trialX - deviations;
+%     end
 end
