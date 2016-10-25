@@ -81,8 +81,7 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
         avgResults.DependentVarDesc = allRR{1}.DependentVarDesc;
         avgResults.MaxMovementTime = max(arrayfun(@(r)length(r{1}.MaxMovementTime), allRR));
         
-        predictorNames =  fieldnames(allRR{1}.PredResults)';
-        for pred = predictorNames
+        for pred = allRR{1}.predictorNames
             avgPred = avgResults.addPredResults(tt.reg.OnePredRR(pred{1}, maxNSamples));
             avgPred.sd_b = NaN(maxNSamples, 1);
             avgPred.se_b = NaN(maxNSamples, 1);
@@ -98,9 +97,9 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
                 avgResults.sd_RSquare(i) = std(RSquare);
             end
             
-            for pred = predictorNames
-                avgPred = avgResults.PredResults.(pred{1});
-                srcPreds = myarrayfun(@(r)r{1}.PredResults.(pred{1}), allRR);
+            for pred = allRR{1}.predictorNames
+                avgPred = avgResults.getPredResult(pred{1});
+                srcPreds = myarrayfun(@(r)r{1}.getPredResult(pred{1}), allRR);
                 
                 bVals = arrayfun(@(p)getValueSafe(p.b, i), srcPreds);
                 avgPred.b(i) = meanFunc(bVals);
@@ -135,7 +134,7 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
     %--------------------------------------------------------------
     function [meanFunc, includeRRKeyFunc, includeRRFunc] = parseArgs(args)
         
-        meanFunc = @meanSafe;
+        meanFunc = @nanmean;
         includeRRKeyFunc = @(~)true;
         includeRRFunc = @(~)true;
         

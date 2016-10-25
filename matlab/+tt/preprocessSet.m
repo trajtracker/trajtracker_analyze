@@ -47,19 +47,7 @@ function preprocessSet(subDir, varargin)
     %-- Load relevant sessions
     sessions = loadSessions(subDir);
     sessions = filterSessions(sessions, subjIDs);
-    if isempty(sessions)
-        error('There are no sessions to process');
-    end
-    
-    %-- Validate platforms
-    if isempty(platform)
-        platform = unique(arrayfun(@(s){s.Platform}, sessions));
-        if length(platform) == 1
-            platform = platform{1};
-        else
-            error('The directory contains sessions with multiple platforms, this is invalid');
-        end
-    end
+    platform = validate(sessions, subDir, platform);
     
     %-- Group sessions
     sessionPerSubj = groupSessionsBySubject(sessions);
@@ -105,6 +93,38 @@ function preprocessSet(subDir, varargin)
         subjIdPerSession = arrayfun(@(s){s.SubjInitials}, sessions);
         [~,i] = sort(subjIdPerSession);
         sessions = sessions(i);
+        
+    end
+
+    %-----------------------------------------------------------------
+    function platform = validate(sessions, subDir, platform)
+        
+        if isempty(sessions)
+            error('There are no sessions to process');
+        end
+
+        %-- Validate platforms
+        if isempty(platform)
+            platform = unique(arrayfun(@(s){s.Platform}, sessions));
+            if length(platform) == 1
+                platform = platform{1};
+            else
+                error('The directory contains sessions with multiple platforms, this is invalid');
+            end
+        end
+        
+        %-- Validate old versions
+        oldestBuild = min(arrayfun(@(s)s.BuildNumber, sessions));
+        if (oldestBuild <= 51)
+            %-- For such old builds, preprocessing is needed
+            originDirName = [TrajTrackerDataPath '/' subDir '/original'];
+            if ~exist(originDirName, 'dir')
+                fprintf('\n\nWARNING: This dataset contains data from old versions of the iPad app (build #%d),\n', oldestBuild);
+                fprintf('which require running the preprocessing perl script (preprocessSet.pl), but I see that\n');
+                fprintf('there is no directory %s\n', originDirName);
+                fprintf('Please make sure you ran the preprocessing script.\n\n\n');
+            end
+        end
         
     end
 

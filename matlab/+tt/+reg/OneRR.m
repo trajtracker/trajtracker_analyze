@@ -6,6 +6,9 @@ classdef OneRR < handle
         dependentVar      % Dependent variable - string descriptor
         predictorNames    % Cell array of predictors as string descriptor
         regressionType    % As passed to tt.reg.regress()
+    end
+    
+    properties(Access=private)
         PredResults       % Struct with tt.reg.OnePredRR object per predictor
     end
     

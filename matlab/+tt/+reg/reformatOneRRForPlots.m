@@ -22,7 +22,7 @@ function result = reformatOneRRForPlots(subjRR, rrKey, varargin)
     cmpParam = [];
     
     for i = 1:length(paramNames)
-        b = rr.PredResults.(paramNames{i}).(bFactorType);
+        b = rr.getPredResult(paramNames{i}).(bFactorType);
         cmp = tt.reg.OnePredGrpRes('1', length(b));
         cmp.values = b;
         if strcmp(bFactorType, 'b')

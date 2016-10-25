@@ -358,7 +358,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             else
                 beta = b ./ result.sd_y(iRow) * result.sd_x(iRow, iVar-1);
             end
-            predRes = result.PredResults.(predName);
+            predRes = result.getPredResult(predName);
             predRes.b(iRow) = b;
             predRes.beta(iRow) = beta;
             predRes.r2(iRow) = oneRR.r2_per_predictor(iVar);

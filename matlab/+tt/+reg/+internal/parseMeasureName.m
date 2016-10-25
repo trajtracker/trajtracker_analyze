@@ -6,7 +6,7 @@ function [measureName, measureArgs] = parseMeasureName(measureExpr)
     if iscell(elems{1})
         elems = elems{1};
     end
-    measureName = lower(elems{1});
+    measureName = elems{1};
     measureArgs = elems(2:end);
 
 end

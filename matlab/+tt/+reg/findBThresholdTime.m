@@ -25,7 +25,7 @@ function [thresholdCrossTimes, moreInfo] = findBThresholdTime(allRR, rrKey, para
         
         % Get b values, spline them to 1-ms granularity
         times0 = subjRR.times;
-        bVals0 = subjRR.PredResults.(paramName).(bType);
+        bVals0 = subjRR.getPredResult(paramName).(bType);
         
         times = times0(1):.0001:times0(end);
         bVals = spline(times0, bVals0, times);
@@ -56,7 +56,7 @@ function [thresholdCrossTimes, moreInfo] = findBThresholdTime(allRR, rrKey, para
     %---------------------------------------------------------------------
     function threshold = getThresholdPercentage(subjRR, paramName, bType, percent, asymptoteTimeRange)
         
-        b = subjRR.PredResults.(paramName).(bType);
+        b = subjRR.getPredResult(paramName).(bType);
         
         if isempty(asymptoteTimeRange)
             asymp = b(end);

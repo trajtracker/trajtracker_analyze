@@ -38,8 +38,8 @@ function [measures, outMeasureNames, measureDescs] = getMyTrialDynamicMeasures(e
         [measureName, measureArgs] = tt.reg.internal.parseMeasureName(inMeasureNames{iMeasure}); %#ok<ASGLU>
         currMeasureDesc = ''; %#ok<NASGU>
 
-        switch(measureName)
-            case 'MyPrivatePredictor'
+        switch(lower(measureName))
+            case 'mypredictor'
                 currMeasure = []; %CUSTOM: replace this with a custom code that sets currMeasure to be a nTrials*nTimepoints matrix
                 currMeasureDesc = ''; %CUSTOM: replace this with a custom code that sets measure short description (for figures)
 

@@ -9,17 +9,26 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
 %
 % allRR - struct with regression results of all subjects (output of
 %              tt.reg.customize.runRegressions or a similar function).
-% regressionKeys, paramNames - two cell arrays, in identical sizes,
-%              indicating which parameters to compare. Each entry in
-%              "regressionKeys" indicates the name of a field in "allRR",
-%              and each entry in "paramNames" is the name of a field in
-%              allRR.(regressionKey)
-%              You can specify a single regression name for
-%              "regressionKeys" (not a cell array) and a value 'allb'/'allbeta' for
-%              paramNames - this means to use all b/beta values of that
-%              regression.
+% regressionKeys: regression key (fieldname in the per-subject regression results).
+%              This can be either a cell array or a single regression.
+% paramNames:  Regression predictors to analyze. Each predictor here is of
+%              the format "x.y", where "x" is the predictor name and "y" is
+%              a field in the OnePredRR object - e.g., "const.b", "target.beta",
+%              etc.
+%              To multiply a parameter value by a constant, use x.y*value
+%              or x.y/value - e.g., "const.b*20". This has no effect on the
+%              statistical comparison, but will change the value when
+%              plotting it.
+%              If you provided a single regression key in "regressionKeys",
+%              you can set "paramNames" to be 'allb' or 'allbeta', meaning
+%              that all b/beta values will be compared. beta[const] is 0
+%              and b[const] is not analyzed in this mode, unless you use the
+%              'const' flag.
+% If both regressionKeys and paramNames are cell arrays, they must be of
+% equal size.
 %
 % Optional arguments:
+% -------------------
 % GroupSubjects <subj> - consider the subjects' grouping in the
 %              statistical comparisons (t/ANOVA). The argument <subj> is a
 %              struct with one ExperimentData per subject. They will be
@@ -43,8 +52,6 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
 % Const - if "paramNames" is defined as "all", this flag means that the
 %               regression intercept should be analyzed too.
 % SubjIDs <cell-array>: process these subjects
-% Multiply <param-name> <factor>: Multiply the values of the given
-%               parameter by the given factor.
 % OnlySignificant: exclude non-significant b values from the comparison
 
     % Comparison methods for a single parameter
@@ -53,16 +60,14 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     COMPARE_TO_ITSELF = 3;
     
     [expDataForGrouping, comparedIndices, compare2TOffset, singleParamComparisonMode, singleParamComparisonDelay, ...
-        analyzeConstByDefault, subjIDs, comparePair1Larger, paramMultiplyFactors, ...
+        analyzeConstByDefault, subjIDs, comparePair1Larger, ...
         expectPositiveBValue, excludeNonsignificantValues] = parseArgs(varargin);
     
-    [regressionKeys, paramNames, pValNames, allRR] = validateAndFixArgs(regressionKeys, paramNames, allRR, analyzeConstByDefault);
+    [regressionKeys, paramNames, pValNames, allRR, paramMultiplyFactors] = validateAndFixArgs(regressionKeys, paramNames, allRR, analyzeConstByDefault);
     
     if isempty(expectPositiveBValue)
         expectPositiveBValue = true(1, length(paramNames));
     end
-    
-    anyRR = allRR{1}.avg.(regressionKeys{1});
     
     [params, times, subjIDs] = getAllParamValues(allRR, regressionKeys, paramNames, pValNames, subjIDs);
     groupSubjectsArg = getGroupingArg(expDataForGrouping, subjIDs);
@@ -180,8 +185,6 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     %--------------------------------------------------------------------
     function [regressionKeys, paramNames, pValNames, allRR, paramMultiplyFactors] = validateAndFixArgs(regressionKeys, paramNames, allRR, analyzeConstByDefault)
         
-        paramMultiplyFactors = ones(1,100);
-        
         if iscell(allRR)
             rr1 = allRR{1};
         else
@@ -198,13 +201,10 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
                     error('When using default parameters, specify just a single regression key!');
                 end
                 
-                ind1 = 1;
-                if strcmpi(rr1.avg.(regressionKeys).predictorNames{1}, 'const')
-                    if (analyzeConstByDefault)
-                        paramMultiplyFactors(1) = 1/allRR.general.MaxTarget;
-                    else
-                        ind1 = 2;
-                    end
+                if ~analyzeConstByDefault && strcmpi(rr1.avg.(regressionKeys).predictorNames{1}, 'const')
+                    ind1 = 2;
+                else
+                    ind1 = 1;
                 end
                 
                 paramNames = arrayfun(@(p){[p{1} '.' bFactor]}, rr1.avg.(regressionKeys).predictorNames(ind1:end));
@@ -247,6 +247,19 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         
         if ~iscell(allRR)
             allRR = arrayfun(@(i){allRR}, 1:length(paramNames));
+        end
+        
+        paramMultiplyFactors = NaN(1, length(paramNames));
+        for i = 1:length(paramNames)
+            tokens = regexp(paramNames{i}, '^(.*)([*/])([0-9.-]+)$', 'tokens');
+            if isempty(tokens)
+                continue;
+            end
+            tokens = tokens{1};
+            operator = tokens{2};
+            factor = str2double(tokens{3});
+            paramMultiplyFactors(i) = iif(operator=='*', factor, 1/factor);
+            paramNames{i} = tokens{1};
         end
         
     end
@@ -315,10 +328,9 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
                 sd = [sd; repmat(sd(end), nTimePoints-length(sd), 1)];  %#ok<AGROW>
             end
             
-            if isfield(paramMultiplyFactors, paramNames{i})
-                factor = paramMultiplyFactors.(paramNames{ii});
-                v = v .* factor;
-                sd = sd .* factor;
+            if ~isnan(paramMultiplyFactors(i))
+                v = v .* paramMultiplyFactors(i);
+                sd = sd .* paramMultiplyFactors(i);
             end
             
             result.cmpParam(i).values = v;
@@ -326,13 +338,12 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
             
         end
 
-        
     end
 
     %--------------------------------------------------------------------
     function [allExpData, comparedIndices, compare2TOffset, singleParamComparisonMode, ...
             singleParamComparisonDelay, analyzeConstByDefault, subjIDs, ...
-            comparePair1Larger, paramMultiplyFactors, expectPositiveBValue, excludeNonsignificantValues] = parseArgs(args)
+            comparePair1Larger, expectPositiveBValue, excludeNonsignificantValues] = parseArgs(args)
         
         allExpData = [];
         comparedIndices = [];
@@ -342,7 +353,6 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         analyzeConstByDefault = 0;
         subjIDs = [];
         compare2TOffset = [];
-        paramMultiplyFactors = struct;
         expectPositiveBValue = [];
         excludeNonsignificantValues = false;
         
@@ -394,12 +404,6 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
                     if length(compare2TOffset) ~= 2
                         error('Invalid "CompareTOffset" argument - expecting 2 values!');
                     end
-                    
-                case 'multiply'
-                    mParamName = args{2};
-                    mParamFactor = args{3};
-                    args = args(3:end);
-                    paramMultiplyFactors.(mParamName) = mParamFactor;
                     
                 case 'positiveb'
                     expectPositiveBValue = args{2};

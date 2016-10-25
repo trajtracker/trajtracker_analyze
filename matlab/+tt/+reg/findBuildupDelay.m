@@ -56,8 +56,8 @@ function [result, moreInfo] = findBuildupDelay(allRR, rrKey, paramName, timeRang
             rr2 = allRR2.(subjIDs{iSubj}).(rr2Key);
             
             times = iif(length(rr1.times) < length(rr2.times), rr1.times, rr2.times);
-            b1 = rr1.PredResults.(param1).(bType);
-            b2 = rr2.PredResults.(param2).(bType);
+            b1 = rr1.getPredResult(param1).(bType);
+            b2 = rr2.getPredResult(param2).(bType);
             
             % Scale b values
             if ~isempty(bScalingTimeRange)

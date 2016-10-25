@@ -163,7 +163,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
         
         measureDesc = '';
         
-        switch(measureName)
+        switch(lower(measureName))
             
             %-------- Stimulus ------------
             

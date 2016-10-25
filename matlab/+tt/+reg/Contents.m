@@ -10,7 +10,7 @@
 % Main object: struct with one entry per subject.
 % Within this: several objects, one per regression (<a href="matlab:help tt.reg.OneRR">OneRR</a>).
 %              Such object contains results from several time points.
-%              OneRR.PredResults contains one entry per predictor (<a href="matlab:help tt.reg.OnePredRR">OnePredRR</a>),
+%              OneRR.getPredResult() gets the per-predictor info (<a href="matlab:help tt.reg.OnePredRR">OnePredRR</a>),
 %              where all the results (b, beta, p, etc.) are stored.
 % 
 % Basic processing of regression results:
