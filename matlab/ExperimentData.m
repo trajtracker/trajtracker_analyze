@@ -27,7 +27,6 @@ classdef ExperimentData < handle
     end
     
     properties(Dependent=true)
-        ValidTrials       % trials which are not dummy
         SamplingRate
         MaxMovementTime
         MeanMovementTime
@@ -61,10 +60,6 @@ classdef ExperimentData < handle
         %       Dependent property
         %==============================================================
         
-        function value = get.ValidTrials(self)
-            value = ExperimentData.getValidTrials(self.Trials);
-        end
-        
         function value = get.SamplingRate(self)
             okTrials = [self.OKTrials self.AvgTrialsAbs];
             if (isempty(okTrials))
@@ -75,9 +70,11 @@ classdef ExperimentData < handle
         
         function value = get.MaxMovementTime(self)
             if ~ isempty(self.Trials)
-                value = max(arrayfun(@(t)t.MovementTime, self.ValidTrials));
+                validTrials = self.Trials(arrayfun(@(t)t.TrialNum, self.Trials) > 0);
+                value = max(arrayfun(@(t)t.MovementTime, validTrials));
             elseif ~ isempty(self.AvgTrialsAbs)
-                value = max(arrayfun(@(t)t.MovementTime, ExperimentData.getValidTrials(self.AvgTrialsAbs)));
+                validTrials = self.AvgTrialsAbs(arrayfun(@(t)t.TrialNum, self.AvgTrialsAbs) > 0);
+                value = max(arrayfun(@(t)t.MovementTime, validTrials));
             else
                 error('Error: ExperimentData is empty, MaxMovementTime cannot be calculated');
             end
