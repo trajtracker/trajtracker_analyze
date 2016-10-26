@@ -1,4 +1,4 @@
-function value = getXmlAttr(xml, attrName, entityDesc)
+function value = getXmlAttr(xml, attrName, entityDesc, filename)
 
     if ~isfield(xml, 'Attributes')
         error('Invalid session file (%s): no attributes on <%s> block', filename, entityDesc);

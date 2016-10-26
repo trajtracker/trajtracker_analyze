@@ -207,7 +207,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         expData.SoftwareVersion = sessionInf.getXmlBlock({'session', 'software_dash_version', 'Text'});
         expData.BuildNumber = sessionInf.BuildNumber;
         expData.RunDate = sessionInf.getXmlBlock({'session', 'start_dash_time', 'Text'});
-        expData.SubjBirthday = tt.preprocess.getXmlAttr(sessionInf.getXmlBlock({'session', 'subject'}), 'birth', 'subject');
+        expData.SubjBirthday = tt.preprocess.getXmlAttr(sessionInf.getXmlBlock({'session', 'subject'}), 'birth', 'subject', sessionInf.Filename);
         
         expData.Custom = sessionInfos(1).CustomAttrs;
         calcSummableCustomAttrs(expData, sessionInfos, sumExpCustomAttrs);

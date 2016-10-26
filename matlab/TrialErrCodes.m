@@ -50,6 +50,12 @@ classdef TrialErrCodes
             v = 15;
         end
         
+        % Error code set manually (after running the experiment) due to errors
+        function v = Manual()
+            v = 99;
+        end
+        
+        
         % Naming errors
         function v = WrongNaming()
             v = 30;

@@ -138,6 +138,8 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
                 ec = TrialErrCodes.TrialTooShort;
             case 'ERR_NoResponse'
                 ec = TrialErrCodes.NoResponse;
+            case 'ERR_Manual'
+                ec = TrialErrCodes.Manual;
             otherwise
                 error('Unknown error code "%s"', errCodeStr);
         end

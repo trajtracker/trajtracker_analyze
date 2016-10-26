@@ -25,10 +25,15 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
     %-- Loop through trials, one at a time
     nRows = size(rawTrajData, 1);
     currRow = 1;
+    lastTrialNum = -1;
     while (currRow < nRows && currRow > 0)
 
         trialNum = rawTrajData(currRow, 1);
         [x, y, rawTimes, currRow] = getNextTrialTrajectory(rawTrajData, currRow);
+        if trialNum < lastTrialNum
+            error('Invalid order of trials in trajectory file %s (trial #%d appears before #%d - see line #%d)', sessionInf.Files.trajectory, lastTrialNum, trialNum, currRow);
+        end
+        lastTrialNum = trialNum;
         trial = trials(trialNums==trialNum & trialOK);
         if isempty(trial)
             %-- This was a trajectory of a failed trial. Ignore it.

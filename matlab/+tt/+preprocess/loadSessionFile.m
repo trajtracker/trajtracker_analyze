@@ -12,11 +12,11 @@ function session = loadSessionFile(filename)
     
     xmlSession = getSubEntity(session.xmlData, 'session', 'data');
     
-    session.SessionID = tt.preprocess.getXmlAttr(xmlSession, 'id', 'session');
-    session.SubjID = tt.preprocess.getXmlAttr(xmlSession, 'subject_dash_id', 'session');
+    session.SessionID = tt.preprocess.getXmlAttr(xmlSession, 'id', 'session', filename);
+    session.SubjID = tt.preprocess.getXmlAttr(xmlSession, 'subject_dash_id', 'session', filename);
     
     xmlSubj = getSubEntity(xmlSession, 'subject', 'session');
-    session.SubjID = tt.preprocess.getXmlAttr(xmlSubj, 'id', 'subject');
+    session.SubjID = tt.preprocess.getXmlAttr(xmlSubj, 'id', 'subject', filename);
     session.SubjName = getSubEntity(xmlSubj, {'name', 'Text'}, 'subject');
     if isfield(xmlSubj.Attributes, 'initials')
         session.SubjInitials = xmlSubj.Attributes.initials;
@@ -25,7 +25,7 @@ function session = loadSessionFile(filename)
     end
 
     xmlExp = getSubEntity(xmlSession, 'experiment', 'session');
-    session.Platform = tt.preprocess.getXmlAttr(xmlExp, 'platform', 'experiment');
+    session.Platform = tt.preprocess.getXmlAttr(xmlExp, 'platform', 'experiment', filename);
     
     startTime = getSubEntity(xmlSession, {'start_dash_time', 'Text'}, 'session');
     try
