@@ -1,8 +1,18 @@
 function exportDataset(dataset, outDir, varargin)
-%exportDataset(dataset, outDir) -
-% Export the full dataset to a given directory.
+% exportDataset(dataset, outDir) - Export subjects to a given directory, in
+% a format (almost) identical with the input format in the "raw" directory
+% 
+% For each subject, we export a trials.csv file, trajectory.csv file, and
+% one session.xml file for each session (usually one, but may be more if
+% data is a merge of several sessions)
+% 
+% Optional arguments:
+% RawCoords: export the unsmoothed x,y coordinates in the trajectory file
+%            (they will still be splined to a fixed sampling rate).
+% CustomAttrs <cell array>: export these custom attributes, each as a
+%             column in the trials.csv file.
 
-    [customAttrNames] = parseArgs(varargin);
+    [customAttrNames, xCol, yCol] = parseArgs(varargin);
     
     [srcSessionFileNames, inDir] = getSourceFilenames(dataset);
     
@@ -11,6 +21,7 @@ function exportDataset(dataset, outDir, varargin)
     end
     
     for expData = tt.util.structToArray(dataset.raw)
+        fprintf('Exporting %s...\n', upper(expData.SubjectInitials));
         process(expData, srcSessionFileNames.(expData.SubjectInitials), inDir, outDir);
     end
     
@@ -111,8 +122,8 @@ function exportDataset(dataset, outDir, varargin)
             for iRow = 1:size(trial.Trajectory, 1)
                 fprintf(fp, '%d,%.2f,%.6f,%.6f\n', trial.TrialNum, ...
                     trial.Trajectory(iRow, TrajCols.AbsTime), ...
-                    trial.Trajectory(iRow, TrajCols.X), ...
-                    trial.Trajectory(iRow, TrajCols.Y));
+                    trial.Trajectory(iRow, xCol), ...
+                    trial.Trajectory(iRow, yCol));
             end
             
         end
@@ -121,8 +132,10 @@ function exportDataset(dataset, outDir, varargin)
     end
 
     %---------------------------------------------------------------
-    function [customAttrNames] = parseArgs(args)
+    function [customAttrNames, xCol, yCol] = parseArgs(args)
 
+        xCol = Trajcols.X;
+        yCol = TrajCols.Y;
         customAttrNames = {};
         
         args = stripArgs(args);
@@ -134,6 +147,10 @@ function exportDataset(dataset, outDir, varargin)
                     if ~iscell(customAttrNames)
                         error('Flag "CustomAttrs" should be followed by a cell array of custom attribute names');
                     end
+                    
+                case 'rawcoords'
+                    xCol = Trajcols.XRaw;
+                    yCol = TrajCols.YRaw;
 
                 otherwise
                     error('Unsupported argument "%s"!', args{1});
