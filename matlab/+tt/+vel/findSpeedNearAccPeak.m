@@ -1,20 +1,17 @@
 function findSpeedNearAccPeak(allExpData, varargin)
-% findSpeedNearAccPeak(allExpData)
-% After an acceleraiton peak was found: calculate the speed before and
-% after it.
+% findSpeedNearAccPeak(allExpData) -
+% Get the speed before and after each acceleration peak.
 % 
 % Optional args:
-% Duration <#>: the duration of the time window to use for speed calculation
 % DelayAfter <#>: Delay from peak until the beginning of the post- time window
 % DelayBefore <#>: Delay from peak until the end of the pre- time window
 % MinTime <#>: don't use information before this time
     
-    [windowLen, delayAfter, delayBefore, minTime] = parseArgs(varargin);
+    [delayAfter, delayBefore, minTime] = parseArgs(varargin);
     
     trials = tt.util.getAllTrials(allExpData);
     samplingRate = trials(1).SamplingRate;
     minRow = round(minTime/samplingRate)+1;
-    windowNRows = round(windowLen/samplingRate);
     delayAfter = round(delayAfter/samplingRate);
     delayBefore = round(delayBefore/samplingRate);
     
@@ -33,19 +30,13 @@ function findSpeedNearAccPeak(allExpData, varargin)
         end
         
         nRows = size(trial.Trajectory, 1);
-        if peakRow + delayAfter + windowNRows/2 <= nRows
-            % Peak is not too late
-            r1 = peakRow + delayAfter;
-            r2 = min(r1 + windowNRows, nRows);
-            trial.Custom.YVelAfterAccPeak = diff(trial.Trajectory([r1 r2], TrajCols.Y)) / ((r2-r1)*samplingRate);
+        if peakRow + delayAfter <= nRows % Make sure peak is not too late
+            trial.Custom.YVelAfterAccPeak = trial.Trajectory(peakRow + delayAfter, TrajCols.YVelocity);
             nAfter = nAfter+1;
         end
     
-        if peakRow - delayAfter - windowNRows/2 >= minRow
-            % Peak is not too early
-            r2 = peakRow - delayBefore;
-            r1 = max(r2 - windowNRows, minRow);
-            trial.Custom.YVelBeforeAccPeak = diff(trial.Trajectory([r1 r2], TrajCols.Y)) / ((r2-r1)*samplingRate);
+        if peakRow - delayAfter >= minRow % Make sure peak is not too early
+            trial.Custom.YVelBeforeAccPeak = trial.Trajectory(peakRow - delayBefore, TrajCols.YVelocity);
             nBef = nBef+1;
         end
         
@@ -57,9 +48,8 @@ function findSpeedNearAccPeak(allExpData, varargin)
     fprintf('Found before-peak speed for %d%% of the trials and after-peak speed for %d%%\n', round(100*nBef/n), round(100*nAfter/n));
     
     %--------------------------------------------------------------
-    function [windowLen, delayAfter, delayBefore, minTime] = parseArgs(args)
+    function [delayAfter, delayBefore, minTime] = parseArgs(args)
         
-        windowLen = 0.2;
         delayAfter = 0;
         delayBefore = 0;
         minTime = 0;
@@ -68,10 +58,6 @@ function findSpeedNearAccPeak(allExpData, varargin)
         while ~isempty(args)
             
             switch(lower(args{1}))
-                case 'duration'
-                    windowLen = args{2};
-                    args = args(2:end);
-                    
                 case 'delayafter'
                     delayAfter = args{2};
                     args = args(2:end);
