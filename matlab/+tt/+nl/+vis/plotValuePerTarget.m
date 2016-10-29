@@ -362,8 +362,8 @@ function [data, meanData, seData] = plotValuePerTarget(varargin)
 
         if isempty(targets)
             if isempty(data)
-                anyED = tt.util.structToArray(allExpData{1}); 
-                maxTarget = anyED(1).MaxTarget;
+                anyED = tt.util.structToArray(allExpData{1}, 'Any'); 
+                maxTarget = anyED.MaxTarget;
             else
                 maxTarget = size(data, 2) - 1;
             end

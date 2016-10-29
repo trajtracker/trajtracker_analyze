@@ -14,8 +14,7 @@ function [result,subjIDs] = printBasicStats(allED, varargin)
         allED = {allED};
     end
     
-    anyED = tt.util.structToArray(allED{1}.raw);
-    anyED = anyED(1);
+    anyED = tt.util.structToArray(allED{1}.raw, 'Any');
     isNL = isa(anyED, 'NLExperimentData');
     
     [customAttrNames, plotDetailedErrs] = parseArgs(varargin);
