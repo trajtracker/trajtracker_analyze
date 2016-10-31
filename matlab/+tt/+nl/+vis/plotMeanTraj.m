@@ -166,7 +166,7 @@ function plotMeanTraj(expData, varargin)
     % (normalized time)
     function coords = getHLineCoordsNorm(normTime, trials, longestTrial)
         
-        row = find(longestTrial.Trajectory(:, TrajCols.RelativeTime) >= normTime, 1);
+        row = find(longestTrial.Trajectory(:, TrajCols.NormTime) >= normTime, 1);
         if isempty(row)
             error('Time %f not found!', absTime);
         end

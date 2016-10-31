@@ -6,7 +6,7 @@
 % 
 % Preprocess/load data:
 % <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a> - prepare a dataset
-% <a href="matlab:help tt.loadSubjects">tt.loadSubjects</a> - load an already-preprocessed dataset
+% <a href="matlab:help tt.loadDataset">tt.loadDataset</a> - load an already-preprocessed dataset
 % 
 % Sub-packages:
 % <a href="matlab:help tt.inf">tt.inf</a>: extract various information from TrajTracker's data objects

@@ -56,7 +56,7 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
     trajData(:, TrajCols.AbsTime) = absTimes;
 
     movementTime = absTimes(end);
-    trajData(:, TrajCols.RelativeTime) = absTimes / movementTime;
+    trajData(:, TrajCols.NormTime) = absTimes / movementTime;
 
     trajData(:, TrajCols.X) = x;
     trajData(:, TrajCols.Y) = y;

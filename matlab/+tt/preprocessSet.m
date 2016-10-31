@@ -34,10 +34,6 @@ function preprocessSet(subDir, varargin)
 %          the perl script preprocessSet.pl. This script that will pre-process
 %          the files and save them in the "raw" sub-directory.
 
-% Copyright (c) 2016 Dror Dotan
-% Licensed under the Academic Free License version 3.0
-% http://opensource.org/licenses/AFL-3.0
-
     [subjIDs, customDatasetProcessFunc, loadExpDataArgs, platform] = parseArgs(varargin);
 
     fprintf('\n========== Pre-processing directory "%s" ========\n\n', subDir);
@@ -91,9 +87,38 @@ function preprocessSet(subDir, varargin)
         end
         
         subjIdPerSession = arrayfun(@(s){s.SubjInitials}, sessions);
+        checkDuplicateSubjInitials(subjIdPerSession, arrayfun(@(s){s.SubjName}, sessions));
+        
         [~,i] = sort(subjIdPerSession);
         sessions = sessions(i);
         
+        
+    end
+
+    %-----------------------------------------------------------------
+    function checkDuplicateSubjInitials(subjInitials, subjNames)
+        
+        namesPerID = struct;
+        for i = 1:length(subjInitials)
+            sid = subjInitials{i};
+            if isfield(namesPerID, sid)
+                namesPerID.(sid) = unique([namesPerID.(sid) subjNames(i)]);
+            else
+                namesPerID.(sid) = subjNames(i);
+            end
+        end
+        
+        %-- Check for duplicate initials
+        uniqIDs = unique(subjInitials);
+        nPerID = arrayfun(@(sid)length(namesPerID.(sid{1})), uniqIDs);
+        if sum(nPerID>1) > 0
+            badIDs = uniqIDs(nPerID>1);
+            infPerID = arrayfun(@(i){sprintf('%s (%s)', i{1}, join(', ', namesPerID.(i{1})))}, badIDs);
+            
+            error(['Some subjects have the same initials: %s\nPlease fix this. ' ...
+                'You can override subject''s initials by modifying the <subject> block in the relevant ..../raw/session_xxxxx.xml file\n' ...
+                'To do this, add an "initials" attribute to the block: <subject .... initials="xx">'], join('; ', infPerID));
+        end
     end
 
     %-----------------------------------------------------------------

@@ -1,5 +1,5 @@
-function subjData = loadSubjects(subDir, varargin)
-% subjData = loadSubjects(dirName, ...) - load a dataset with experiments of
+function subjData = loadDataset(subDir, varargin)
+% subjData = loadDataset(dirName, ...) - load a dataset with experiments of
 % multiple subjects.
 %
 % dirName: A sub-directory under the base data path (which is specified by
