@@ -6,7 +6,7 @@ classdef TrajCols
         function v = AbsTime()
             v = 1;
         end
-        function v = RelativeTime()
+        function v = NormTime()
             v = 2;
         end
         function v = X()

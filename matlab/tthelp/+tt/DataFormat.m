@@ -1,20 +1,110 @@
-%------------------------------------------------
-%-- TrajTracker analysis toolbox: Data formats --
-%------------------------------------------------
-%
-%   Raw results
-% +++++++++++++++
-% Generally, we represent the experimental data in three levels:
-% 1. Single trial (<a href="matlab:help OneTrialData">OneTrialData</a> object).
-% 2. Experiment session (<a href="matlab:help ExperimentData">ExperimentData</a> object): results from one experiment session, one subject.
-%    If the experiment included several conditions (mixed design), we will
-%    typically break down the data into several ExperimentData objects.
-%    Similarly, if a single condition was run in two blocks just for
-%    convenience, we will typically merge the data into a single
-%    ExperimentData object.
-% 3. Dataset: the ExperimentData's of several subjects in one experiment or
-%    one condition.
+%             ------------------------------------------------
+%             -- TrajTracker analysis toolbox: Data formats --
+%             ------------------------------------------------
 % 
-% (regression results)
-% (strict classes; flexibility via x.Custom)
+%   Getting the raw results (from the experiment software) into matlab
+% ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+% After you ran an experiment, the results are downloaded as a set of 3
+% file per experiment session (session = one block of one subject):
+% 1. Session file - with general info about the session
+% 2. Trials file - a CSV file with one line per trial (including failed trials)
+% 3. Trajectory file - a CSV file with one line per sampled finger positions
+% Run <a href="matlab:help tt.FileFormats">help tt.FileFormats</a> for more details about the format of these files.
+% 
+% You then need to organize the files into DATASETS. 
+% A dataset is the results of one or more subjects and it represents a
+% basic analysis unit - i.e., this toolbox provides you with tools to
+% analyze whole datasets.
+% In a simple experiment, the dataset will be all data of all subjects. In
+% an experiment with two conditions, you may have two datasets. And so on.
+% 
+% All data files of a dataset should be placed in a single directory:
+% <base>/<subdir>/raw
+% Where <base> is the base path of all datasets (defined in the TrajTrackerDataPath
+% function), and <subdir> is any path under <base>.
+% You should also create a <base>/<subdir>/binary directory. This is where
+% the toolbox will store files in matlab format (*.MAT)
+% 
+% To convert the data from raw format to the toolbox format, run the function
+% <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a>(subdir)
+% This will preprocess the dataset and save it in matlab format:
+% <base>/<subdir>/binary/session_data.mat
+% 
+% To load the data as a matlab object, call <a href="matlab:help tt.loadDataset">tt.loadDataset</a>(subdir)
+% 
+% In some cases you cannot break the raw data files into datasets - e.g.,
+% if you have two conditions with mixed design. Don't worry about this:
+% save them as one dataset, prepreocess and load them as such, and then you
+% can break them into multiple datasets.
+% 
+% 
+%   How is the data stored as matlab objects
+% ++++++++++++++++++++++++++++++++++++++++++++
+%
+% The TrajTracker toolbox organizes the experiment data in three levels:
+% 
+% 1. Dataset: as explained above, this represents data of one dataset from one or more
+%    subjects. The way you break the data into datasets is your own decision, 
+%    the TrajTracker toolbox doesn't care about this.
+%    
+%    If you loaded a dataset using <a href="matlab:help tt.loadDataset">tt.loadDataset</a>, you will get a struct with
+%    two entries: "raw" and "d". Each of them is again a struct, with one
+%    entry per subject (containing that subject's information).
+%    "raw" and "d" are two copies of the same dataset, with one difference:
+%    "raw" contains all trials per subject, whereas "d" contains just the
+%    non-failed trials (i.e., it excludes trials that had non-"OK" status
+%    in the trials.csv file).
+%    Both "raw" and "d" also contains a dummy subject called "all", which
+%    contains data of all subjects. "raw" also has a dummy subject called
+%    "avg", which contains average trajectories over all subjects.
+% 
+% 2. Subject data: the data of one subject in one dataset. This is stored as
+%    one object (see details below).
+%    In the documentation, we usually refer to this object as "expData".
+% 
+% 3. Single trial: each expData object contains a list of the trials.
+%    Each trial is itself an object. The object includes general properties
+%    of the trial (target, movement time, etc.) and details about the
+%    trajectory.
+%    
+% 
+%   ExperimentData and OneTrialData object - details.
+% ++++++++++++++++++++++++++++++++++++++++++++++++++++
+% 
+% Experiment and trial data are objects defined using matlab classes.
+% If you are not familiar with matlab classes and objects, it's a good idea 
+% to read briefly about them. You will not have to write classes to use this
+% toolbox, but you will have to use them.
+% A good (extensive) starting point is here:
+% http://www.mathworks.com/discovery/object-oriented-programming.html
+% A shorter explanation with a simple example is here:
+% https://www.mathworks.com/help/matlab/matlab_oop/create-a-simple-class.html
+% 
+% Data from number-line experiments is stored as <a href="matlab:help NLExperimentData">NLExperimentData</a>
+% objects, data from discrete-decision experiments is stored as <a href="matlab:help GDExperimentData">GDExperimentData</a>
+% objects. Both these classes derive from <a href="matlab:help ExperimentData">ExperimentData</a>
+%
+% Data of one trial is a <a href="matlab:help OneTrialData">OneTrialData</a> object.
+% 
+% OneTrialData object:
+% - trial.TrialNum - the trial number, as defined in trials.csv
+% - trial.TrialInd - the index of this trial among this subjects's trials
+%                    in this dataset, i.e., dataset.raw.SUBJ_ID.Trials(trial.TrialInd) 
+%                    will get the trial itself.
 % (Trajectory matrices)
+% (abs/norm time)
+% - trial.Custom - struct with custom data. A class definition in matlab allows
+%          storing only predefined attributes on each objects. If you want
+%          to add your own stuff, put it on this struct.
+%          Technically, you can set "trial.Custom" to any value, even
+%          something that is not a struct. Don't do that, or you'll start
+%          getting errors. Just write "trial.Custom.XXX = something"
+% 
+% An ExperimentData object contains:
+% - Info about the subject (expData.SubjectName, expData.SubjectInitials, etc.)
+% - expData.Trials - list of trials 
+% - expData.AvgTrialsAbs and expData.AvgTrialsNorm - average trials. The
+%   difference between them is in the way the averaging was done: averaging
+%   can be done by grouping data points from the same absolute time (expData.AvgTrialsAbs)
+%   or normalized time (expData.AvgTrialsNorm)
+% - expData.Custom - custom data, similarly to "trial.Custom" (see above)

@@ -142,7 +142,7 @@ classdef OneTrialData < handle
             v = self.Trajectory(:,TrajCols.AbsTime)';
         end
         function v = timePercentage(self)
-            v = self.Trajectory(:,TrajCols.RelativeTime)';
+            v = self.Trajectory(:,TrajCols.NormTime)';
         end
         function v = xValues(self)
             v = self.Trajectory(:,TrajCols.X)';
@@ -160,7 +160,7 @@ classdef OneTrialData < handle
                 error('Trajectories must have at least 2 points (%d is invalid)', numPoints);
             end
             
-            normTime = self.Trajectory(:,TrajCols.RelativeTime);
+            normTime = self.Trajectory(:,TrajCols.NormTime);
             requiredTimePercentages = 0 : (1 / (numPoints-1)) : 1;
             times = spline(normTime, self.times, requiredTimePercentages);
             x = spline(normTime, self.xValues, requiredTimePercentages);
