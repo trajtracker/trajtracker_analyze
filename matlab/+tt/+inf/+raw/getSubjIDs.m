@@ -1,9 +1,13 @@
-function uniqSubjIDs = getSubjIDs(dirName, allowDuplicates)
-%uniqSubjIDs = getSubjIDs(dirName[, allowDuplicates]) - 
+function result = getSubjIDs(dirName, varargin)
+%uniqSubjIDs = getSubjIDs(dirName, ...) - 
 % Get subject ID's from the raw data directory
 % 
-% If allowDuplicates=true (default), error if duplicate IDs were found
+% Optional arguments:
+% NoDup: error if duplicate IDs were found with different names
+% All: output all ID's (don't exclude duplicate ID's)
 
+    [allowDuplicates, outputAll] = parseArgs(varargin);
+    
     path = sprintf('%s/%s/raw', TrajTrackerDataPath, dirName);
     filePattern = sprintf('%s/session*.xml', path);
     files = dir(filePattern);
@@ -34,6 +38,31 @@ function uniqSubjIDs = getSubjIDs(dirName, allowDuplicates)
         error('There are dupicate subject IDs: %s', join(',', duplicates));
     end
     
+    result = iif(outputAll, subjIDs, uniqSubjIDs);
+    
+    %-------------------------------------------
+    function [allowDuplicates, outputAll] = parseArgs(args)
+
+        allowDuplicates = true;
+        outputAll = false;
+        
+        args = stripArgs(args);
+        while ~isempty(args)
+            switch(lower(args{1}))
+                case 'nodup'
+                    allowDuplicates = false;
+                    
+                case 'all'
+                    outputAll = true;
+
+                otherwise
+                    error('Unsupported argument "%s"!', args{1});
+            end
+            args = stripArgs(args(2:end));
+        end
+
+    end
+
     
 end
 

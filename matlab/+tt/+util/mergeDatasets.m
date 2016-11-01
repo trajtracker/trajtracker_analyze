@@ -35,7 +35,7 @@ function mergedDS = mergeDatasets(allExpData, varargin)
     for iSubj = 1:length(initials)
         sid = initials{iSubj};
         
-        newExpData = NLExperimentData(genInfo.MaxTarget, sid, firstCond.(sid).SubjectName, newSetName);
+        newExpData = NLExperimentData(genInfo.MaxTarget, sid, firstCond.(sid).SubjectName);
         
         for iDS = 1:length(allExpData)
             origED = allExpData{iDS}.(sid);

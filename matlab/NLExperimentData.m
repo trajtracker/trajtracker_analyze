@@ -12,8 +12,8 @@ classdef NLExperimentData < ExperimentData
     
     methods
         
-        function self = NLExperimentData(maxTarget, subjID, subjName, sessionID)
-            self = self@ExperimentData('NL', subjID, subjName, sessionID);
+        function self = NLExperimentData(maxTarget, initials, subjName)
+            self = self@ExperimentData(initials, subjName);
             self.MaxTarget = maxTarget;
         end
         
@@ -56,7 +56,11 @@ classdef NLExperimentData < ExperimentData
     methods(Access=protected)
         
         function copyOfSelf = createEmptyClone(self)
-            copyOfSelf = NLExperimentData(self.MaxTarget, self.SubjectID, self.SubjectName, self.SessionID);
+            copyOfSelf = NLExperimentData(self.MaxTarget, self.SubjectInitials, self.SubjectName);
+        end
+        
+        function p = getPlatform(~)
+            p = 'NL';
         end
         
     end

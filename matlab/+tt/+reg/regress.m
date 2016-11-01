@@ -131,7 +131,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     result = createEmptyRR(predNames, times);
     calcVariance(result, predictors, dependentVar, nTimePoints);
     result.PredictorDesc = predDesc;
-    result.DependentVarDesc = depVarDesc;
+    result.DependentVarDesc = depVarDesc{1};
     
     % Loop through time points
     for iTP = 1:nTimePoints

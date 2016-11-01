@@ -14,7 +14,7 @@ function initials = listInitials(allED)
     end
     
     initials = keys';
-    ok = arrayfun(@(i)isa(allED.(i{1}), 'ExperimentData') && ~allED.(i{1}).ExcludeFromAverage, initials);
+    ok = arrayfun(@(i)isa(allED.(i{1}), 'ExperimentData') && ~strcmp(i{1}, 'avg') && ~strcmp(i{1}, 'all'), initials);
     initials = initials(ok);
     
 end

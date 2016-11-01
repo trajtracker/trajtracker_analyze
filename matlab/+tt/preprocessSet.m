@@ -92,7 +92,6 @@ function preprocessSet(subDir, varargin)
         [~,i] = sort(subjIdPerSession);
         sessions = sessions(i);
         
-        
     end
 
     %-----------------------------------------------------------------
@@ -113,7 +112,7 @@ function preprocessSet(subDir, varargin)
         nPerID = arrayfun(@(sid)length(namesPerID.(sid{1})), uniqIDs);
         if sum(nPerID>1) > 0
             badIDs = uniqIDs(nPerID>1);
-            infPerID = arrayfun(@(i){sprintf('%s (%s)', i{1}, join(', ', namesPerID.(i{1})))}, badIDs);
+            infPerID = arrayfun(@(i){sprintf('%s: %s', i{1}, join(', ', namesPerID.(i{1})))}, badIDs);
             
             error(['Some subjects have the same initials: %s\nPlease fix this. ' ...
                 'You can override subject''s initials by modifying the <subject> block in the relevant ..../raw/session_xxxxx.xml file\n' ...

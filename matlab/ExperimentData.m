@@ -6,27 +6,23 @@ classdef ExperimentData < handle
 % NLExperimentData or GDExperimentData
     
     properties(SetAccess=private)
-        SubjectID    % Unique ID (meaningless)
-        SubjectName  % Full name
-        SessionID    % Unique ID of session
-        Trials       % Array of OneTrialData objects
-        ExperimentPlatform % 'NL' or 'DC'
+        SubjectInitials     % Initials are used as the subj ID
+        SubjectName         % Full name
+        Trials              % Array of OneTrialData objects
     end
     
     properties
-        SubjectInitials   % We typically use the initials as the subj ID
         Group             % For grouping subjects for analyses
         AvgTrialsNorm     % mean calculated by normalized time
         AvgTrialsAbs      % mean calculated by absolute time
         TotalDuration     % in seconds
-        SoftwareVersion
         BuildNumber       % Numeric value
         RunDate           % Of the experiment
-        SubjBirthday
         Custom            % Struct with custom attributes
     end
     
     properties(Dependent=true)
+        ExperimentPlatform
         SamplingRate
         MaxMovementTime
         MeanMovementTime
@@ -37,9 +33,7 @@ classdef ExperimentData < handle
         ShortestTrial           % The shortest from 'self.Trials'
         OKTrials                % Trials with ErrCode="OK"
         ExpDataWithOKTrials     % Clone object, leave only ErrCode="OK" trials
-        ExcludeFromAverage
         FailedTrialRate
-        SubjAgeDays
     end
     
     methods
@@ -47,18 +41,19 @@ classdef ExperimentData < handle
         %==========================================
         % Constructor
         %==========================================
-        function self = ExperimentData(platform, subjID, subjName, sessionID)
-            self.ExperimentPlatform = platform;
-            self.SubjectID = subjID;
-            self.SubjectInitials = subjID;
+        function self = ExperimentData(initials, subjName)
+            self.SubjectInitials = initials;
             self.SubjectName = char(subjName);
-            self.SessionID = sessionID;
             self.Custom = struct;
         end
         
         %==============================================================
         %       Dependent property
         %==============================================================
+        
+        function value = get.ExperimentPlatform(self)
+            value = self.getPlatform();
+        end
         
         function value = get.SamplingRate(self)
             okTrials = [self.OKTrials self.AvgTrialsAbs];
@@ -126,22 +121,12 @@ classdef ExperimentData < handle
             clone = self.filterTrialsWithErrCode(TrialErrCodes.OK);
             clone.AvgTrialsAbs = self.AvgTrialsAbs;
             clone.AvgTrialsNorm = self.AvgTrialsNorm;
-            clone.SoftwareVersion = self.SoftwareVersion;
             clone.BuildNumber = self.BuildNumber;
             clone.SubjectInitials = self.SubjectInitials;
             clone.Group = self.Group;
             clone.TotalDuration = self.TotalDuration;
             clone.RunDate = self.RunDate;
-            clone.SubjBirthday = self.SubjBirthday;
             clone.Custom = self.Custom;
-        end
-        
-        function v = get.ExcludeFromAverage(self)
-            v = strcmp(self.SubjectInitials, 'all') || strcmp(self.SubjectInitials, 'avg');
-        end
-        
-        function age = get.SubjAgeDays(self)
-            age = daysact(self.SubjBirthday, self.RunDate);
         end
         
         function targets = getAllTargets(self) %#ok<MANU,STOUT>
@@ -187,7 +172,6 @@ classdef ExperimentData < handle
             
             result = self.createEmptyClone();
             
-            result.SoftwareVersion = self.SoftwareVersion;
             result.BuildNumber = self.BuildNumber;
             result.SubjectInitials = self.SubjectInitials;
             result.Group = self.Group;
@@ -306,6 +290,10 @@ classdef ExperimentData < handle
         
         function copyOfSelf = createEmptyClone(self) %#ok<STOUT>
             error('Method createEmptyClone() should be overriden in the derived class (class=%s)!', class(self));
+        end
+        
+        function p = getPlatform(~)
+            error('Override this func');
         end
         
     end

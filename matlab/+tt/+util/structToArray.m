@@ -19,7 +19,7 @@ function edArray = structToArray(edStruct, varargin)
         args = stripArgs(args);
         while ~isempty(args)
             switch(lower(args{1}))
-                case 'subjIDs'
+                case 'subjids'
                     subjIDs = args{2};
                     args = args(2:end);
 

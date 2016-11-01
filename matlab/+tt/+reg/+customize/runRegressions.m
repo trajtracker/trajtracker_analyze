@@ -35,7 +35,6 @@ function rr = runRegressions(allExpData, varargin)
         result.SubjectName = expData.SubjectName;
         result.SubjectInitials = expData.SubjectInitials;
         result.SamplingRate = expData.SamplingRate;
-        result.ExcludeFromAverage = expData.ExcludeFromAverage;
         result.TimeExecuted = datestr(now);
         result.MaxMovementTime = max(arrayfun(@(t)t.MovementTime, expData.Trials));
         

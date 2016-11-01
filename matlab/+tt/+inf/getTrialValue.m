@@ -12,13 +12,14 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
 % PerSubj: If multiple subjects were provided, return an array with values
 %     of all subjects (if this flag is not specified: return mean of
 %     means).
-% SubjIDs: use only these subjects, in this order.
 % PerTarget: Return mean value per target number
 % AggFuncWithin <mean (default) / median / std>: choose function by which
 %     values are aggregated within-subject.
 % AggFuncBetween <mean (default) / median / std>: choose function by which
 %     values are aggregated beteen subjects.
 % TrialFilter @(trial)->BOOL: filter some trials
+% SubjFilter @(expData)->BOOL: filter subjects
+% SubjIDs: use only these subjects, in this order.
 % 
 % The following arguments specify the value to get. You must provide
 % exactly one of them:
@@ -34,7 +35,7 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
 %           return value
 
     [getTrialValueFunc, trialSet, perSubject, perTarget, withinSubjAggFunc, ...
-        betweenSubjAggFunc, safeGet, subjIDs, trialFilters] = parseArgs(varargin);
+        betweenSubjAggFunc, safeGet, subjIDs, subjFilters, trialFilters] = parseArgs(varargin);
     
     if isa(inObj, 'ExperimentData')
         result = getMeanTrialValueOneSubj(inObj, trialSet, getTrialValueFunc, withinSubjAggFunc, perTarget, safeGet, trialFilters);
@@ -47,11 +48,17 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
     %---------------------------------------------------------------
     function [result, subjIDs] = getMeanTrialValueMultiSubj(allExpData, trialSet, getTrialValueFunc, withinSubjAggFunc, betweenSubjAggFunc, perSubject, perTarget, safeGet, subjIDs, trialFilters)
         
-        if isempty(subjIDs)
-            subjIDs = tt.inf.listInitials(allExpData);
+        if ~isempty(subjIDs)
+            allED = tt.util.structToArray(allExpData, 'SubjIDs', subjIDs);
+        else
+            allED = tt.util.structToArray(allExpData);
         end
         
-        allED = tt.util.structToArray(allExpData, 0, subjIDs);
+        for filter = subjFilters
+            allED = allED(logical(arrayfun(filter{1}, allED)));
+        end
+        subjIDs = arrayfun(@(ed){ed.SubjectInitials}, allED);
+        
         if isempty(allED)
             error('No subjects were found in the input argument!');
         end
@@ -123,7 +130,7 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
     
     %---------------------------------------------------------------
     function [getTrialValueFunc, trialSet, perSubject, perTarget, withinSubjAggFunc, betweenSubjAggFunc, ...
-              safeGet, subjIDs, trialFilters] = parseArgs(args)
+              safeGet, subjIDs, subjFilters, trialFilters] = parseArgs(args)
         
         safeGet = false;
         trialSet = 'Trials';
@@ -131,6 +138,7 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
         perTarget = 0;
         subjIDs = [];
         trialFilters = {};
+        subjFilters = {};
         getTrialValueFunc = [];
         customAttrName = '';
         
@@ -180,6 +188,10 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
                     trialFilters = [trialFilters args(2)]; %#ok<AGROW>
                     args = args(2:end);
                     
+                case 'subjfilter'
+                    subjFilters = [subjFilters args(2)]; %#ok<AGROW>
+                    args = args(2:end);
+                    
                 case 'attr'
                     attrName = args{2};
                     args = args(2:end);
@@ -212,6 +224,10 @@ function [result, subjIDs] = getTrialValue(inObj, varargin)
         if safeGet && ~isempty(customAttrName)
             filter = @(trial)isfield(trial.Custom, customAttrName);
             trialFilters = [trialFilters {filter}];
+        end
+        
+        if ~isempty(subjIDs) && ~isempty(subjFilters)
+            error('You cannot specify both "SubjIDs" and "SubjFilter"');
         end
         
     end

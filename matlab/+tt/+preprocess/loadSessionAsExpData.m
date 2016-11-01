@@ -144,9 +144,9 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
     function expData = createExpData(sessionInf)
         switch(upper(platform))
             case 'NL'
-                expData = NLExperimentData(sessionInf.MaxTarget, sessionInf.SubjID, sessionInf.SubjName, sessionInf.SessionID);
+                expData = NLExperimentData(sessionInf.MaxTarget, sessionInf.SubjInitials, sessionInf.SubjName);
             case 'DC'
-                expData = GDExperimentData(sessionInf.SubjID, sessionInf.SubjName, sessionInf.SessionID);
+                expData = GDExperimentData(sessionInf.SubjInitials, sessionInf.SubjName);
             otherwise
                 error('Unsupported platform "%s" (file=%s)', platform, sessionInf.Filename);
         end
@@ -204,10 +204,8 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         
         sessionInf = sessionInfos(1);
         expData.SubjectInitials = sessionInf.SubjInitials;
-        expData.SoftwareVersion = sessionInf.getXmlBlock({'session', 'software_dash_version', 'Text'});
         expData.BuildNumber = sessionInf.BuildNumber;
         expData.RunDate = sessionInf.getXmlBlock({'session', 'start_dash_time', 'Text'});
-        expData.SubjBirthday = tt.preprocess.getXmlAttr(sessionInf.getXmlBlock({'session', 'subject'}), 'birth', 'subject', sessionInf.Filename);
         
         expData.Custom = sessionInfos(1).CustomAttrs;
         calcSummableCustomAttrs(expData, sessionInfos, sumExpCustomAttrs);

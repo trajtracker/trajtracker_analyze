@@ -14,14 +14,12 @@ function mergedExpData = createAvgExpData(allExpData)
         
     switch(expDataArray(1).ExperimentPlatform)
         case 'NL'
-            mergedExpData = NLExperimentData(expDataArray(1).MaxTarget, '1000', 'Merged', 9876);
+            mergedExpData = NLExperimentData(expDataArray(1).MaxTarget, 'avg', 'Merged');
         case 'DC'
-            mergedExpData = GDExperimentData('1000', 'Merged', 9876);
+            mergedExpData = GDExperimentData('avg', 'Merged');
         otherwise
             error('Unsupported platform');
     end
-    
-    mergedExpData.SubjectInitials = 'avg';
     
     nAvgTrials = length(expDataArray(1).AvgTrialsAbs);
     

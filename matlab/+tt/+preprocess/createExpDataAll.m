@@ -8,19 +8,17 @@ function result = createExpDataAll(expDataArray)
 
     switch(expDataArray(1).ExperimentPlatform)
         case 'NL'
-            result = NLExperimentData(expDataArray(1).MaxTarget, '0', 'All Participants', '1234');
+            result = NLExperimentData(expDataArray(1).MaxTarget, 'all', 'All Participants');
             if length(unique(arrayfun(@(ed)ed.MaxTarget, expDataArray))) > 1
                 error('Experiments with inconsistent MaxTarget cannot be merged');
             end
             
         case 'DC'
-            result = GDExperimentData('0', 'All Participants', '1234');
+            result = GDExperimentData('all', 'All Participants');
             
         otherwise
             error('Unsupported platform: %s', expDataArray(1).ExperimentPlatform);
     end
-    
-    result.SubjectInitials = 'avg';
     
     for expData = expDataArray
         result.addAllTrialsOf(expData);

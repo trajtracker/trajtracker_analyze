@@ -11,11 +11,18 @@ function [values, times, subjIDs] = getRRCoeffs(allRR, regressionKey, paramName,
 % NoExpand: Do not expand first/last trajectory values to extend before/after 
 %           its ends
 % SubjIDs <cell-array>: use these subject ID's
+% SubjIDFilter @(subject_id)->BOOL: Fucntion that determines which subjects to include
 
-    [doExpand, subjIDs, timesToExtract] = parseArgs(varargin, allRR);
+    [doExpand, subjIDs, subjectsFilter, timesToExtract] = parseArgs(varargin, allRR);
     
-    regArray = myarrayfun(@(s){allRR.(s{1})}, subjIDs);
-    if ~isfield(regArray{1}, regressionKey)
+    if isempty(subjectsFilter)
+        regArray = myarrayfun(@(s)allRR.(s{1}), subjIDs);
+    else
+        regArray = tt.reg.toRRArray(allRR);
+        regArray = regArray(logical(arrayfun(@(rr)subjectsFilter(rr.SubjectInitials), regArray)));
+    end
+    
+    if ~isfield(regArray(1), regressionKey)
         error('Regression "%s" was not found', regressionKey);
     end
         
@@ -30,7 +37,7 @@ function [values, times, subjIDs] = getRRCoeffs(allRR, regressionKey, paramName,
     
     values = NaN(length(timeInds), length(subjIDs));
     for i = 1:length(regArray)
-        paramVal = regArray{i}.(regressionKey).getParamValue(paramName);
+        paramVal = regArray(i).(regressionKey).getParamValue(paramName);
         relevantInds = timeInds(timeInds <= length(paramVal));
         values(1:length(relevantInds),i) = paramVal(relevantInds);
         if (doExpand && ~isempty(timeInds(timeInds > length(paramVal))))
@@ -40,15 +47,16 @@ function [values, times, subjIDs] = getRRCoeffs(allRR, regressionKey, paramName,
     
     %---------------------------------------------------------------------
     function longestRR = getLongestRegression(regArray, regressionKey)
-        [~,ind] = max(arrayfun(@(rr)length(rr{1}.(regressionKey).times), regArray));
-        longestRR = regArray{ind}.(regressionKey);
+        [~,ind] = max(arrayfun(@(rr)length(rr.(regressionKey).times), regArray));
+        longestRR = regArray(ind).(regressionKey);
     end
 
     %------------------------------------------------------------------------
-    function [doExpand, subjIDs, timesToExtract] = parseArgs(args, allRR)
+    function [doExpand, subjIDs, subjectsFilter, timesToExtract] = parseArgs(args, allRR)
         
         doExpand = 1;
         subjIDs = {};
+        subjectsFilter = [];
         timesToExtract = [];
         
         args = stripArgs(args);
@@ -60,6 +68,15 @@ function [values, times, subjIDs] = getRRCoeffs(allRR, regressionKey, paramName,
                     
                 case 'subjids'
                     subjIDs = args{2};
+                    args = args(2:end);
+                    
+                case 'subjidfilter'
+                    subjectsFilter = args{2};
+                    args = args(2:end);
+                    
+                case 'excludesubjids'
+                    excludedIDs = lower(args{2});
+                    subjectsFilter = @(sid)~ismember(lower(sid), excludedIDs);
                     args = args(2:end);
                     
                 case 'times'

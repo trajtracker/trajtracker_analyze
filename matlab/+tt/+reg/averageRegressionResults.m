@@ -6,10 +6,10 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
 % with one regression results per key.
 %
 % Optional arguments:
-% KeyFilter <func>: this function gets a potential regression key and 
+% KeyFilter @(rrKey)->BOOL: this function gets a potential regression key and 
 %                        returns true/false to include/exclude it in
 %                        averaging.
-% RRFilter <func>: this function gets a subject's regression-results
+% RRFilter @(rr,rrKey)->BOOL: this function gets a subject's regression-results
 %                       object (of one regression) and indicates whether to
 %                       include it or not in the averaging.
 
@@ -38,7 +38,7 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
     end
     
     avgSubjectData = struct('SubjectName', 'Average', 'SubjectInitials', 'avg', ...
-                            'ExcludeFromAverage', 0, 'NSubjects', length(allRegressions));
+                            'NSubjects', length(allRegressions));
     if isfield(allRegressions{1}, 'MaxTarget')
         avgSubjectData.MaxTarget = allRegressions{1}.MaxTarget;
     end
@@ -58,7 +58,7 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
         end
         
         regressionsPerSubject = arrayfun(@(r){r{1}.(key)}, allRegressions);
-        regressionsPerSubject = regressionsPerSubject(arrayfun(includeRRFunc, regressionsPerSubject));
+        regressionsPerSubject = regressionsPerSubject(arrayfun(@(rr)includeRRFunc(rr, key), regressionsPerSubject));
 
         avgSubjectData.(key) = averageOneRegressionResults(regressionsPerSubject);
 
@@ -132,11 +132,12 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
     end
 
     %--------------------------------------------------------------
-    function [meanFunc, includeRRKeyFunc, includeRRFunc] = parseArgs(args)
+    function [meanFunc, includeRRKeyFunc, includeRRFunc, filterSubjFunc] = parseArgs(args)
         
         meanFunc = @nanmean;
         includeRRKeyFunc = @(~)true;
         includeRRFunc = @(~)true;
+        filterSubjFunc = [];
         
         args = stripArgs(args);
         

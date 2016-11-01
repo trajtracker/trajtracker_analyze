@@ -3,8 +3,8 @@ classdef GDExperimentData < ExperimentData
     
     methods
         
-        function self = GDExperimentData(subjID, subjName, sessionID)
-            self = self@ExperimentData('DC', subjID, subjName, sessionID);
+        function self = GDExperimentData(initials, subjName)
+            self = self@ExperimentData(initials, subjName);
         end
         
         function targets = getAllTargets(self)
@@ -66,7 +66,11 @@ classdef GDExperimentData < ExperimentData
     methods(Access=protected)
         
         function copyOfSelf = createEmptyClone(self)
-            copyOfSelf = GDExperimentData(self.SubjectID, self.SubjectName, self.SessionID);
+            copyOfSelf = GDExperimentData(self.SubjectInitials, self.SubjectName);
+        end
+        
+        function p = getPlatform(~)
+            p = 'DC';
         end
         
     end
