@@ -132,6 +132,11 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
 
     %-------------------------------------------------------------------
     function dur = getTotalSessionDuration(session)
+        if ~isfield(session.xmlData.session, 'sub_dash_sessions')
+            dur = 0;
+            return;
+        end
+        
         subSessions = session.xmlData.session.sub_dash_sessions.sub_dash_session;
         if iscell(subSessions)
             dur = sum(arrayfun(@(ssn)str2double(ssn{1}.duration.Attributes.seconds), subSessions));

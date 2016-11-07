@@ -1,6 +1,9 @@
 %             ------------------------------------------------
 %             -- TrajTracker analysis toolbox: Data formats --
 %             ------------------------------------------------
+%
+% To show this again, run "help tt.DataFormat"
+% 
 % 
 %   Getting the raw results (from the experiment software) into matlab
 % ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -38,7 +41,7 @@
 % can break them into multiple datasets.
 % 
 % 
-%   How is the data stored as matlab objects
+%   How the data is stored as matlab objects
 % ++++++++++++++++++++++++++++++++++++++++++++
 %
 % The TrajTracker toolbox organizes the experiment data in three levels:
@@ -68,7 +71,7 @@
 %    trajectory.
 %    
 % 
-%   ExperimentData and OneTrialData object - details.
+%   ExperimentData and OneTrialData object - details
 % ++++++++++++++++++++++++++++++++++++++++++++++++++++
 % 
 % Experiment and trial data are objects defined using matlab classes.

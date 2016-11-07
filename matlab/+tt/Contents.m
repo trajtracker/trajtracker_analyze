@@ -2,7 +2,11 @@
 % ==   TrajTracker analysis toolbox    ==
 % =======================================
 % - To see this help again, run "help tt"
-% - If you're new to this toolbox or just want some explanations, run <a href="matlab:help tt.Help">help tt.Help</a>
+% - To see documentation by topic (rather than by function), run <a href="matlab:help tt.Help">help tt.Help</a>
+%   This is recommended if you're new to the TrajTracker toolbox.
+% 
+% IMPORTANT: IF THIS IS THE FIRST TIME YOU RUN THE TOOLBOX, YOU MUST DEFINE
+% THE TrajTrackerDataPath() FUNCTION. See details in <a href="matlab:help tt.DirStruct">help tt.DirStruct</a>
 % 
 % Preprocess/load data:
 % <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a> - prepare a dataset

@@ -136,7 +136,7 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
         
         meanFunc = @nanmean;
         includeRRKeyFunc = @(~)true;
-        includeRRFunc = @(~)true;
+        includeRRFunc = @(~,~)true;
         filterSubjFunc = [];
         
         args = stripArgs(args);

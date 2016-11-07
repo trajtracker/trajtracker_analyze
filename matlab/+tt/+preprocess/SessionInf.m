@@ -4,7 +4,6 @@ classdef SessionInf < handle
     properties
         Filename
         SubDir
-        SessionID
         SubjID
         SubjInitials
         SubjName

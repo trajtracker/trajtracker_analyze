@@ -12,9 +12,6 @@ function session = loadSessionFile(filename)
     
     xmlSession = getSubEntity(session.xmlData, 'session', 'data');
     
-    session.SessionID = tt.preprocess.getXmlAttr(xmlSession, 'id', 'session', filename);
-    session.SubjID = tt.preprocess.getXmlAttr(xmlSession, 'subject_dash_id', 'session', filename);
-    
     xmlSubj = getSubEntity(xmlSession, 'subject', 'session');
     session.SubjID = tt.preprocess.getXmlAttr(xmlSubj, 'id', 'subject', filename);
     session.SubjName = getSubEntity(xmlSubj, {'name', 'Text'}, 'subject');

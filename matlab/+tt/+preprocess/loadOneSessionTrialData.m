@@ -2,6 +2,8 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
 % trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames) -
 % Load the trials from file.
 
+    minMovementTime = 0.2;
+    
     fprintf('   Loading trials...\n');
     filPath = sprintf('%s/%s', sessionInf.RawDir, sessionInf.Files.trials);
     
@@ -65,7 +67,11 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
 
         td.MovementTime = mtGetter(trialInfo);
         td.TrajectoryLength = trialInfo.trajectorylength;
-        td.ErrCode = getErrCode(trialInfo.status, td.MovementTime);
+        td.ErrCode = tt.preprocess.statusToErrCode(trialInfo.status);
+        if ~isnan(minMovementTime) && td.ErrCode == TrialErrCodes.OK && td.MovementTime < minMovementTime
+            td.ErrCode  = TrialErrCodes.TrialTooShort;
+        end
+
         if isfield(trialInfo, 'filler') && trialInfo.filler
             td.ErrCode = TrialErrCodes.Filler;
         end
@@ -100,48 +106,6 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
 
             otherwise
                 error('Invalid t0 argument!');
-        end
-    end
-
-    %---------------------------------------------------------------
-    function ec = getErrCode(errCodeStr, movementTime)
-        switch(errCodeStr)
-            case 'OK'
-                if (movementTime >= 0.2)
-                    ec = TrialErrCodes.OK;
-                else
-                    ec = TrialErrCodes.TrialTooShort;
-                end
-            case 'ERR_MultiFingers'
-                ec = TrialErrCodes.MultiFingers;
-            case 'ERR_FingerLifted'
-                ec = TrialErrCodes.FingerLifted;
-            case 'ERR_StartedSideways'
-                ec = TrialErrCodes.StartedSideways;
-            case 'ERR_SpeechNotDetected'
-                ec = TrialErrCodes.SpeechTooLate; % Changing to speech-too-late, which is usually the case. If indeed there was no speech, the error code will be later fixed manually
-            case 'ERR_SpeechTooEarly'
-                ec = TrialErrCodes.SpeechTooEarly;
-            case 'ERR_MovedBackwards'
-                ec = TrialErrCodes.MovedBackwards;
-            case {'ERR_TooSlowGlobal', 'ERR_TooSlow'}
-                ec = TrialErrCodes.TooSlowGlobal;
-            case 'ERR_TooSlowInstantaneous'
-                ec = TrialErrCodes.TooSlowInstantaneous;
-            case 'ERR_MovedTooEarly'
-                ec = TrialErrCodes.FingerMovedTooEarly;
-            case 'ERR_MovedTooLate'
-                ec = TrialErrCodes.FingerMovedTooLate;
-            case {'ERR_TooFastMT', 'ERR_TooFastGlobal'}
-                ec = TrialErrCodes.TooFast;
-            case {'ERR_TrialTooShort', 'ERR_TooSlowMT'}
-                ec = TrialErrCodes.TrialTooShort;
-            case 'ERR_NoResponse'
-                ec = TrialErrCodes.NoResponse;
-            case 'ERR_Manual'
-                ec = TrialErrCodes.Manual;
-            otherwise
-                error('Unknown error code "%s"', errCodeStr);
         end
     end
     
