@@ -9,7 +9,7 @@
 % system in a certain format and a certain directory structure.
 % 
 % The path for a given data file is almost always specified relatively
-% a certain base path, which is defined by the <a href="matlab:help TrajTrackerDataPath>TrajTrackerDataPath</a>()
+% a certain base path, which is defined by the <a href="matlab:help TrajTrackerDataPath">TrajTrackerDataPath</a>()
 % function.
 % You can choose any base path you want, as long as you keep your files
 % anywhere under it. If you choose base path = "/", you can put the files 

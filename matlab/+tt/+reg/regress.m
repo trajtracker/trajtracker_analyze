@@ -91,9 +91,12 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 %           Available keywords: $SUBJID$, $NTRIALS$, $NTP$ (# time points)
 % V: verbose - print more debug messages
 % Silent: don't print anything
+% SaveInput <filename>: Save in this file the regression input data, i.e.,
+%           the values of the predictors and the dependent variable. This
+%           is intended for debugging.
 
     [timePoints, trimTimePointsByTrajEnd, getTrialsFunc, trialFilters, consolidateTrialsFunc, ...
-        timePointFilters, fixedDepVar, fixedPred, ...
+        timePointFilters, fixedDepVar, fixedPred, saveRegressionInputFilename, ...
         minSamplesToPredictorsRatio, getTrialMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
         timePointToRowFunc, getTimePerTpFunc, verbose, ...
         regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(varargin, expData);
@@ -101,23 +104,26 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     nPredictors = length(predictorSpec)+1;
     
     allTrials = getTrialsFunc(expData);
-    filteredTrials = tt.util.filterTrials(allTrials, trialFilters);
-    trialsToRegress = consolidateTrialsFunc(filteredTrials, expData);
+    trialsToRegress = tt.util.filterTrials(allTrials, trialFilters);
+    if ~isempty(consolidateTrialsFunc), trialsToRegress = consolidateTrialsFunc(trialsToRegress, expData); end
     if length(trialsToRegress) < 2*length(predictorSpec)
         error('There are %d predictors but only %d trials - that''s not enough', length(predictorSpec), length(trialsToRegress));
     end
 
     %-- Get dependent and independent factors
-    [predictors, predNames, predDesc, dependentVar, depVarDesc, rowNums, includeTrial] = getRegressionData(trialsToRegress, timePoints);
+    [predValues, predNames, predDesc, depVarValues, depVarDesc, rowNums, includeTrial] = getRegressionData(trialsToRegress, timePoints);
     predNames = [{'const'} predNames];
     predDesc = [{'Intercept'} predDesc];
     
-    [trialsToRegress, predictors, dependentVar, rowNums, includeTrial, nTimePoints] = ...
-        removeUnregressableTrials(trialsToRegress, predictors, dependentVar, rowNums, includeTrial);
+    [trialsToRegress, predValues, depVarValues, rowNums, includeTrial, nTimePoints] = ...
+        removeUnregressableTrials(trialsToRegress, predValues, depVarValues, rowNums, includeTrial);
     
     %-- Get absolute time per time point
     times = getTimePerTpFunc(timePoints, trialsToRegress, rowNums);
-        
+    
+    if ~isempty(saveRegressionInputFilename)
+        save(saveRegressionInputFilename, 'predValues', 'depVarValues', 'times', 'predNames');
+    end
 
     if length(trialsToRegress) < nPredictors * minSamplesToPredictorsRatio
         error('There are only %d trials. This is insufficient for %d predictors (including const). Minimal trial/predictor ratio = %.2f', ...
@@ -129,9 +135,18 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     regressionEndMsg = printStartMessage(printRegressionMsg, regressionStartMsg, expData, length(trialsToRegress), length(timePoints));
     
     result = createEmptyRR(predNames, times);
-    calcVariance(result, predictors, dependentVar, nTimePoints);
+    calcVariance(result, predValues, depVarValues, nTimePoints);
     result.PredictorDesc = predDesc;
     result.DependentVarDesc = depVarDesc{1};
+    
+    %-- The parameters used to run the regression
+    result.RegressionParams.PredictorSpec = predictorSpec;
+    result.RegressionParams.DepVarSpec = depVarSpec;
+    result.RegressionParams.FixedPred = fixedPred;
+    result.RegressionParams.FixedDepVar = fixedDepVar;
+    result.RegressionParams.GetTrialMeasuresFunc = getTrialMeasureFunc;
+    result.RegressionParams.GetDynamicMeasuresFunc = getDynamicMeasureFunc;
+    result.RegressionParams.ConsolidateTrialsFunc = consolidateTrialsFunc;
     
     % Loop through time points
     for iTP = 1:nTimePoints
@@ -147,8 +162,8 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             continue;
         end
         
-        currPred = predictors(includeTrial(:,iTP), :, iif(fixedPred, 1, iTP));
-        currDepVar = dependentVar(includeTrial(:,iTP), iif(fixedDepVar, 1, iTP));
+        currPred = predValues(includeTrial(:,iTP), :, iif(fixedPred, 1, iTP));
+        currDepVar = depVarValues(includeTrial(:,iTP), iif(fixedDepVar, 1, iTP));
         
         oneRR = tt.reg.internal.runSingleRegression(regressionType, currPred, currDepVar, 'Silent');
         
@@ -229,6 +244,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 
 
 
+    %-------------------------------------------
     function isOK = findRegressableTrials(predictors, dependentVar)
         
         nanDep = isnan(dependentVar);
@@ -346,8 +362,13 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         result.RSquare(iRow) = oneRR.rSquare;
         result.p(iRow) = oneRR.regressionPVal;
         result.df = oneRR.df;
-        if (outputFullStats)
+        if outputFullStats
             result.stat = [result.stat, {oneRR.stat}];
+        end
+        if isfield(oneRR, 'MSE')
+            result.MSE = oneRR.MSE;
+        else
+            result.MSE = NaN;
         end
 
         for iVar = 1:length(predNames)
@@ -387,7 +408,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 
     %-------------------------------------------------------------------
     function [timePoints, trimRowNumbersByTrajEnd, getTrialsFunc, trialFilters, consolidateTrialsFunc, ...
-            timePointFilters, fixedDepVar, fixedPred, ...
+            timePointFilters, fixedDepVar, fixedPred, saveRegressionInputFilename, ...
             minSamplesToPredictorsRatio, getMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
             timePointToRowFunc, getTimePerTpFunc, verbose, ...
             regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(args, expData)
@@ -397,7 +418,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         
         dt = [];
         getTrialsFunc = @(expData)expData.Trials;
-        consolidateTrialsFunc = @(trials, expData)trials;
+        consolidateTrialsFunc = [];
         trialFilters = {};
         timePointFilters = {};
         fixedDepVar = true;
@@ -411,6 +432,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         minSamplesToPredictorsRatio = 3;
         is_y = false;
         isSilent = false;
+        saveRegressionInputFilename = '';
         
         regressionStartMsg = '';
         printRegressionMsg = true;
@@ -478,6 +500,10 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
                     timePointToRowFunc = @yToRowNums;
                     getTimePerTpFunc = @getTimesY;
                     is_y = true;
+                    
+                case 'saveinput'
+                    saveRegressionInputFilename = args{2};
+                    args = args(2:end);
                     
                 case 'avgtrials'
                     getTrialsFunc = @(expData)expData.AvgTrialsAbs;

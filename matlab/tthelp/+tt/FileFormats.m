@@ -110,6 +110,8 @@
 % EndPoint: In number-line experiments, this is the endpoint (specified
 %         using the number line's scale).
 % 
+% Additional columns can be loaded using <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a>'s "CustomCols" argument
+% 
 % 
 %     Trajectory file
 % ++++++++++++++++++++++++

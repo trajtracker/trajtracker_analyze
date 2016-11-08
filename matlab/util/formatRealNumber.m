@@ -10,10 +10,11 @@ function s = formatRealNumber(n, varargin)
 % 
 % Written by Dror Dotan, 2016
 
-    [precision, maxPrecision] = parseArgs(varargin);
+    [precision, maxPrecision, minPrecision] = parseArgs(varargin);
     
     if isempty(precision)
         precision = findPrecision(n, maxPrecision);
+        precision = max(precision, minPrecision);
     end
     
     if (n == 0)
@@ -23,10 +24,11 @@ function s = formatRealNumber(n, varargin)
     end
     
     %-------------------------------------------
-    function [precision, maxPrecision] = parseArgs(args)
+    function [precision, maxPrecision, minPrecision] = parseArgs(args)
 
         precision = [];
         maxPrecision = 5;
+        minPrecision = 0;
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -37,6 +39,10 @@ function s = formatRealNumber(n, varargin)
 
                 case 'maxprec'
                     maxPrecision = args{2};
+                    args = args(2:end);
+                    
+                case 'minprec'
+                    minPrecision = args{2};
                     args = args(2:end);
                     
                 otherwise

@@ -54,6 +54,7 @@ function oneRegResults = runSingleRegression(regressionType, predictors, depende
             oneRegResults.df = stats.tstat.dfe;
             oneRegResults.r2_per_predictor = stats.tstat.t .^ 2 ./ (stats.tstat.t .^ 2 + oneRegResults.df);
             oneRegResults.stat = stats;
+            oneRegResults.MSE = stats.mse;
 
         case 'corr'
             if (size(predictors,2) ~= 1)

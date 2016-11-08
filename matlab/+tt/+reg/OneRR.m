@@ -13,8 +13,12 @@ classdef OneRR < handle
     end
     
     properties
-        PredictorDesc     % As passed to tt.reg.regress()
-        DependentVarDesc  % As passed to tt.reg.regress()
+        PredictorDesc     % Text description of the predictor
+        DependentVarDesc  % Text description of the dependent variable
+        
+        RegressionParams  % The parameters used to run the regression
+        
+        MSE
         
         %-- Stats about data executed
         times             % Column vector of times. Matches entries in "PredResults".
