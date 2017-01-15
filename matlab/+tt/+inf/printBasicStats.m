@@ -29,8 +29,8 @@ function [result,subjIDs] = printBasicStats(allED, varargin)
         
         fprintf('\nCondition #%d (%d subjects): %s\n', iCond, length(tt.inf.listInitials(allED{iCond})), allED{iCond}.raw.general.CondName);
         
-        currRaw = tt.util.structToArray(allED{iCond}.raw, subjIDs);
-        currClean = tt.util.structToArray(allED{iCond}.d, subjIDs);
+        currRaw = tt.util.structToArray(allED{iCond}.raw, 'SubjIDs', subjIDs);
+        currClean = tt.util.structToArray(allED{iCond}.d, 'SubjIDs', subjIDs);
         result{iCond} = process(currRaw, currClean);
         
         allRaw = [allRaw currRaw];
@@ -41,7 +41,7 @@ function [result,subjIDs] = printBasicStats(allED, varargin)
     if length(allED) > 1
         
         fprintf('\n\nAll conditions:\n');
-        process(allRaw, allClean, false, plotMovementOnset);
+        process(allRaw, allClean);
 
         fprintf('\n\n');
         compareConds(result, 'MovementTime');

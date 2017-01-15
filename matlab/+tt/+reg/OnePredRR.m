@@ -29,6 +29,15 @@ classdef OnePredRR < handle
             self.adj_r2 = NaN(nTimes, 1);
         end
         
+        function c = clone(self, newName)
+            c = tt.reg.OnePredRR(newName, length(self.b));
+            c.b = self.b;
+            c.beta = self.beta;
+            c.p = self.p;
+            c.r2 = self.r2;
+            c.adj_r2 = self.adj_r2;
+        end
+        
     end
     
 end

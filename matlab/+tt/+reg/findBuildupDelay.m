@@ -175,7 +175,7 @@ function [result, moreInfo] = findBuildupDelay(allRR, rrKey, paramName, timeRang
     end
 
     %---------------------------------------------------------------------
-    function [subjIDs, bType, ScalingTimeRange, testedOffsets, condNames, doPrint] = parseArgs(args, allRR, nConds)
+    function [subjIDs, bType, bScalingTimeRange, testedOffsets, condNames, doPrint] = parseArgs(args, allRR, nConds)
         
         subjIDs = tt.reg.listInitials(allRR);
         bType = 'b';

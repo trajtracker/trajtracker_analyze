@@ -20,7 +20,7 @@ function plotTrajValue(inData, varargin)
 % WinSize [width height] - set size of the figure window
 % - and any argument of <a href="tt.inf.getTrajectoryValues">tt.inf.getTrajectoryValues</a>
 
-    [getValueArgs, colors, xLim, yLim, xTick, yTick, fontSize, grpDesc, figID, nGroupsPerSubPlot, winSize] = parseArgs(varargin);
+    [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs] = parseArgs(varargin);
     
     [dataToPlot, info] = tt.inf.getTrajectoryValues(inData, getValueArgs);
     nGroups = size(dataToPlot, 2);
@@ -29,31 +29,41 @@ function plotTrajValue(inData, varargin)
         colors = varycolor(nGroups, true);
     end
     
-    if ~isempty(figID), setFigure(figID); end;
+    if ~isempty(displayArgs.figid), setFigure(displayArgs.figid); end;
     clf;
     
     if ~isempty(nGroupsPerSubPlot) && nGroupsPerSubPlot<nGroups
         nSP = ceil(nGroups/nGroupsPerSubPlot);
         spnum = 1;
         for ii = 1:nGroupsPerSubPlot:nGroups
-            doPlot(dataToPlot, info, ii:min(nGroups, ii+nGroupsPerSubPlot-1), [nSP, 1, spnum]);
+            doPlot(dataToPlot, info, ii:min(nGroups, ii+nGroupsPerSubPlot-1), [nSP, 1, spnum], subPlotArgs);
             spnum = spnum+1;
         end
     else
-        doPlot(dataToPlot, info, 1:nGroups, []);
+        doPlot(dataToPlot, info, 1:nGroups, [], []);
     end
     
     if ~isempty(grpDesc), legend(grpDesc); end
     
     set(gcf, 'color', 'white');
-    if ~isempty(winSize), setFigWindowSize(winSize); end;
+    if ~isempty(displayArgs.winsize), setFigWindowSize(displayArgs.winsize); end;
     
 
     %-------------------------------------------
-    function doPlot(data, info, groupNums, subplotInf)
+    function doPlot(data, info, groupNums, subplotInf, subPlotArgs)
         
         if ~isempty(subplotInf)
-            subplot(subplotInf(1), subplotInf(2), subplotInf(3));
+            
+            h = subplot(subplotInf(1), subplotInf(2), subplotInf(3));
+            
+            %-- Fix the way the sub-plot is displayed
+            nSubPlots = subplotInf(1);
+            currSubPlot = subplotInf(3);
+            spHeight = subPlotArgs.UsedHeight / nSubPlots;
+            spY = subPlotArgs.XAxisHeight + ((nSubPlots-currSubPlot)/nSubPlots) * (1 - subPlotArgs.XAxisHeight);
+            spPos = get(h, 'pos');
+            set(h, 'Pos', [spPos(1), spY, spPos(3), spHeight]);
+            
         end
         
         hold on;
@@ -62,38 +72,34 @@ function plotTrajValue(inData, varargin)
             iGrp = groupNums(i);
             n = info.nTimePointsPerGroup(iGrp);
             y = data(:, iGrp);
-            plot(info.times(1:n), y(1:n), 'Color', colors{i});
+            plot(info.times(1:n), y(1:n), 'Color', colors{i}, 'LineWidth', displayArgs.linewidth);
         end
 
-        if ~isempty(xLim), xlim(xLim); end;
-        if ~isempty(yLim), ylim(yLim); end;
-        if ~isempty(xTick), setTickDelta('x', xTick); end;
-        if ~isempty(yTick), setTickDelta('y', yTick); end;
+        if ~isempty(displayArgs.xlim), xlim(displayArgs.xlim); end;
+        if ~isempty(displayArgs.ylim), ylim(displayArgs.ylim); end;
+        if ~isempty(displayArgs.xtick), setTickDelta('x', displayArgs.xtick); end;
+        if ~isempty(displayArgs.ytick), setTickDelta('y', displayArgs.ytick); end;
         
         if ~isempty(subplotInf) && subplotInf(1) ~= subplotInf(3)
             set(gca, 'XTickLabel', {});
         end
         
-        set(gca, 'FontSize', fontSize);
+        set(gca, 'FontSize', displayArgs.fontsize);
         grid on;
         
     end
     
     %-------------------------------------------
-    function [getValueArgs, colors, xLim, yLim, xTick, yTick, fontSize, grpDesc, figID, ...
-            nGroupsPerSubPlot, winSize] = parseArgs(args)
+    function [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs] = parseArgs(args)
 
         getValueArgs = {};
         colors = [];
-        xLim = [];
-        yLim = [];
-        xTick = [];
-        yTick = [];
-        fontSize = 30;
-        figID = [];
-        winSize = [];
+        
+        displayArgs = struct('linewidth', 1, 'xlim', [], 'ylim', [], 'xtick', [], 'ytick', [], 'fontsize', 30, 'figid', [], 'winsize', []);
+        
         nGroupsPerSubPlot = [];
         grpDesc = {};
+        subPlotArgs = struct('UsedHeight', 0.85, 'XAxisHeight', .07);
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -105,40 +111,16 @@ function plotTrajValue(inData, varargin)
                 case {'extrapolate'}
                     getValueArgs = [getValueArgs args(1)]; %#ok<AGROW>
                     
-                case 'xlim'
-                    xLim = args{2};
-                    args = args(2:end);
-                    
-                case 'ylim'
-                    yLim = args{2};
-                    args = args(2:end);
-                    
-                case 'xtick'
-                    xTick = args{2};
-                    args = args(2:end);
-                    
-                case 'ytick'
-                    yTick = args{2};
+                case {'linewidth', 'xlim', 'ylim', 'xtick', 'ytick', 'fontsize', 'figid', 'winsize'}
+                    displayArgs.(lower(args{1})) = args{2};
                     args = args(2:end);
                     
                 case 'colors'
                     colors = args{2};
                     args = args(2:end);
                     
-                case 'figid'
-                    figID = args{2};
-                    args = args(2:end);
-                    
                 case 'grpdesc'
                     grpDesc = args{2};
-                    args = args(2:end);
-                    
-                case 'winsize'
-                    winSize = args{2};
-                    args = args(2:end);
-                    
-                case 'fontsize'
-                    fontSize = args{2};
                     args = args(2:end);
                     
                 case 'nperplot'
@@ -151,7 +133,7 @@ function plotTrajValue(inData, varargin)
             args = stripArgs(args(2:end));
         end
         
-        if ~isempty(nGroupsPerSubPlot) && length(figID) > 1
+        if ~isempty(nGroupsPerSubPlot) && length(displayArgs.figid) > 1
             error('You asked to divide figure into sub-plots, so you cannot use "FigID" to specify a specific subplot');
         end
         

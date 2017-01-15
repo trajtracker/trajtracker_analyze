@@ -165,6 +165,15 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
         
         switch(lower(measureName))
             
+            %-------- Trial-in-session ------------
+            case 'trialindex'
+                currMeasure = arrayfun(@(t)t.TrialIndex, trials);
+                measureDesc = 'Trial number';
+                
+            case 'sqrtrialindex'
+                currMeasure = sqrt(arrayfun(@(t)t.TrialIndex, trials));
+                measureDesc = 'sqrt(trial number)';
+            
             %-------- Stimulus ------------
             
             case 'target'

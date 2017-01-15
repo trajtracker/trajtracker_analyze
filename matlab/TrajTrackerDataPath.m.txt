@@ -7,5 +7,6 @@ function p = TrajTrackerDataPath
 % If you have just installed the toolbox, this file is called
 % "TrajTrackerDataPath.m.txt", so you should remove the ".txt" extension.
 
-    p = '/data/ttrk_results';
+    p = '/path/to/your/base/data/directory';
+
 end

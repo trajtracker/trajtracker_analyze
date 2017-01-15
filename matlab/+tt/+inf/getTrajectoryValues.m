@@ -115,7 +115,7 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
         trialFilters = {};
         minTime = 0;
         maxTime = 99999;
-        dt = [];
+        dt = samplingRate;
         smoothSD = [];
         extrapolate = false;
         

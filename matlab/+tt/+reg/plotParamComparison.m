@@ -99,7 +99,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
         regDescriptions, errBarLength, varianceAsArea, shadeAlpha, confIntervalSize, labels, usingDefaultMarkers, seriesToPlot, axesForConst, ...
         explicitXLim, explicitYLim, xTickDelta, yTickDelta, showTickLabels, xTickLabelSkip, comparePairMarginally, seriesFormat, tpMarkerOverride, ...
         highlightTimeWindows, windowSize, seriesMultiplyFactor, bgColor, textColor, ...
-        y2SeriesInds, ax2Format, figID] = parseArgs(varargin, cmpData);
+        y2SeriesInds, ax2Format, figID, doCLF] = parseArgs(varargin, cmpData);
     
     if ~ isfield(cmpData, 'comparedIndices') || isempty(cmpData.comparedIndices)
         fillFormat = FILL_FORMAT_NONE;
@@ -108,7 +108,11 @@ function figHandle = plotParamComparison(cmpData, varargin)
     yRange = getYRange(cmpData, seriesToPlot);
     
     if ~isempty(figID), setFigure(figID); end
-    figHandle = clf;
+    if doCLF
+        figHandle = clf;
+    else
+        figHandle = gcf;
+    end
     hold on;
     
     if (fillFormat ~= FILL_FORMAT_NONE)
@@ -150,8 +154,8 @@ function figHandle = plotParamComparison(cmpData, varargin)
             values1 = cmpData.cmpParam(ind(1)).values;
             values2 = cmpData.cmpParam(ind(2)).values;
         else
-            values1 = ones(size(cmpData.values1)) * yRange(1);
-            values2 = ones(size(cmpData.values1)) * yRange(2);
+            values1 = ones(size(cmpData.cmpParam(1).values)) * yRange(1);
+            values2 = ones(size(cmpData.cmpParam(1).values)) * yRange(2);
         end
         
         
@@ -599,7 +603,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
     function [printMode, fillFormat, seriesNamesLocation, timeIndsToPrint, t0, dotStyle, fontSize, lineWidth, ...
                 regDescriptions, errBarLength, varianceAsArea, shadeAlpha, confIntervalSize, labels, usingDefaultMarkers, seriesToPlot, axesForConst, ...
                 explicitXLim, explicitYLim, xTickDelta, yTickDelta, showTickLabels, xTickLabelSkip, comparePairMarginally, seriesFormat, tpMarkerOverride, ...
-                highlightTimeWindows, windowSize, seriesMultiplyFactor, bgColor, textColor, ax2SeriesInds, ax2Format, figID] = ...
+                highlightTimeWindows, windowSize, seriesMultiplyFactor, bgColor, textColor, ax2SeriesInds, ax2Format, figID, doCLF] = ...
                     parseArgs(args, cmpData)
         
         printMode = PRINT_MODE_BASIC;
@@ -646,6 +650,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
         ax2SeriesInds = [];
         ax2Format = struct('Color', [.6 .6 .6], 'FontSize', 20);
         figID = [];
+        doCLF = true;
         
         % Per-series formatting
         seriesFormat = arrayfun(@(i){struct}, 1:nSeries);
@@ -959,6 +964,9 @@ function figHandle = plotParamComparison(cmpData, varargin)
                     if strcmp(labels.y2, 'DEFAULT')
                         labels.y2 = 'Constant';
                     end
+                    
+                case 'noclf'
+                    doCLF = false;
                     
                 otherwise
                     error('Unknown argument "%s"', args{1});

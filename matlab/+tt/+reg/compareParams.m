@@ -129,6 +129,8 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         else
             result.comparePair = tt.reg.internal.compareParamValues(params(comparedIndices), 'RMAnova', groupSubjectsArg, cmpArgs);
         end
+        
+        result.comparePair.values = params{comparedIndices(2)} - params{comparedIndices(1)};
         result.comparedIndices = comparedIndices;
     end
     

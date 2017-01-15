@@ -11,21 +11,23 @@ function p = findPrecision(x, maxPrecision)
     
     if isempty(x)
         p = 0;
-    elseif length(x) == 1
-        p = find(mod(abs(x) .* (10 .^ (0:maxPrecision)),1) < .0001, 1) - 1;
     else
         tens = (10 .^ (0:maxPrecision));
         p = max(arrayfun(@(xx)findPrecisionForOneNumber(xx, tens), x)) - 1;
     end
 
-    if isempty(p)
-        p = maxPrecision;
-    end
-    
     %-------------------------------------------
     function prec = findPrecisionForOneNumber(n, tens)
+        if abs(n) < 10e-20
+            %-- n is 0
+            prec = 0;
+            return;
+        end
         tmp = abs(n) .* tens;
-        prec = find(abs(tmp-round(tmp)) < .0001, 1);
+        prec = find(tmp >= 1 & abs(tmp-round(tmp)) < .0001, 1);
+        if isempty(prec)
+            prec = maxPrecision;
+        end
     end
     
 end

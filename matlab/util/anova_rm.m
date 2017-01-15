@@ -171,13 +171,13 @@ if s > 1
 
     ssTotal = ssT + ssG + ssGT + ssSG + ssR;
     
-    table = {'Source'              'SS' 'df'        'MS' 'F' 'Prob>F' 'eta2'
-             'Time'                ssT  t-1         msT  FT  pT        ssT/ssTotal
-             'Group'               ssG  s-1         msG  FG  pG        ssG/ssTotal
-             'Ineratcion'          ssGT (s-1)*(t-1) msGT FGT pGT       ssGT/ssTotal
-             'Subjects (matching)' ssSG n-s         msSG FSG pSG       ssSG/ssTotal
-             'Error'               ssR  (n-s)*(t-1) msR  []  []
-             'Total'               []   []          []   []  []
+    table = {'Source'              'SS' 'df'        'MS' 'F' 'Prob>F' 'eta2'            'eta2p'           'dfe'
+             'Time'                ssT  t-1         msT  FT  pT        ssT/ssTotal      ssT/(ssT+ssR)     (n-s)*(t-1)
+             'Group'               ssG  s-1         msG  FG  pG        ssG/ssTotal      ssG/(ssG+ssR)     n-s
+             'Ineratcion'          ssGT (s-1)*(t-1) msGT FGT pGT       ssGT/ssTotal     ssGT/(ssGT+ssR)   (n-s)*(t-1)
+             'Subjects (matching)' ssSG n-s         msSG FSG pSG       ssSG/ssTotal     []                []
+             'Error'               ssR  (n-s)*(t-1) msR  []  []        []               []                []
+             'Total'               []   []          []   []  []        []               []                []
         };
     table{end, 2} = sum([table{2:end-1,2}]);
     table{end, 3} = sum([table{2:end-1,3}]);
@@ -195,11 +195,11 @@ else
 
     ssTotal = ssT + ssSG + ssR;
     
-    table = {'Source'               'SS'  'df'        'MS' 'F' 'Prob>F' 'eta2'          'eta2p'
-             'Time'                 ssT   t-1         msT  FT  pT       ssT/ssTotal     ssT/(ssT+ssR)
-             'Subjects (matching)'  ssSG  n-s         msSG FSG pSG      ssSG/ssTotal    []
-             'Error'                ssR   (n-s)*(t-1) msR  []  []       ssR/ssTotal     []
-             'Total'                []    []          []   []  []       []              []
+    table = {'Source'               'SS'  'df'        'MS' 'F' 'Prob>F' 'eta2'          'eta2p'           'dfe'
+             'Time'                 ssT   t-1         msT  FT  pT       ssT/ssTotal     ssT/(ssT+ssR)     n-t
+             'Subjects (matching)'  ssSG  n-s         msSG FSG pSG      ssSG/ssTotal    []                []
+             'Error'                ssR   (n-s)*(t-1) msR  []  []       ssR/ssTotal     []                []
+             'Total'                []    []          []   []  []       []              []                []
             };
     table{end, 2} = sum([table{2:end-1,2}]);
     table{end, 3} = sum([table{2:end-1,3}]);

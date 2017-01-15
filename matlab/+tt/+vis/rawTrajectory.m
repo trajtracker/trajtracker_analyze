@@ -47,7 +47,6 @@ function rawTrajectory(expData, varargin)
 % ColorIDFunc
 % Colors
 % 
-% 
 % >>> Setting the figure's look
 % 
 % Grid: show a grid
@@ -70,6 +69,10 @@ function rawTrajectory(expData, varargin)
 % ShowTargets: Show the target numbers (in a number-to-position task) or
 %        the response buttons (in a decision task).
 % RespButtonColor: relevant for decision task
+% PlotBgndFunc <func>: use this function (instead of the default) to plot
+%           the background. Function signature: @(expData, trials, colors, args)
+%           where 'colors' is a color per trial, 'args' is some arguments
+%           (see the code for details)
 
     if isa(expData, 'ExperimentData')
         anyED = expData;
@@ -81,17 +84,17 @@ function rawTrajectory(expData, varargin)
     isNL = isa(anyED, 'NLExperimentData');
 
     [xCol, yCol, convertXToNumber, trialFilters, sortTrialsFunc, trajSectionAttrs, getColorPerTrialFunc, ...
-        getLineStyleFunc, args, showGrid, doCLF, plotTargets] = parseArgs(varargin, anyED);
+        getLineStyleFunc, plotBackgroundFunc, args, showElements] = parseArgs(varargin, anyED);
     
     trials = getTrials(expData, trialFilters, sortTrialsFunc);
     colorPerTrial = getColorPerTrialFunc(trials);
     
     if isfield(args, 'figid'), setFigure(args.figid, 0); end
-    if doCLF, clf; end
+    if showElements.CLF, clf; end
     hold on;
     
-    if plotTargets
-        plotBackground(anyED, trials, colorPerTrial);
+    if showElements.Targets
+        plotBackgroundFunc(anyED, trials, colorPerTrial, args);
     end
     
     for iTrial = 1:length(trials)
@@ -126,7 +129,7 @@ function rawTrajectory(expData, varargin)
     xlim(args.xlim);
     ylim(args.ylim);
     
-    if showGrid, grid on; end
+    if showElements.Grid, grid on; end
     
     if isfield(args, 'xTicks')
         set(gca, 'XTick', args.xTicks);
@@ -141,6 +144,11 @@ function rawTrajectory(expData, varargin)
     if isfield(args, 'xlabel'), xlabel(args.xlabel); end
     if isfield(args, 'ylabel'), ylabel(args.ylabel, 'Rotation', 0); end
     
+    if ~showElements.TickLabels
+        set(gca, 'XTickLabel', {});
+        set(gca, 'YTickLabel', {});
+    end
+        
     set(gcf, 'Color', 'white');
     if isfield(args, 'winsize'), setFigWindowSize(args.winsize); end
     
@@ -168,7 +176,7 @@ function rawTrajectory(expData, varargin)
 
 
     %---------------------------------------------------------------
-    function plotBackground(anyED, trials, colorPerTrial)
+    function plotBackground(anyED, trials, colorPerTrial, args)
         
         if isNL
             
@@ -231,13 +239,14 @@ function rawTrajectory(expData, varargin)
 
     %---------------------------------------------------------------
     function [xCol, yCol, convertXToNumber, trialFilters, sortTrialsFunc, trajSectionAttrs, getColorPerTrialFunc, ...
-        getLineStyleFunc, generalArgs, showGrid, doCLF, plotTargets] = parseArgs(args, anyED)
+        getLineStyleFunc, plotBackgroundFunc, generalArgs, showElements] = parseArgs(args, anyED)
         
         generalArgs = struct;
     
         generalArgs.fontsize = 40;
         generalArgs.linewidth = 1.5;
         generalArgs.respbuttoncolor = [1 1 1] * .8;
+        generalArgs.ShowTickLabels = true;
         
         if isNL
             generalArgs.ylim = [0 1];
@@ -254,13 +263,14 @@ function rawTrajectory(expData, varargin)
         
         trajSectionAttrs = [];
         
+        getColorPerTrialFunc = [];
         getColorIDFunc = [];
         getColorFunc = [];
         colors = {};
         
-        showGrid = false;
-        doCLF = true;
-        plotTargets = false;
+        plotBackgroundFunc = @plotBackground;
+        
+        showElements = struct('Grid', false, 'CLF', true, 'Targets', false, 'TickLabels', true);
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -338,16 +348,26 @@ function rawTrajectory(expData, varargin)
                     getColorFunc = args{2};
                     args = args(2:end);
                     
+                case 'randcolors'
+                    getColorPerTrialFunc = @(trials)varycolor(length(trials), true);
+                    
                 %-- misc.
                     
                 case 'showtargets'
-                    plotTargets = true;
+                    showElements.Targets = true;
                     
                 case 'noclf'
-                    doCLF = false;
+                    showElements.CLF = false;
                     
                 case 'grid'
-                    showGrid = true;
+                    showElements.Grid = true;
+                    
+                case 'noticklabels'
+                    showElements.TickLabels = false;
+                    
+                case 'plotbgndfunc'
+                    plotBackgroundFunc = args{2};
+                    args = args(2:end);
                     
                 %-- Standard args - copy their value
                 case {'title', 'xlabel', 'ylabel', 'xlim', 'ylim', 'xtick', 'ytick', 'winsize', 'figid', 'fontsize', 'linewidth', 'respbuttoncolor'}
@@ -360,7 +380,9 @@ function rawTrajectory(expData, varargin)
             args = stripArgs(args(2:end));
         end
 
-        if ~isempty(getColorFunc)
+        if ~isempty(getColorPerTrialFunc)
+            % We already have the function
+        elseif ~isempty(getColorFunc)
             % We have a simple function that returns a color per trial
             getColorPerTrialFunc = @(trials)getColorPerTrial(trials, getColorFunc);
         elseif ~isempty(getColorIDFunc)

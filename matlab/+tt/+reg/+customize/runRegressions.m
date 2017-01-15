@@ -31,11 +31,7 @@ function rr = runRegressions(allExpData, varargin)
     %------------------------------------------------------------------------
     function result = runForOneSubj(expData, regArgs)
         
-        result = struct;
-        result.SubjectName = expData.SubjectName;
-        result.SubjectInitials = expData.SubjectInitials;
-        result.SamplingRate = expData.SamplingRate;
-        result.TimeExecuted = datestr(now);
+        result = tt.reg.createEmptyRROneSubj(expData.SubjectInitials, expData.SubjectName, expData.SamplingRate);
         result.MaxMovementTime = max(arrayfun(@(t)t.MovementTime, expData.Trials));
         
         %CUSTOM: change all lines below according to your regressions

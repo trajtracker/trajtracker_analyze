@@ -1,4 +1,4 @@
-function cmpResult = compareParamValuesImpl(paramValues, testType, varargin)
+function cmpResult = compareParamValues(paramValues, testType, varargin)
 % result = compareParamValuesImpl(paramValues, testType, ...) - 
 % Comapre the values of two or more parameters in all time points.
 % DO NOT CALL THIS FUNCTION DIRECTLY. It's an internal function, used by
