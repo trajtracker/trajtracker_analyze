@@ -262,15 +262,19 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
             %---------- decomposed digits + their logs -------------
 
             case 'hundreds'
-                currMeasure = floor(targets/100) * 10;
+                currMeasure = floor(targets/100) * 100;
                 measureDesc = 'Hundreds';
 
             case 'hundred_digit'
                 currMeasure = mod(floor(targets/100), 10);
                 measureDesc = 'Hundreds digit';
                 
-            case 'decades'
+            case 'decades' % the value of this predictor is unlimited
                 currMeasure = floor(targets/10) * 10;
+                measureDesc = 'Decades';
+
+            case 'decades90' % This predictor is limited to 0-90 (if target=100, the predictor value is 0)
+                currMeasure = mod(floor(targets/10) * 10, 100);
                 measureDesc = 'Decades';
 
             case 'decade_digit'
@@ -344,7 +348,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
                 operator = tokens{2};
                 refValue = tokens{3};
                 
-                getAttrValue = iif(strcmpi(objType,'trial'), @(trial,attrName)trial.(attrName), @(trial)trial.Custom.(attrName));
+                getAttrValue = iif(strcmpi(objType,'trial'), @(trial)trial.(attrName), @(trial)trial.Custom.(attrName));
                 
                 isStringVal = refValue(1) == '"' && refValue(end) == '"';
                 if isStringVal

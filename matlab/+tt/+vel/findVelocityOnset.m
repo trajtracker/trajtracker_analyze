@@ -108,12 +108,13 @@ function findVelocityOnset(expData, varargin)
         
         % Get distribution of velocities
         v = [];
-        v1 = [];
+%        v1 = [];
         for i = 1:length(velocities)
+%            fprintf('i=%d s=%d\n', i, size(v1, 1));
             vv = velocities(i).velocity;
             lastInd = min(maxRow, size(vv, 1));
             v = [v; vv(1:lastInd)];
-            v1 = [v1 vv(1:lastInd)];
+%            v1 = [v1 vv(1:lastInd)];
         end
         v = v(~isnan(v));
         

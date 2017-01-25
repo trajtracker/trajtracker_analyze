@@ -417,6 +417,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         trimRowNumbersByTrajEnd = true;
         
         dt = [];
+        maxTime = NaN;
         getTrialsFunc = @(expData)expData.Trials;
         consolidateTrialsFunc = [];
         trialFilters = {};
@@ -450,6 +451,10 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 
                 case 'dt'
                     dt = args{2};
+                    args = args(2:end);
+                    
+                case 'maxtime'
+                    maxTime = args{2};
                     args = args(2:end);
                     
                 case 'rows'
@@ -545,7 +550,9 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
                 dt = iif(isempty(dt), 0.05, dt);
                 longestTrial = expData.LongestTrial;
                 dRow = round(dt / longestTrial.SamplingRate);
-                timePoints = (dRow+1):dRow:longestTrial.NTrajSamples;
+                lastTP = iif(isnan(maxTime), longestTrial.NTrajSamples, find(longestTrial.Trajectory(:, TrajCols.AbsTime) >= maxTime-.00001));
+                if isempty(lastTP), lastTP = longestTrial.NTrajSamples; end
+                timePoints = (dRow+1):dRow:lastTP;
             end
         end
         

@@ -208,7 +208,6 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         expData.TotalDuration = sum(arrayfun(@(s)getTotalSessionDuration(s), sessionInfos));
         
         sessionInf = sessionInfos(1);
-        expData.SubjectInitials = sessionInf.SubjInitials;
         expData.BuildNumber = sessionInf.BuildNumber;
         expData.RunDate = sessionInf.getXmlBlock({'session', 'start_dash_time', 'Text'});
         

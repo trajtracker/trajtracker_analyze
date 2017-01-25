@@ -32,6 +32,8 @@ classdef OneRR < handle
         sd_RSquare        % When self.RSquare is average, this is SD
         p                 % Regression-level p value
         stat              % Detailed statistics of the raw regression function
+        
+        Custom
     end
     
     methods
@@ -51,6 +53,8 @@ classdef OneRR < handle
             self.RSquare = NaN(length(self.times), 1);
             self.p = NaN(length(self.times), 1);
             self.NSubjects = 1;
+            
+            self.Custom = struct;
         end
         
         %---------------------------------------------------------------------
