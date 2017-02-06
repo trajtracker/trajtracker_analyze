@@ -284,12 +284,15 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     %--------------------------------------------------------------------
     function updateParamName(result, paramNames, allRR)
         
+        anyRR = tt.reg.toRRArray(allRR{1});
+        anyRR = anyRR(1);
+        
         nParams = length(paramNames);
         for i = 1:nParams
             ind = find(paramNames{i}=='.', 1);
-            name = paramNames{i}(1:ind-1);
-            result.cmpParam(i).ParamName = name;
-            result.cmpParam(i).ParamDesc = allRR{1}.avg.(regressionKeys{i}).getPredDesc(name);
+            prmName = paramNames{i}(1:ind-1);
+            result.cmpParam(i).ParamName = prmName;
+            result.cmpParam(i).ParamDesc = anyRR.(regressionKeys{i}).getPredDesc(prmName);
         end
     end
 

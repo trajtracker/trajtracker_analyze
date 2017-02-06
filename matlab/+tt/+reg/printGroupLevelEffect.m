@@ -32,7 +32,8 @@ function printGroupLevelEffect(allRR, rrKey, varargin)
     for cmp = cmpResult.cmpParam
         row = getRowNumFunc(cmpResult, cmp);
         p = cmp.pPred(row);
-        fprintf('%s[%s] = %.3f, p = %s %s\n', bType, cmp.ParamName, cmp.values(row), format_pval(p), getSignificance(p));
+        fprintf('%s[%s] = %.3f, t(%d)=%.2f, p = %s %s\n', bType, cmp.ParamName, cmp.values(row), ...
+            cmp.dfPred, cmp.fPred(row), format_pval(p), getSignificance(p));
     end
     
     %----------------------------------------------

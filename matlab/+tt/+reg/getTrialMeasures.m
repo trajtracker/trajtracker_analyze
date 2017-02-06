@@ -85,7 +85,16 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
         
         if isa(descriptor, 'function_handle')
             %-- Custom function
-            [currMeasure, measureName, currMeasureDesc] = descriptor(trials, expData);
+            nFuncArgs = abs(nargout(descriptor));
+            if nFuncArgs == 1
+                currMeasure = descriptor(trials, expData);
+                measureName = sprintf('pred%d', iMeasure);
+                currMeasureDesc = '';
+            elseif nFuncArgs >= 3
+                [currMeasure, measureName, currMeasureDesc] = descriptor(trials, expData);
+            else
+                error('Invalid get-measure function (%s): it should returns 1 or 3 arguments,', char(descriptor));
+            end
             
         elseif ischar(descriptor)
             %-- A known measure (string): parse it
@@ -142,14 +151,14 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
             %-- Index provided
             if startsWith(lower(attrInd), 'end-')
                 index = str2double(attrInd(5:end));
-                values = arrayfun(@(t)t.Custom.(fieldName)(end-index), trials);
+                values = arrayfun(@(t)t.Custom.(attrName)(end-index), trials);
                 name = sprintf('custom_%s_end_%d', attrName, index);
             elseif strcmpi(attrInd, 'end')
-                values = arrayfun(@(t)t.Custom.(fieldName)(end), trials);
+                values = arrayfun(@(t)t.Custom.(attrName)(end), trials);
                 name = sprintf('custom_%s_end', attrName);
             else
                 index = str2double(attrInd);
-                values = arrayfun(@(t)t.Custom.(fieldName)(index), trials);
+                values = arrayfun(@(t)t.Custom.(attrName)(index), trials);
                 name = sprintf('custom_%s_%d', attrName, index);
             end
         end

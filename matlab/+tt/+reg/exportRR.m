@@ -20,10 +20,9 @@ function exportRR(allRR, rrKey, outFN, varargin)
     
     printCondName = length(allRR) > 1;
     
-    [paramNames, paramDesc, condNames, timeFilters, outputFormat] = parseArgs(varargin, allRR, rrKey);
+    [paramNames, paramDesc, condNames, timeFilters, outputFormat, subjIDs] = parseArgs(varargin, allRR, rrKey);
     [predNames, predParams] = parseParamName(paramNames);
     
-    subjIDs = tt.reg.listInitials(allRR{1});
     nSubjs = length(subjIDs);
     
     nTimes = max(arrayfun(@(iCond)max(arrayfun(@(iSubj)length(allRR{iCond}.(subjIDs{iSubj}).(rrKey).times), 1:nSubjs)), 1:length(allRR)));
@@ -113,10 +112,11 @@ function exportRR(allRR, rrKey, outFN, varargin)
     end
 
     %---------------------------------------
-    function [paramNames, paramDesc, condNames, timeFilters, outFormat] = parseArgs(args, allRR, rrKey)
+    function [paramNames, paramDesc, condNames, timeFilters, outFormat, subjIDs] = parseArgs(args, allRR, rrKey)
         
-        sids = tt.reg.listInitials(allRR{1});
-        anyRR = allRR{1}.(sids{1}).(rrKey);
+        origSIDs = tt.reg.listInitials(allRR{1});
+        subjIDs = origSIDs;
+        anyRR = allRR{1}.(subjIDs{1}).(rrKey);
         
         paramNames = strcat('b_', anyRR.predictorNames);
         condNames = arrayfun(@(i){sprintf('cond%d',i)}, 1:length(allRR));
@@ -165,6 +165,15 @@ function exportRR(allRR, rrKey, outFN, varargin)
                             error('Unknown output format "%s"', args{2});
                     end
                     args = args(2:end);
+                    
+                case 'subjids'
+                    subjIDs = args{2};
+                    args = args(2:end);
+                    
+                case 'excludesubjids'
+                    exsid = args{2};
+                    args = args(2:end);
+                    subjIDs = origSIDs(~ismember(origSIDs, exsid));
                     
                 otherwise
                     error('unsupported argument "%s"', args{1});
