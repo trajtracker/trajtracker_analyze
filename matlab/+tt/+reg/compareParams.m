@@ -298,6 +298,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
 
     %--------------------------------------------------------------------
     function updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs, paramMultiplyFactors)
+        
         % Get mean values (per time slot) across subject of several parameters.
         % Return a format acceptable by "plotParamComparison"
         % 
@@ -310,12 +311,14 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
 
         %-- Per parameter, get mean value per time point (over all subjects)
         allValues = cell(1, nParams);
+        nAvailableSubjectsPerTimePoint = cell(1, nParams);
         allSD = cell(1, nParams);
         rTimes = [];
         for i = 1:nParams
             [paramValues, pTimes, subjIDs] = tt.reg.getRRCoeffs(allRR{i}, regressionKeys{i}, paramNames{i}, 'SubjIDs' , subjIDs);
             allValues{i} = nanmean(paramValues, 2);
             allSD{i} = nanstd(paramValues, 0, 2);
+            nAvailableSubjectsPerTimePoint{i} = sum(~isnan(paramValues), 2);
             if length(pTimes) > length(rTimes)
                 rTimes = pTimes;
             end
@@ -328,9 +331,12 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         for i = 1:nParams
             v = allValues{i};
             sd = allSD{i};
+            nsubj = nAvailableSubjectsPerTimePoint{i};
             if length(v) < nTimePoints
-                v = [v; repmat(v(end), nTimePoints-length(v), 1)]; %#ok<AGROW>
-                sd = [sd; repmat(sd(end), nTimePoints-length(sd), 1)];  %#ok<AGROW>
+                nExtend = nTimePoints-length(v);
+                v = [v; repmat(v(end), nExtend, 1)]; %#ok<AGROW>
+                sd = [sd; repmat(sd(end), nExtend, 1)];  %#ok<AGROW>
+                nsubj = [nsubj; repmat(nsubj(end), nExtend, 1)];  %#ok<AGROW>
             end
             
             if ~isnan(paramMultiplyFactors(i))
@@ -340,6 +346,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
             
             result.cmpParam(i).values = v;
             result.cmpParam(i).sd_values = sd;
+            result.cmpParam(i).nSubjValues = nsubj;
             
         end
 

@@ -43,6 +43,9 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
     extraInf = struct;
     
     %-- Get trials
+    if maxTime < 0
+        trialFilters = [trialFilters {@(t)t.MovementTime > -maxTime}];
+    end
     [trials, inds] = tt.util.filterTrialList(trials, trialFilters);
     edPerTrial = edPerTrial(inds);
 
@@ -62,14 +65,33 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
 
     %-- Find row numbers
     longestTrial = tt.util.getLongestTrial(trials);
-    maxTime = min(maxTime, longestTrial.Trajectory(end, TrajCols.AbsTime));
-    
-    if isempty(dt)
-        rows = 1:longestTrial.NTrajSamples;
-        times = minTime:edPerTrial(1).SamplingRate:maxTime;
+    if maxTime >= 0
+
+        maxTime = min(maxTime, longestTrial.Trajectory(end, TrajCols.AbsTime));
+
+        if isempty(dt)
+            rows = 1:longestTrial.NTrajSamples;
+            times = minTime:edPerTrial(1).SamplingRate:maxTime;
+        else
+            times = minTime:dt:maxTime;
+            rows = arrayfun(@(t)find(longestTrial.Trajectory(:, TrajCols.AbsTime) >= t, 1), times-0.0001); % The "0.0001" term is to cope with small numeric inaccuracies
+        end
+
+        maxNRowsFromEnd = 0;
+        
     else
-        times = minTime:dt:maxTime;
-        rows = arrayfun(@(t)find(longestTrial.Trajectory(:, TrajCols.AbsTime) >= t, 1), times-0.0001); % The "0.0001" term is to cope with small numeric inaccuracies
+        
+        absMaxTime = longestTrial.Trajectory(end, TrajCols.AbsTime) + maxTime;
+        
+        if isempty(dt)
+            rows = 1:longestTrial.NTrajSamples;
+            times = minTime:edPerTrial(1).SamplingRate:absMaxTime;
+        else
+            times = minTime:dt:absMaxTime;
+            rows = arrayfun(@(t)find(longestTrial.Trajectory(:, TrajCols.AbsTime) >= t, 1), times-0.0001); % The "0.0001" term is to cope with small numeric inaccuracies
+        end
+        maxNRowsFromEnd = ceil((-maxTime)/edPerTrial(1).SamplingRate);
+
     end
     
     data = NaN(length(times), length(groups));
@@ -80,8 +102,9 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
         currGroupTrialInds = find(grpPerTrial == groups(iGroup));
         currGroupData = NaN(length(times), length(currGroupTrialInds));
         
-        % Per trial, find the last row which does not exceed its trajectory
-        lastValidTP = arrayfun(@(t)find([0 rows] <= t.NTrajSamples, 1, 'last') - 1, trials(currGroupTrialInds));
+        % Per trial, find the last row to consider. This is the end of the
+        % trajectory, and possibly even earlier (if maxTime<0).
+        lastValidTP = arrayfun(@(t)find([0 rows] <= t.NTrajSamples-maxNRowsFromEnd, 1, 'last') - 1, trials(currGroupTrialInds));
         
         for i = 1:length(currGroupTrialInds)
             trial = trials(currGroupTrialInds(i));
@@ -137,7 +160,7 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
                     
                 case 'grpfunc'
                     groupingFunc = args{2};
-                    switch(lower(groupingFunc))
+                    switch(char(lower(groupingFunc)))
                         case 'target'
                             groupingFunc = @(trial)trial.Target;
                             

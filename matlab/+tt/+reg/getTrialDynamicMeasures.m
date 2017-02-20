@@ -69,6 +69,10 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 currMeasure = getTrajectoryColumn(trials, TrajCols.YVelocity, rowNums);
                 currMeasureDesc = 'y speed';
                 
+            case 'yacc'
+                currMeasure = getTrajectoryColumn(trials, TrajCols.YAcceleration, rowNums);
+                currMeasureDesc = 'y acceleration';
+                
             case {'ep', 'iep'}
                 currMeasure = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 currMeasureDesc = 'Implied endpoint';

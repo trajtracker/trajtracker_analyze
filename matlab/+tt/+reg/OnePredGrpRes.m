@@ -9,6 +9,7 @@ classdef OnePredGrpRes < handle
         
         values    % Column vector (value per time point)
         sd_values % Column vector (value per time point)
+        nSubjValues % Column vector (# of subject with available value, per time point)
         valuesPerGroup    % timepoints x ngroups matrix (only when grouping is used)
         
         % Effect of the predictor

@@ -18,7 +18,7 @@ function plotTrajValue(inData, varargin)
 % FontSize <size>
 % FigID <n> - set the figure ID
 % WinSize [width height] - set size of the figure window
-% - and any argument of <a href="tt.inf.getTrajectoryValues">tt.inf.getTrajectoryValues</a>
+% - and any argument of <a href="matlab:help tt.inf.getTrajectoryValues">tt.inf.getTrajectoryValues</a>
 
     [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs] = parseArgs(varargin);
     
@@ -104,7 +104,7 @@ function plotTrajValue(inData, varargin)
         args = stripArgs(args);
         while ~isempty(args)
             switch(lower(args{1}))
-                case {'getvaluefunc', 'trajcol', 'trialfilter', 'grpfunc', 'smooth'}
+                case {'getvaluefunc', 'trajcol', 'trialfilter', 'grpfunc', 'smooth', 'maxtime'}
                     getValueArgs = [getValueArgs args(1:2)]; %#ok<AGROW>
                     args = args(2:end);
                     
