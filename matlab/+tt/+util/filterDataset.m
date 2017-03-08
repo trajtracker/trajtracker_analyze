@@ -9,6 +9,8 @@ function outDS = filterDataset(inDS, filterFunc, varargin)
 % Dir <relative-path> - set the folder (inside the traj-tracker base path)
 %                       of the new dataset 
 % Save - save the dataset to "binary" in that folder
+% CondName <string> - A logical name of the condition. Will be copied to
+%                     dataset.raw.general.CondName and dataset.d.general.CondName
 
     [dsDir, doSave, condName] = parseArgs(varargin);
     

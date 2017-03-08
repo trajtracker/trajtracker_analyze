@@ -859,6 +859,11 @@ function figHandle = plotParamComparison(cmpData, varargin)
                         seriesFormat{i}.MarkerNonSig = nonSignificantMarkers{i};
                     end
                     
+                case 'nonsmarker'
+                    for i = 1:length(significantMarkers)
+                        seriesFormat{i}.MarkerNonSig = 'None';
+                    end
+                    
                 case 'markersize'
                     markerSize = args{2};
                     args = args(2:end);
