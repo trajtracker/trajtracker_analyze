@@ -15,3 +15,5 @@
 % <a href="matlab:help tt.MovementOnset">tt.MovementOnset</a> - Analyzing horizontal movement onset.
 % <a href="matlab:help tt.COM">tt.COM</a> - Analyzing deviations and changes of mind.
 % <a href="matlab:help tt.Confidence">tt.Confidence</a> - Finger speed as a measure of confidence.
+
+help tt.Help
