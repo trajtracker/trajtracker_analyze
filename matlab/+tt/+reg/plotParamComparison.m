@@ -43,6 +43,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
 %                  shapes. If the cell array has 2 rows, the first row is used 
 %                  for significant points and the 2nd for nonsignificant
 %                  points.
+%   NoNSMarkers - Do not plot markers for non-significant points
 %   MarkerSize <size> - set marker size. The size is either a scalar or an
 %                       array that is at least as long as the number of
 %                       series to plot.
@@ -663,6 +664,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
             end
         end
         
+        removeNonSignificantMarkers = false;
         tpMarkerOverride = {}; % Override of formatting per time point
         
         args = stripArgs(args);
@@ -860,9 +862,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
                     end
                     
                 case 'nonsmarkers'
-                    for i = 1:length(significantMarkers)
-                        seriesFormat{i}.MarkerNonSig = 'None';
-                    end
+                    removeNonSignificantMarkers = true;
                     
                 case 'markersize'
                     markerSize = args{2};
@@ -978,6 +978,12 @@ function figHandle = plotParamComparison(cmpData, varargin)
             end
             
             args = stripArgs(args(2:end));
+        end
+        
+        if removeNonSignificantMarkers
+            for i = 1:length(seriesFormat)
+                seriesFormat{i}.MarkerNonSig = 'None';
+            end
         end
         
         % Apply defaults
