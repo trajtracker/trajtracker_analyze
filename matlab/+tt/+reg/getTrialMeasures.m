@@ -252,8 +252,12 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
                 
             %--------------------
                 
-            case 'endpoint'
+            case {'ep', 'x_nl'}
                 currMeasure = arrayfun(@(t)t.EndPoint, trials);
+                measureDesc = 'Endpoint';
+            
+            case 'x'
+                currMeasure = arrayfun(@(t)t.Trajectory(end, TrajCols.X), trials);
                 measureDesc = 'Endpoint';
             
             case 'mt'
