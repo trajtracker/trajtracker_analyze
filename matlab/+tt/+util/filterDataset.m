@@ -10,7 +10,7 @@ function outDS = filterDataset(inDS, filterFunc, varargin)
 %                       of the new dataset 
 % Save - save the dataset to "binary" in that folder
 
-    [dsDir, doSave] = parseArgs(varargin);
+    [dsDir, doSave, condName] = parseArgs(varargin);
     
     if isfield(inDS, 'raw')
         % Process "d" and raw
@@ -51,7 +51,7 @@ function outDS = filterDataset(inDS, filterFunc, varargin)
         fprintf('\n');
 
         outDS.general = inDS.general;
-        outDS.general.CondName = '';
+        outDS.general.CondName = condName;
         
         if ~isempty(dsDir)
             outDS.general.setName = dsDir;
@@ -66,9 +66,10 @@ function outDS = filterDataset(inDS, filterFunc, varargin)
     
     %------------------------------------
     
-    function [dsDir, doSave] = parseArgs(args)
+    function [dsDir, doSave, condName] = parseArgs(args)
         
         dsDir = '';
+        condName = '';
         doSave = false;
         
         args = stripArgs(args);
@@ -79,6 +80,10 @@ function outDS = filterDataset(inDS, filterFunc, varargin)
                     
                 case 'dir'
                     dsDir = args{2};
+                    args = args(2:end);
+                    
+                case 'condname'
+                    condName = args{2};
                     args = args(2:end);
                     
                 otherwise
