@@ -66,7 +66,6 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
         td.TrialIndex = rowNum;
 
         td.MovementTime = mtGetter(trialInfo);
-        td.TrajectoryLength = trialInfo.trajectorylength;
         td.ErrCode = tt.preprocess.statusToErrCode(trialInfo.status);
         if ~isnan(minMovementTime) && td.ErrCode == TrialErrCodes.OK && td.MovementTime < minMovementTime
             td.ErrCode  = TrialErrCodes.TrialTooShort;
@@ -77,7 +76,11 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
         end
 
         td.PrevTarget = prevTarget;
-        td.SubSession = trialInfo.subsession;
+        if isfield(trialInfo, 'subsession')
+            td.SubSession = trialInfo.subsession;
+        else
+            td.SubSession = 1;
+        end
         td.TimeInSubSession = trialInfo.timeinsession;
         td.TimeUntilTargetShown = trialInfo.timeuntiltarget;
         td.TimeUntilFingerMoved = trialInfo.timeuntilfingermoved;

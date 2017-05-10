@@ -138,7 +138,8 @@ function preprocessSet(subDir, varargin)
         end
         
         %-- Validate old versions
-        oldestBuild = min(arrayfun(@(s)s.BuildNumber, sessions));
+        old_sessions = sessions(arrayfun(@(s)strcmpi(s.Software, 'ipad'), sessions));
+        oldestBuild = min(arrayfun(@(s)s.BuildNumber, old_sessions));
         if (oldestBuild <= 51)
             %-- For such old builds, preprocessing is needed
             originDirName = [TrajTrackerDataPath '/' subDir '/original'];

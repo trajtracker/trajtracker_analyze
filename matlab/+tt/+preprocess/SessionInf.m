@@ -7,8 +7,13 @@ classdef SessionInf < handle
         SubjID
         SubjInitials
         SubjName
-        Platform
+        
+        Software
         BuildNumber
+        
+        Platform
+        PlatformVersion
+        
         StartTime
         CustomAttrs
         Files
@@ -41,6 +46,9 @@ classdef SessionInf < handle
             v = [TrajTrackerDataPath '/' self.SubDir '/raw'];
         end
         
+        function ttrk = is_trajtracker(self)
+            ttrk = strcmpi(self.Software, 'TrajTracker');
+        end
         
         %----------------------------------------------------------
         function value = getXmlBlock(self, subEntityNames)

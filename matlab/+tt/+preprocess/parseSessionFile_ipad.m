@@ -1,19 +1,13 @@
-function session = loadSessionFile(filename)
-% session = loadSessionFile(filename) - Load a session metadata file (XML),
-% without the trial data.
-% 
-% Return a SessionInf object.
+function parseSessionFile_ipad(session)
+% parseSessionFile_ipad(session) - Parse a session metadata file (XML),
+% without the trial data, for old file format (iPad app)
 
-    [subDir, bn] = tt.preprocess.parsePath(filename);
-    session = tt.preprocess.SessionInf(subDir, bn);
-    
-    xml = xml2struct(filename);
-    session.xmlData = xml.data;
+    session.Software = 'ipad';
     
     xmlSession = getSubEntity(session.xmlData, 'session', 'data');
     
     xmlSubj = getSubEntity(xmlSession, 'subject', 'session');
-    session.SubjID = tt.preprocess.getXmlAttr(xmlSubj, 'id', 'subject', filename);
+    session.SubjID = tt.preprocess.getXmlAttr(xmlSubj, 'id', 'subject', session.Filename);
     session.SubjName = getSubEntity(xmlSubj, {'name', 'Text'}, 'subject');
     if isfield(xmlSubj.Attributes, 'initials')
         session.SubjInitials = xmlSubj.Attributes.initials;
@@ -22,17 +16,17 @@ function session = loadSessionFile(filename)
     end
 
     xmlExp = getSubEntity(xmlSession, 'experiment', 'session');
-    session.Platform = tt.preprocess.getXmlAttr(xmlExp, 'platform', 'experiment', filename);
+    session.Platform = tt.preprocess.getXmlAttr(xmlExp, 'platform', 'experiment', session.Filename);
     
     startTime = getSubEntity(xmlSession, {'start_dash_time', 'Text'}, 'session');
     try
         session.StartTime = datetime(startTime);
     catch eee
-        error('Invalid session file %s: unknown format for session.start-time (%s)', filename, startTime);
+        error('Invalid session file %s: unknown format for session.start-time (%s)', session.Filename, startTime);
     end
     
     softwareVer = getSubEntity(xmlSession, {'software_dash_version', 'Text'}, 'session');
-    [~, session.BuildNumber] = parseSoftwareVersion(softwareVer, filename);
+    [~, session.BuildNumber] = parseSoftwareVersion(softwareVer, session.Filename);
         
     parseCustomAttrs(session);
     getAttachedFilenames(session);
@@ -55,7 +49,7 @@ function session = loadSessionFile(filename)
         for i = 1:length(subEntityNames)
             e = subEntityNames{i};
             if ~isfield(value, e)
-                error('Invalid session file (%s): no entity "%s" was found in block <%s>', filename, join('.', subEntityNames(1:i)), entityName);
+                error('Invalid session file (%s): no entity "%s" was found in block <%s>', session.Filename, join('.', subEntityNames(1:i)), entityName);
             end
             value = value.(e);
         end
@@ -101,7 +95,7 @@ function session = loadSessionFile(filename)
     %-------------------------------------------------------------------
     function getAttachedFilenames(session)
         if ~isfield(session.xmlData.session, 'files') || ~isfield(session.xmlData.session.files, 'file')
-            error('Invalid session file (%s): no <files><file> entry was found in the session block. If this file comes from an old, iPad version of TrajTracker, you should run the pre-processing PERL script (preprocessSet.pl)', filename);
+            error('Invalid session file (%s): no <files><file> entry was found in the session block. If this file comes from an old, iPad version of TrajTracker, you should run the pre-processing PERL script (preprocessSet.pl)', session.Filename);
         end
         
         fileXml = session.xmlData.session.files.file;

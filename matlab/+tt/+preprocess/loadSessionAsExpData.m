@@ -164,12 +164,13 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         %-- Load trials
         trialsPerSession = cell(1, length(sessionInfos));
         for iSession = 1:length(sessionInfos)
-            t0t = iif(sessionInfos(iSession).BuildNumber <= 45, '0', trajT0Type); % Until build 45, the software exported trajectories with 0-based timeline
+            session = sessionInfos(iSession);
+            t0t = iif(~session.is_trajtracker() && session.BuildNumber <= 45, '0', trajT0Type); % Until build 45, the software exported trajectories with 0-based timeline
             
-            trials = tt.preprocess.loadOneSessionTrialData(sessionInfos(iSession), t0t, customColNames);
+            trials = tt.preprocess.loadOneSessionTrialData(session, t0t, customColNames);
             trialsPerSession{iSession} = trials;
             
-            tt.preprocess.loadOneSessionTrajData(sessionInfos(iSession), expData, trials, t0t, splineXParam, samplingRate, createTrajMatrixArgs, minMovementTime);
+            tt.preprocess.loadOneSessionTrajData(session, expData, trials, t0t, splineXParam, samplingRate, createTrajMatrixArgs, minMovementTime);
         end
 
         %-- Fix trial numbers (which are duplicate in multiple sessions)
@@ -209,7 +210,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         
         sessionInf = sessionInfos(1);
         expData.BuildNumber = sessionInf.BuildNumber;
-        expData.RunDate = sessionInf.getXmlBlock({'session', 'start_dash_time', 'Text'});
+        expData.RunDate = sessionInf.StartTime;
         
         expData.Custom = sessionInfos(1).CustomAttrs;
         calcSummableCustomAttrs(expData, sessionInfos, sumExpCustomAttrs);

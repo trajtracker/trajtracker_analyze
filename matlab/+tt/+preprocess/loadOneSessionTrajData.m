@@ -59,6 +59,7 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
         end
 
         trial.Trajectory = createTrajMatrix(rawTimes, x, y, expData, sessionInf, createTrajMatrixArgs, trialNum);
+        trial.TrajectoryLength = tt.preprocess.getTrajectoryLength(x, y);
     end
     
                                  
@@ -161,12 +162,13 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
         rawX = rawX(goodDT);
         rawY = rawY(goodDT);
 
-        if (strcmp(sessionInf.Platform, 'NL') && sessionInf.BuildNumber < 10) 
+        if (strcmp(sessionInf.Platform, 'NL') && ~sessionInf.is_trajtracker() && sessionInf.BuildNumber < 10) 
             % Old versions used biased X coordinates
             rawX = rawX * tt.nl.MaxLogicalXValue;
         end
 
-        if sessionInf.BuildNumber >= 69 || (strcmp(sessionInf.Platform, 'DC') && sessionInf.BuildNumber >= 62)
+        if sessionInf.is_trajtracker() ||  sessionInf.BuildNumber >= 69 || ...
+            (strcmp(sessionInf.Platform, 'DC') && ~sessionInf.is_trajtracker() && sessionInf.BuildNumber >= 62)
             % Convert X,Y coordinates to logical scale
             scaleFactor = getCoordToLogicalScaleFactor(sessionInf, expData);
             rawX = rawX .* scaleFactor;

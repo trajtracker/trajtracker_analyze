@@ -50,7 +50,6 @@ classdef OneTrialData < handle
             self.Target = c.Target;
             self.Prime = c.Prime;
             self.MovementTime = c.MovementTime;
-            self.TrajectoryLength = c.TrajectoryLength;
             self.ErrCode = c.ErrCode;
             self.SubSession = c.SubSession;
             self.TimeInSubSession = c.TimeInSubSession;
