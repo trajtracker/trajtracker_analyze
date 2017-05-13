@@ -2,9 +2,10 @@
 %              -- TrajTracker analysis toolbox --
 %              ----------------------------------
 %
-% (general explanation)
-% (where to get the app from; or use your own)
+% "TrajTracker Analyze" is a Matlab toolbox for analyzing the results 
+% of trajectory-tracking experiments.
 % 
+% Visit us at http://trajtracker.com
 % 
 % Specific help topics - we recommend reading in this order:
 % <a href="matlab:help tt.DirStruct">tt.DirStruct</a>   - How to keep your data on the file system.

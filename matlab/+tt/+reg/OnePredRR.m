@@ -1,5 +1,13 @@
 classdef OnePredRR < handle
-    %OnePredRR - regression results of one predictor
+%OnePredRR - regression results of one predictor
+% 
+% All properties are per time-point (column vectors)
+% 
+% Properties:
+% - Regression coefficients (b and beta)
+% - Their standard deviation and standard error, in case the object
+%   represents the average across several subjects.
+% - The p and r^2 values
     
     properties(SetAccess=private)
         PredName

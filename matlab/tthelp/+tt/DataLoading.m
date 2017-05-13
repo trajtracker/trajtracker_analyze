@@ -17,3 +17,5 @@
 %    in each of these directories.
 % 5. Load the data to matlab by calling <a href="matlab:help tt.loadDataset">tt.loadDataset</a>(ds_dir).
 % 
+
+help tt.DataLoading

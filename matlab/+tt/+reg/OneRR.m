@@ -1,6 +1,56 @@
 classdef OneRR < handle
-    %ONERR - results of one regression, potentially in several time points
-    
+% OneRR - results of one regression (one call to <a href="matlab:help tt.reg.regress">tt.reg.regress</a>
+% This includes regression results from one regression model,
+% potentially in several time points.
+% 
+% Properties:
+% ===========
+% 
+%   SubjectInitials:  Subject on which the regression was run
+%   Custom:           struct for custom data
+% 
+% Regression parameters -
+% 
+%   dependentVar:     The dependent variable definition, as provided to tt.reg.regress()
+%   DependentVarDesc: Text description of the dependent variable
+%   predictorNames:   The predictor names, as provided to tt.reg.regress()
+%                   (cell array)
+%   regressionType:   As passed to tt.reg.regress()
+%   PredictorDesc:    Cell array with text description per predictor
+%   RegressionParams: Struct with parameters used to run the regression
+% 
+% Info about the regressed trials -
+% 
+%   times:            The time points on which regression was run
+%   MaxMovementTime:  Movement time of the longest trial regressed
+%   NSubjects:        Number of subjects regressed (typically 1, but can be
+%                     more in case the object represents average of several
+%                     results)
+%   df:               The regression's degrees of freedom
+%   sd_x:             Standard deviation of each predictor across trials
+%                     (#timepoints x #predictors matrix)
+%   sd_y:             Standard deviation of the dependent variable across trials
+%                     (per time-point)
+% 
+% Regression results -
+% 
+%   MSE:              MSE of the regression model
+%   RSquare:          regression-level r^2
+%   p:                regression-level p-value
+%   sd_RSquare:       Standard deviation (across subjects) of r^2 (in case
+%                     this object is the average across several subjects)
+%   stat:             Detailed statistics - results of Matlab's regression
+%                     function (cell array, one value per time point;
+%                     updated only if explicitly required).
+% 
+% Methods:
+% ========
+% getPredResult(pred_name): Get the results of one predictor (<a href="matlab:help tt.reg.OnePredRR">OnePredRR</a>)
+% getPredDesc(pred_name): Get the string description of one predictor
+% getParamValue(pred_name, param_name): Get a parameter from one predictor
+%               results (e.g., getParamValue('const', 'b') to get the
+%               regression constant intercept).
+
     properties(SetAccess=private)
         SubjectInitials   % Subject on which the regression was run
         dependentVar      % Dependent variable - string descriptor

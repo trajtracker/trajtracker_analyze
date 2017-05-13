@@ -111,3 +111,5 @@
 %   can be done by grouping data points from the same absolute time (expData.AvgTrialsAbs)
 %   or normalized time (expData.AvgTrialsNorm)
 % - expData.Custom - custom data, similarly to "trial.Custom" (see above)
+
+help tt.DataFormat

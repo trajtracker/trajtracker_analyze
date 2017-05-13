@@ -32,3 +32,5 @@
 % - binary: the data in matlab format. The preprocessed dataset will be
 %           stored here in a file called session_data.mat. You can also
 %           store here regression results and other data files.
+
+help tt.DirStruct

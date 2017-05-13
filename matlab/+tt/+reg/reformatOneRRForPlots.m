@@ -1,6 +1,6 @@
 function result = reformatOneRRForPlots(subjRR, rrKey, varargin)
-%r = reformatOneRRForPlots(subjRR, rrKey, ...) Convert a regression results to 
-%a format plottable by the <a href="matlab:help tt.reg.plotParamComparison">plotParamComparison</a> function.
+%r = reformatOneRRForPlots(subjRR, rrKey, ...) -
+% Transform a regression results to a format plottable by <a href="matlab:help tt.reg.plotParamComparison">plotParamComparison()</a>.
 %
 % Optional arguments:
 % Params <cell-array>: list of params to plot
