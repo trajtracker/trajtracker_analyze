@@ -60,11 +60,6 @@ function doPerTrial(allExpData, funcToApply, varargin)
         
         args = stripArgs(args);
         
-        % Support older API
-        if ~isempty(args) && strcmpi(args{1}, 'trials')
-            args = args(2:end);
-        end
-        
         while ~isempty(args)
             switch(lower(args{1}))
                 case 'trials'
