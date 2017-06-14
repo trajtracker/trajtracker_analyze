@@ -5,7 +5,7 @@ function velInfo = getTrialVelocity(trial, varargin)
 % 
 % Optional args:
 % Acc - also calculate acceleration
-% Axis X|Y - which velocity to get
+% Axis X|Y|iep - which velocity to get
 % CSmooth <args> - Smooth coordinates before deriving them into velocity
 % VSmooth <args> - Smooth velocity before deriving it into acceleration
 %        The smoothing arguments are either of:
@@ -65,6 +65,8 @@ function velInfo = getTrialVelocity(trial, varargin)
                             xCol = TrajCols.X;
                         case 'y'
                             xCol = TrajCols.Y;
+                        case 'iep'
+                            xCol = TrajCols.ImpliedEP;
                         case 'xy'
                             velXY = true;
                             xCol = [];
