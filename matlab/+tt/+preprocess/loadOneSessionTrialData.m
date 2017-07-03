@@ -55,7 +55,7 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
                 prevEndPoint = td.EndPoint;
 
             case 'DC'
-                td = GDOneTrialData(trialInfo.trialnum, target);
+                td = DCOneTrialData(trialInfo.trialnum, target);
                 td.UserResponse = trialInfo.userresponse;
                 td.PrevResponse = prevResponse;
                 prevResponse = td.UserResponse;

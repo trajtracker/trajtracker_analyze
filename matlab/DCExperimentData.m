@@ -1,22 +1,15 @@
-classdef GDExperimentData < ExperimentData
-% Data of a decision experiment with several response alternatives
+classdef DCExperimentData < ExperimentData
+% Data of a discrete-choice experiment with several response alternatives
     
     methods
         
-        function self = GDExperimentData(initials, subjName)
+        function self = DCExperimentData(initials, subjName)
             self = self@ExperimentData(initials, subjName);
         end
         
         function targets = getAllTargets(self)
             allTrg = arrayfun(@(t)t.Target, self.Trials);
             targets = unique(allTrg);
-        end
-        
-        %---------------------------------------------------------------
-        % Scaling factor of logical coordinates to screen coordinates
-        % (make sure we get maximal X values of +/- 1)
-        function v = logicalScaleToPixelsFactor(self)
-            v = self.windowWidth() / 2;
         end
         
         %---------------------------------------------------------
@@ -41,16 +34,6 @@ classdef GDExperimentData < ExperimentData
         end
         
         %---------------------------------------------------------
-        function v = maxYPixels(self)
-            v = self.windowHeight() - self.originCoordY();
-        end
-        
-        %---------------------------------------------------------
-        function v = maxYLogicalCoord(self)
-            v = self.maxYPixels() / self.logicalScaleToPixelsFactor();
-        end
-        
-        %---------------------------------------------------------
         function v = windowWidth(self)
             if isfield(self.Custom, 'WindowWidth')
                 v = self.Custom.WindowWidth;
@@ -66,7 +49,7 @@ classdef GDExperimentData < ExperimentData
     methods(Access=protected)
         
         function copyOfSelf = createEmptyClone(self)
-            copyOfSelf = GDExperimentData(self.SubjectInitials, self.SubjectName);
+            copyOfSelf = DCExperimentData(self.SubjectInitials, self.SubjectName);
         end
         
         function p = getPlatform(~)

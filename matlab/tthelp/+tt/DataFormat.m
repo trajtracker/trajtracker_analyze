@@ -84,7 +84,7 @@
 % https://www.mathworks.com/help/matlab/matlab_oop/create-a-simple-class.html
 % 
 % Data from number-line experiments is stored as <a href="matlab:help NLExperimentData">NLExperimentData</a>
-% objects, data from discrete-decision experiments is stored as <a href="matlab:help GDExperimentData">GDExperimentData</a>
+% objects, data from discrete-choice experiments is stored as <a href="matlab:help DCExperimentData">DCExperimentData</a>
 % objects. Both these classes derive from <a href="matlab:help ExperimentData">ExperimentData</a>
 %
 % Data of one trial is a <a href="matlab:help OneTrialData">OneTrialData</a> object.

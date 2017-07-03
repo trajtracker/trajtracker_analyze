@@ -62,7 +62,7 @@ function createAverageTrials(expData, varargin)
             case 'NL'
                 t = NLOneTrialData(-1,-1);
             case 'DC'
-                t = GDOneTrialData(-1,-1);
+                t = DCOneTrialData(-1,-1);
             otherwise
                 error('Unsupported platform "%s"', expData.ExperimentPlatform);
         end

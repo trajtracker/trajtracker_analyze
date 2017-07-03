@@ -18,7 +18,7 @@ function updateDeviationFromDiagonal(trials, expData)
     % coordinates.
     % The MAX_Y is set to be a little below the response buttons
     % (trajectories may end lower than the button due to smoothing and cropping)
-    yCoordForBottomOfResponseButtons = (expData.Custom.TrajZeroCoordY - getResponseButtonHeight() - N_PIXELS_BELOW_RESPONSE) / expData.logicalScaleToPixelsFactor();
+    yCoordForBottomOfResponseButtons = (expData.Custom.TrajZeroCoordY - getResponseButtonHeight() - N_PIXELS_BELOW_RESPONSE) / expData.PixelsPerUnit;
     
     starightTrajToResponse = {createStraightTrajectoryTo(-1), createStraightTrajectoryTo(1)};
 
@@ -68,7 +68,7 @@ function updateDeviationFromDiagonal(trials, expData)
         
         maxYInd = find(y > yCoordForBottomOfResponseButtons, 1);
         if isempty(maxYInd)
-            maxYPix = round(max(y)*expData.logicalScaleToPixelsFactor());
+            maxYPix = round(max(y) * expData.PixelsPerUnit);
             fprintf('Warning in trial #%d when calculating deviation from straight line: the trajectory ended %d pixels below the response button\n', ...
                 trial.TrialIndex, expData.Custom.TrajZeroCoordY - getResponseButtonHeight() - maxYPix);
             maxYInd = length(y);

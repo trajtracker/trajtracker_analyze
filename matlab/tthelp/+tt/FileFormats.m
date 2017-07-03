@@ -1,6 +1,6 @@
-%             ------------------------------------------------
-%             -- TrajTracker analysis toolbox: File formats --
-%             ------------------------------------------------
+%       ------------------------------------------------
+%       -- TrajTracker analysis toolbox: File formats --
+%       ------------------------------------------------
 %
 % To show this again, run "help tt.FileFormats"
 % 
@@ -50,7 +50,7 @@
 %            If you omit this attribute, the default is a concatenation of
 %            the subject's names first letters.
 % - source.paradigm: either "NL", for number-line experiments, or "DC",
-%             for discrete-decision experiments. 
+%             for discrete-choice experiments. 
 % - session.start-time: date and time when the block started.
 % - exp_level_results: custom information about the experiment and its result. 
 %             Each entry will be saved as a custom attribute on the ExperimentData 
@@ -62,12 +62,30 @@
 %          You can choose any name you want, but they must be in the
 %          same directory.
 % 
+% The <exp_level_results> block must contain the following numeric entries:
+% - WindowWidth and WindowHeight : the screen size, in pixels
+% - TrajZeroCoordX, TrajZeroCoordY: The screen coordinates that correspond
+%                 with the logical (matlab) coordinates (0,0). This is the
+%                 point right above the "start" rectangle.
+% 
+% In number-to-position experiments, the following entries must appear too:
+% - NLDistanceFromTop: The number line's distance (in pixels) from the 
+%   top of the screen.
+% - NumberLineMaxValue: The numeric value at the right end of the number line
+% - NLLength: The number line length, in pixels
+% 
+% In discrete-choice experiments, the following entries must appear too:
+% - ResponseButtonWidth, ResponseButtonHeight: the buttons size (in pixels)
+% - ResponseButton1X, ResponseButton1Y, and same for button#2: their
+%   positions (in pixels).
+% 
 % To validate the format of your XML file, you can try loading it by calling
 % <a href="matlab:help tt.preprocess.loadSessionFile">tt.preprocess.loadSessionFile</a>(filename)
 % 
 % 
 %     Trials file
 % ++++++++++++++++++++++++
+% 
 % This is a CSV file with per-trial information.
 % In this file, as well as in the trajectory file, the time-within-trial
 % information is specified relatively to the beginning of the trial. 
@@ -108,7 +126,7 @@
 %         - This column (MovementTime)
 %         - MovementTime-TimeUntilTarget
 %         - MovementTime-TimeUntilFingerMoved
-% UserResponse: In discrete-decision experiments, this is the response
+% UserResponse: In discrete-choice experiments, this is the response
 %         button selected.
 % EndPoint: In number-line experiments, this is the endpoint (specified
 %         using the number line's scale).
@@ -118,6 +136,7 @@
 % 
 %     Trajectory file
 % ++++++++++++++++++++++++
+% 
 % This CSV file has one line per sample - i.e., multiple lines per trial.
 % 
 % Columns:
@@ -127,42 +146,32 @@
 % time: The time elapsed from beginning-of-trial until sampling the x,y coordinates 
 % 
 % 
-%     The coordinate system
+%     The coordinate systems
 % +++++++++++++++++++++++++++++
 % 
-% After the data is preprocessed into matlab objects, we use a coordinate 
-% system such that:
-% - The valid range of y coordinates would be [0,1]
+% TrajTracker-Experiment saves trajectory data using the screen's coordinate
+% system: (0,0) is the middle of the screen, and the number of pixels depends
+% on the system settings. Positive x values are the right side of the
+% screen, and positive y values are on top of the screen.
+% 
+% When preprocessing the data into matlab objects, the coordinate system is
+% changed, such that:
 % - x=0 refers to mid-of-screen
-% - y=0 refers to the virtual bottom of the screen (which is typically a
-%   little above the "start" button).
-% - We maintain the x-y ratio, i.e., they are both transformed with the same
-%   stretch factor.
+% - y=0 refers to the movement's starting point (right above the "start" 
+%   rectangle at the bottom of the screen).
+% - In number-to-position experiments, y=1 is the location of the number line.
+% - In discrete choice experiments, x=1 is the right end of the screen and
+%   x=-1 is its left end.
 % 
-% In the raw files, y=0 indicates the top of screen. The resolution is
-% arbitrary - you can set it as you wish.
-% To specify the raw files' coordinate system, add some counters in
-% the <exp_level_results> block in the session.xml file.
-% - For number-line experiments: XXXXXXXXXXXXX TBD (for now it's fixed)
-% - For discrete decision experiments:
-%   Add a <data name="WindowWidth" .../> element. The scaling factor will be set 
-%   to half the window width, such that x=1 is the right end of the screen and
-%   x=-1 is its left end. To determine which raw y coordinate will become
-%   y=0 in the prepreocessed data, add a "TrajZeroCoordY" counter. For
-%   example, if your raw coordinate system is 1024x768, specifying
-%   TrajZeroCoordY=718 sets y=0 tp be 50 pixels above the bottom of the
-%   screen.
+% To enable conversion between these logical coordinate systems and the
+% screen pixels, we maintain the scaling factor between them on the
+% experiment data (ExperimentData.PixelsPerUnit).
 % 
-%     More customization
-% +++++++++++++++++++++++++++++
-% The following entries can also be added under the <expLevelCounters> block 
-% in the session.xml file:
-% - NumberLineMaxValue: This is a mandatory entry for number-line
-%           experiments. It sets the number's line top (rightmost) value.
-% - iEPYCoord: An optional argument, relevant only for discrete-decision
-%           experiments. This determines the y coordinate that should be
-%           used for calculating implied endpoints. By default, we use the
-%           top-of-screen y coordinate.
-%           You can override this settings in <a href="matlab:help tt.preprocessSet">tt.preprocessSet()</a>
+% The coodinate system conversion relies on several entries that must appear
+% the <exp_level_results> block in the session.xml file: 
+% WindowWidth, WindowHeight, TrajZeroCoordX, TrajZeroCoordY.
+% For number-to-position experiments, the conversion also requires 
+% NLDistanceFromTop. See above for details about all these entries.
+% 
 
 help tt.FileFormats

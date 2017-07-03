@@ -71,7 +71,7 @@ function preprocessSet(subDir, varargin)
         files = dir([dirName '/session*.xml']);
         
         if isempty(files)
-            error('No sessions*.xml files were found in %s', filePattern);
+            error('No sessions*.xml files were found in %s', dirName);
         end
         
         sessions = [];

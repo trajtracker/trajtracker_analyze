@@ -191,13 +191,12 @@ function rawTrajectory(expData, varargin)
             
             %-- Plot the response buttons
             
-            ppu = anyED.logicalScaleToPixelsFactor();
+            ppu = anyED.PixelsPerUnit;
             
             button_h = anyED.Custom.ResponseButtonHeight / ppu;
             button_w = anyED.Custom.ResponseButtonWidth / ppu;
             win_h = anyED.Custom.TrajZeroCoordY / ppu;
             win_w = anyED.Custom.WindowWidth / ppu;
-            %ppu = anyED.Custom.TrajPixelsPerUnit;
             lbutton_x = - win_w/2;
             rbutton_x = win_w/2 - button_w;
             button_y = win_h - button_h;
@@ -230,8 +229,7 @@ function rawTrajectory(expData, varargin)
     %--------------------------------------------------------------------
     function yLim = getDefaultYLimForDecisionExp(expData)
         if isfield(expData.Custom, 'TrajZeroCoordY')
-            ppu = expData.logicalScaleToPixelsFactor();
-            yLim = [0 (expData.Custom.TrajZeroCoordY / ppu)];
+            yLim = [0 (expData.Custom.TrajZeroCoordY / expData.PixelsPerUnit)];
         else
             yLim = [];
         end

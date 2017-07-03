@@ -16,7 +16,7 @@ function mergedExpData = createAvgExpData(allExpData)
         case 'NL'
             mergedExpData = NLExperimentData(expDataArray(1).MaxTarget, 'avg', 'Merged');
         case 'DC'
-            mergedExpData = GDExperimentData('avg', 'Merged');
+            mergedExpData = DCExperimentData('avg', 'Merged');
         otherwise
             error('Unsupported platform');
     end

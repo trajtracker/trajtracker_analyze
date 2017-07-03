@@ -127,7 +127,7 @@ function avgTrial = createAvgTrial(expData, trials, absOrNorm, aggregationFunc)
             case 'NL'
                 trajData = tt.preprocess.createTrajectoryMatrixNL(absTimes, x, y, expData.MaxTarget);
             case 'DC'
-                trajData = tt.preprocess.createTrajectoryMatrixGD(absTimes, x, y, expData);
+                trajData = tt.preprocess.createTrajectoryMatrixDC(absTimes, x, y, expData);
             otherwise
                 error('Unsupported platform "%s"', expData.ExperimentPlatform);
         end
@@ -157,7 +157,7 @@ function avgTrial = createAvgTrial(expData, trials, absOrNorm, aggregationFunc)
             case 'NL'
                 trajData = tt.preprocess.createTrajectoryMatrixNL(absTimes, x, y, expData.MaxTarget);
             case 'DC'
-                trajData = tt.preprocess.createTrajectoryMatrixGD(absTimes, x, y, expData);
+                trajData = tt.preprocess.createTrajectoryMatrixDC(absTimes, x, y, expData);
             otherwise
                 error('Unsupported platform "%s"', expData.ExperimentPlatform);
         end
@@ -169,7 +169,7 @@ function avgTrial = createAvgTrial(expData, trials, absOrNorm, aggregationFunc)
             case 'NL'
                 trial = NLOneTrialData(trialNum, target);
             case 'DC'
-                trial = GDOneTrialData(trialNum, target);
+                trial = DCOneTrialData(trialNum, target);
         end
     end
 

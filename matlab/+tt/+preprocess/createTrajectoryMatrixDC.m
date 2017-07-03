@@ -1,7 +1,7 @@
-function trajMatrix = createTrajectoryMatrixGD(absTimes, x, y, expData, args)
-% trajData = createTrajectoryMatrixGD(absTimes, x, y)
+function trajMatrix = createTrajectoryMatrixDC(absTimes, x, y, expData, args)
+% trajData = createTrajectoryMatrixDC(absTimes, x, y)
 % 
-% Create the full trajectory matrix for decision experiments
+% Create the full trajectory matrix for discrete-choice experiments
 
     if ~exist('args', 'var')
         args = struct;
@@ -13,10 +13,9 @@ function trajMatrix = createTrajectoryMatrixGD(absTimes, x, y, expData, args)
 
     if isfield(args, 'iEPYCoord')
         yMax = args.iEPYCoord;
-    elseif isfield(expData.Custom, 'iEPYCoord')
-        yMax = expData.Custom.iEPYCoord;
     else
-        yMax = expData.maxYLogicalCoord();
+        maxYPixels = expData.windowHeight() - expData.originCoordY();
+        yMax = maxYPixels / expData.PixelsPerUnit;
     end
     yDistanceFromAxis = max(yMax - y, 0); % using max(0) just in case the finger went beyond yMax
     impliedEP = x + (yDistanceFromAxis .* trajSlope);  % on a -1..1 scale

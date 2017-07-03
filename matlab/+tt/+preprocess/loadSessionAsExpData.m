@@ -36,7 +36,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
 %              indicates that just for the purpose of smoothingm, the trajectory
 %              will be artificially extrapolated with its endpoint
 %              coordinates, and smoothing will use that information.
-% iEPYCoord: For decision experiments (platform=DC/GD), this determines the
+% iEPYCoord: For discrete-choice experiments (platform=DC), this determines the
 %            reference y coordinate to use when calculating implied endpoints.
 %            Default: use expData.Custom.iEPYCoord, and if N/A, use top of
 %            screen.
@@ -151,7 +151,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
             case 'NL'
                 expData = NLExperimentData(sessionInf.MaxTarget, sessionInf.SubjInitials, sessionInf.SubjName);
             case 'DC'
-                expData = GDExperimentData(sessionInf.SubjInitials, sessionInf.SubjName);
+                expData = DCExperimentData(sessionInf.SubjInitials, sessionInf.SubjName);
             otherwise
                 error('Unsupported platform "%s" (file=%s)', platform, sessionInf.Filename);
         end

@@ -48,7 +48,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
 %       You can add an optional argument NSeg to specify the number of
 %       segments to use (e.g., 'refpt::nseg=3'). Default #segments is 2.
 % 
-% For decision experiments:
+% For discrete-choice experiments:
 % - Response: The response button clicked
 % - CorrectResponse: whether the response was correct (1) or not (0)
 % - PrevResponse: Response of the previous trial
@@ -319,7 +319,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
                 currMeasure = refPointsMapping(targets, expData.MaxTarget, nSegments) - targets;
                 measureDesc = iif(isempty(args{1}), 'Ref points', sprintf('%d ref points', nSegments+1));
 
-            %-------- Decision experiments -----------
+            %-------- discrete-choice experiments -----------
             
             case 'correctresponse'
                 currMeasure = arrayfun(@(t)t.IsCorrectResponse, trials);

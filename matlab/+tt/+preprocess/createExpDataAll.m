@@ -14,7 +14,7 @@ function result = createExpDataAll(expDataArray)
             end
             
         case 'DC'
-            result = GDExperimentData('all', 'All Participants');
+            result = DCExperimentData('all', 'All Participants');
             
         otherwise
             error('Unsupported platform: %s', expDataArray(1).ExperimentPlatform);

@@ -1,5 +1,5 @@
-classdef GDOneTrialData < OneTrialData
-% The data of a single trial in the decision experiment
+classdef DCOneTrialData < OneTrialData
+% The data of a single trial in the discrete-choice experiment
     
     properties
         UserResponse        % The response button selected by user
@@ -22,7 +22,7 @@ classdef GDOneTrialData < OneTrialData
     
     methods
         
-        function self = GDOneTrialData(trialNum, target)
+        function self = DCOneTrialData(trialNum, target)
             self = self@OneTrialData(trialNum, target);
         end
         
@@ -36,7 +36,7 @@ classdef GDOneTrialData < OneTrialData
         
         
         function c = clone(self)
-            c = GDOneTrialData(self.TrialNum, self.Target);
+            c = DCOneTrialData(self.TrialNum, self.Target);
             c.initFrom(self);
         end
         

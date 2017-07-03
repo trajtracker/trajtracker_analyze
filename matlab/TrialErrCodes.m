@@ -28,7 +28,7 @@ classdef TrialErrCodes
         function v = Filler()
             v = 6;
         end
-        function v = NoResponse() % For decision experiments
+        function v = NoResponse() % For discrete-choice experiments
             v = 6;
         end
         function v = MovedBackwards()

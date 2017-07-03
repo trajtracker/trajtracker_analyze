@@ -3,7 +3,7 @@ classdef ExperimentData < handle
 % subject, one session).
 % 
 % This is a base class, you should use only the derived classes
-% NLExperimentData or GDExperimentData
+% NLExperimentData or DCExperimentData
     
     properties(SetAccess=private)
         SubjectInitials     % Initials are used as the subj ID
@@ -19,6 +19,7 @@ classdef ExperimentData < handle
         BuildNumber       % Numeric value
         RunDate           % Of the experiment
         Custom            % Struct with custom attributes
+        PixelsPerUnit     % Coordinate space scaling factor: number of screen pixles per one logical unit
     end
     
     properties(Dependent=true)

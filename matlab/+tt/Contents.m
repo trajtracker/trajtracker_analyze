@@ -21,8 +21,8 @@
 % <a href="matlab:help tt.vis">tt.vis</a>: visualization (plots)
 % <a href="matlab:help tt.curve">tt.curve</a>: find & use curves in trajectries
 % 
-% <a href="matlab:help tt.nl">tt.nl</a>: for number-line experiments
-% <a href="matlab:help tt.dc">tt.dc</a>: for discrete-decision experiments
+% <a href="matlab:help tt.nl">tt.nl</a>: for number-to-position experiments
+% <a href="matlab:help tt.dc">tt.dc</a>: for discrete-choice experiments
 % 
 % 
 % THIS TOOLBOX IS PROVIDED AS-IS, WITH ABSOLUTELY NO WARRANTY. It is Licensed under

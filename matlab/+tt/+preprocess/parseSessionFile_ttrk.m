@@ -55,10 +55,10 @@ function parseSessionFile_ttrk(session)
             end
         end
         
-        if ~isfield(session.CustomAttrs, 'MaxTarget')
-            error('A "MaxTarget" field did not appear in exp_level_results in %s', session.Filename);
+        if ~isfield(session.CustomAttrs, 'NLMaxValue')
+            error('An "NLMaxValue" field did not appear in exp_level_results in %s', session.Filename);
         end
-        session.MaxTarget = session.CustomAttrs.MaxTarget;
+        session.MaxTarget = session.CustomAttrs.NLMaxValue;
         
         %-- Files
         if isfield(sessionBlock.files, 'file')
