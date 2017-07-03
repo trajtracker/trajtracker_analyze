@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.toolbox" plugin-version="1.0">
-  <configuration file="/git/trajtracker_analyze/matlab-toolbox.prj" location="/git/trajtracker_analyze" name="matlab-toolbox" target="target.toolbox" target-name="Package Toolbox">
+  <configuration build-checksum="4218998519" file="/git/trajtracker_analyze/matlab-toolbox.prj" location="/git/trajtracker_analyze" name="matlab-toolbox" target="target.toolbox" target-name="Package Toolbox">
     <param.appname>TrajTracker Analyze</param.appname>
     <param.authnamewatermark>Dror Dotan</param.authnamewatermark>
     <param.email>dror@trajtracker.com</param.email>
@@ -7,7 +7,7 @@
     <param.summary>Analyze the results of trajectory tracking experiments (see http://trajtracker.com)</param.summary>
     <param.description />
     <param.screenshot />
-    <param.version>1.0</param.version>
+    <param.version>1.0.0</param.version>
     <param.output>${PROJECT_ROOT}/TrajTracker Analyze.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -45,7 +45,6 @@ TrajTrackerDataPath.m.txt
       <param.company />
       <param.description />
       <param.screenshot />
-      <param.version />
       <param.output />
       <param.products.name />
       <param.products.id />
