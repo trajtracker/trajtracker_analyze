@@ -49,6 +49,9 @@ classdef TrialErrCodes
         function v = TooFast()
             v = 15;
         end
+        function v = TooManyCurves()
+            v = 16;
+        end
         
         % Error code set manually (after running the experiment) due to errors
         function v = Manual()

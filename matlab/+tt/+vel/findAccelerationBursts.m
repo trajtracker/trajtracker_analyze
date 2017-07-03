@@ -13,19 +13,24 @@ function findAccelerationBursts(allExpData, varargin)
 % Optional arguments:
 % Axis <x/y> - the axis to use for acceleration
 % MinAcc <#> - minimal acceleration that counts as a burst
+% AccFilter <filter> - consider only some accelerations. 'filter' can be:
+%              Positive: consider only accelerations
+%              Negative: consider only decelerations
+%              Or a function that gets the acceleration and returns true/false
 % MinDur <#> - minimal burst duration
 % MinTime <#> - ignore times before this
 % Smooth <#> - Standard deviation for Gaussian smoothing of
 %              velocities prior to deriving them into acceleration
 % AttrPrefix <pref> - prefix of the saved custom attributes
 
-    [minTime, minAcceleration, minDuration, accAxis, getVelocityArgs, customFieldNames] = parseArgs(varargin);
+    [minTime, minAcceleration, minDuration, accAxis, accelerationFilter, ...
+        getVelocityArgs, customFieldNames] = parseArgs(varargin);
 
     allED = tt.util.structToArray(allExpData);
     samplingRate = allED(1).SamplingRate;
     minNSamples = round(minDuration / samplingRate);
     
-    tt.util.doPerTrial(allExpData, @processTrial, 'Trials');
+    tt.util.doPerTrial(allExpData, @processTrial, 'Trials', 'Trials');
     
     
     %-------------------------------------------------
@@ -54,6 +59,11 @@ function findAccelerationBursts(allExpData, varargin)
         end
 
         goodTimes = trial.Trajectory(:, TrajCols.AbsTime) >= minTime;
+        
+        if ~isempty(accelerationFilter)
+            g = arrayfun(accelerationFilter, accel);
+            goodTimes = goodTimes & g;
+        end
         
         positiveAccel = (accel > minAcceleration) & goodTimes;
         [positiveBurstStartRows, positiveBurstEndRows] = findSequencesOf1(positiveAccel', minNSamples);
@@ -84,7 +94,7 @@ function findAccelerationBursts(allExpData, varargin)
     end
     
     %-------------------------------------------------
-    function [minTime, minAcceleration, minDuration, accAxis, getVelocityArgs, customFieldNames] = parseArgs(args)
+    function [minTime, minAcceleration, minDuration, accAxis, accFilter, getVelocityArgs, customFieldNames] = parseArgs(args)
         
         minTime = 0;
         minAcceleration = 2;
@@ -92,6 +102,7 @@ function findAccelerationBursts(allExpData, varargin)
         accAxis = 'x';
         getVelocityArgs = {};
         fldPrefix = 'X';
+        accFilter = [];
 
         args = stripArgs(args);
         while ~isempty(args)
@@ -122,6 +133,22 @@ function findAccelerationBursts(allExpData, varargin)
                 case 'smooth'
                     getVelocityArgs = [getVelocityArgs, {'VSmooth', 'Gauss', args{2}}]; %#ok<AGROW>
                     args = args(2:end);
+                    
+                case 'accfilter'
+                    accFilter = args{2};
+                    args = args(2:end);
+                    if ~ isa(accFilter, 'function_handle')
+                        switch(lower(accFilter))
+                            case {'pos', 'positive'}
+                                accFilter = @(acc) acc > 0;
+
+                            case {'neg', 'negative'}
+                                accFilter = @(acc) acc < 0;
+
+                            otherwise
+                                error('Invalid "Accel" argument: %s', accFilter);
+                        end
+                    end
                     
                 otherwise
                     error('Unsupported argument "%s"', args{1});

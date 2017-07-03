@@ -7,7 +7,7 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
     fprintf('   Loading trials...\n');
     filPath = sprintf('%s/%s', sessionInf.RawDir, sessionInf.Files.trials);
     
-    mtGetter = getMovementTimeGetter(trajT0Type);
+    mtGetter = getMovementTimeGetter(sessionInf.Software, trajT0Type);
 
     mandatoryCols = tt.preprocess.trialFileMandatoryColumns(sessionInf.Platform);
     [allTrialInfo, extraColNames] = tt.preprocess.readTrialDataFile(filPath, 'MandatoryCols', mandatoryCols, 'OutFormat', 'struct');
@@ -42,11 +42,15 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
         trialInfo = allTrialInfo(rowNum);
 
         target = trialInfo.target;
+        errCode = tt.preprocess.statusToErrCode(trialInfo.status);
 
         switch(sessionInf.Platform)
             case 'NL'
                 td = NLOneTrialData(trialInfo.trialnum, target);
                 td.EndPoint = trialInfo.endpoint;
+                if isnan(td.EndPoint) && errCode == TrialErrCodes.OK
+                    error('Missing endpoint data in line %d', rowNum)
+                end
                 td.PrevEndPoint = prevEndPoint;
                 prevEndPoint = td.EndPoint;
 
@@ -66,7 +70,7 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
         td.TrialIndex = rowNum;
 
         td.MovementTime = mtGetter(trialInfo);
-        td.ErrCode = tt.preprocess.statusToErrCode(trialInfo.status);
+        td.ErrCode = errCode;
         if ~isnan(minMovementTime) && td.ErrCode == TrialErrCodes.OK && td.MovementTime < minMovementTime
             td.ErrCode  = TrialErrCodes.TrialTooShort;
         end
@@ -96,7 +100,11 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
     end
 
     %---------------------------------------------------------------
-    function func = getMovementTimeGetter(trajT0Type)
+    function func = getMovementTimeGetter(software, trajT0Type)
+        if strcmpi(software, 'trajtracker')
+            func = @(t)t.movementtime;
+            return;
+        end
         switch(lower(trajT0Type))
             case '0'
                 func = @(t)t.movementtime;

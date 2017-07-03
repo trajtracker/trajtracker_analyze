@@ -1,6 +1,6 @@
 function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, trials, measureDescriptors)
 % ------------------------------------------------------------------------
-% [measures, varNames] = getTrialMeasures(expData, trials, measureNames) -
+% [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, trials, measureNames) -
 % Get values of regression measures that have one value per trial.
 %
 % trials - a column vector of trials (from the given expData)

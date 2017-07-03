@@ -25,7 +25,7 @@ function findCurves(allExpData, varargin)
     if isempty(dbgSingleTrialNumber)
         
         % Standard mode
-        tt.util.doPerTrial(allExpData, @processTrial, 'Trials');
+        tt.util.doPerTrial(allExpData, @processTrial, 'Trials', 'Trials');
         
     else
         

@@ -19,8 +19,10 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
 % Optional Arguments:
 % ===================
 % TrajCol <name> : Trajectory column to plot
-% GetValueFunc @(trial, expData, times, rowNums])->number : Get the values
+% GetValueFunc @(trial, expData, times, rowNums)->number : Get the values
 %        to plot. Function should return a column vector.
+% TrajCol TrajCols.###: Instead of 'GetValueFunc', use a value from the
+%        trajectory matrix.
 % GrpFunc <func>: a function that groups trials. Trials with the same 
 %        group number are grouped together, the average value 
 %        per group will be returned.
@@ -34,6 +36,7 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
 %        to one of several predefined grouping functions:
 %        - 'Target': group by trial.Target
 %        - 'Dataset': when "inData" is cell array, group by entry
+% GrpAll: group all trials together (return an average of all of them)
 % TrialFilter @(trial[, expData])->BOOL : trial filtering function
 
     [trials, ~, edPerTrial, ~, dsNumPerTrial] = tt.util.getAllTrials(inData);
@@ -171,6 +174,9 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
                             groupingFunc = @(~)1;
                     end
                     args = args(2:end);
+                    
+                case 'grpall'
+                    groupingFunc = @(~)1;
                     
                 case 'mintime'
                     minTime = args{2};

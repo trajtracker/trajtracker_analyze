@@ -18,9 +18,10 @@ function plotTrajValue(inData, varargin)
 % FontSize <size>
 % FigID <n> - set the figure ID
 % WinSize [width height] - set size of the figure window
+% NoCLF: don't clear the figure before plotting
 % - and any argument of <a href="matlab:help tt.inf.getTrajectoryValues">tt.inf.getTrajectoryValues</a>
 
-    [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs] = parseArgs(varargin);
+    [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs, doCLF] = parseArgs(varargin);
     
     [dataToPlot, info] = tt.inf.getTrajectoryValues(inData, getValueArgs);
     nGroups = size(dataToPlot, 2);
@@ -30,7 +31,7 @@ function plotTrajValue(inData, varargin)
     end
     
     if ~isempty(displayArgs.figid), setFigure(displayArgs.figid); end;
-    clf;
+    if doCLF, clf; end
     
     if ~isempty(nGroupsPerSubPlot) && nGroupsPerSubPlot<nGroups
         nSP = ceil(nGroups/nGroupsPerSubPlot);
@@ -90,7 +91,7 @@ function plotTrajValue(inData, varargin)
     end
     
     %-------------------------------------------
-    function [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs] = parseArgs(args)
+    function [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs, doCLF] = parseArgs(args)
 
         getValueArgs = {};
         colors = [];
@@ -100,6 +101,7 @@ function plotTrajValue(inData, varargin)
         nGroupsPerSubPlot = [];
         grpDesc = {};
         subPlotArgs = struct('UsedHeight', 0.85, 'XAxisHeight', .07);
+        doCLF = true;
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -126,6 +128,9 @@ function plotTrajValue(inData, varargin)
                 case 'nperplot'
                     nGroupsPerSubPlot= args{2};
                     args = args(2:end);
+                    
+                case 'noclf'
+                    doCLF = false;
                     
                 otherwise
                     error('Unsupported argument "%s"!', args{1});

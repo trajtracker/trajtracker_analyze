@@ -531,6 +531,9 @@ function figHandle = plotParamComparison(cmpData, varargin)
         end
 
         if seriesNamesLocation.Floating
+            if iscell(regDescriptions{seriesNum})
+                regDescriptions{seriesNum} = regDescriptions{seriesNum}{1};
+            end
             text('String', regexp(regDescriptions{seriesNum}, '\\n', 'split'), ...
                  'HorizontalAlignment', 'center', ...
                  'FontSize', fontSize, ...

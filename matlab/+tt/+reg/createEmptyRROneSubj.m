@@ -14,7 +14,9 @@ function rr = createEmptyRROneSubj(varargin)
             rr.SubjectInitials = x.SubjectInitials;
             rr.SubjectName = x.SubjectName;
             rr.SamplingRate = x.SamplingRate;
-            rr.TimeExecuted = x.TimeExecuted;
+            if isfield(x, 'TimeExecuted')
+                rr.TimeExecuted = x.TimeExecuted;
+            end
             for fld = {'MaxMovementTime', 'MaxTarget'}
                 if isfield(x, fld{1})
                     rr.(fld{1}) = x.(fld{1});

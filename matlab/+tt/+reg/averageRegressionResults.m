@@ -42,7 +42,6 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
     if isfield(allRegressions{1}, 'MaxTarget')
         avgSubjectData.MaxTarget = allRegressions{1}.MaxTarget;
     end
-    avgSubjectData.MaxMovementTime = max(arrayfun(@(r)r{1}.MaxMovementTime, allRegressions));
     
     regressionTypes = fieldnames(allRegressions{1});
     
@@ -61,6 +60,7 @@ function avgSubjectData = averageRegressionResults(allRegressions, varargin)
         regressionsPerSubject = regressionsPerSubject(arrayfun(@(rr)includeRRFunc(rr, key), regressionsPerSubject));
 
         avgSubjectData.(key) = averageOneRegressionResults(regressionsPerSubject);
+        avgSubjectData.(key).MaxMovementTime = max(arrayfun(@(r)r{1}.(key).MaxMovementTime, allRegressions));
 
     end
     

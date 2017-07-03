@@ -150,6 +150,17 @@ function [trialData, extraColNames] = readTrialDataFile(filename, varargin)
             isNumericField(iFld) = sum(notNumeric) == 0;
         end
         
+        % Force certain columns to numeric
+        for ccol = {'endpoint'}
+            colName = ccol{1};
+            if ~ismember(colName, fileColNames)
+                continue
+            end
+            colNum = fileColNamesToNums.(colName);
+            isNumericField(colNum) = true;
+            numericCsvData(:, colNum) = arrayfun(@(value)str2double(value{1}), csvData(:, colNum));
+        end
+        
     end
 
     %----------------------------------------------------
@@ -162,6 +173,8 @@ function [trialData, extraColNames] = readTrialDataFile(filename, varargin)
         colNames = regexp(headerLine, ',', 'split');
         colNamesToNums = struct;
         for i = 1:length(colNames)
+            colNames{i} = strrep(colNames{i}, '.', '_');
+            colNames{i} = strrep(colNames{i}, '%', '_pcnt');
             colNamesToNums.(lower(colNames{i})) = i;
         end
         

@@ -73,6 +73,11 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 currMeasure = getTrajectoryColumn(trials, TrajCols.YAcceleration, rowNums);
                 currMeasureDesc = 'y acceleration';
                 
+            case 'ivel'
+                % Instantaneous speed (= speed in the xy direction)
+                currMeasure = getInstVelocity(trials, rowNums);
+                currMeasureDesc = 'xy speed';
+                
             case {'ep', 'iep'}
                 currMeasure = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 currMeasureDesc = 'Implied endpoint';
@@ -145,6 +150,21 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
         currMeasure = NaN(nTrials, nTimePoints);
         for i = 1:length(trials)
             currMeasure(i, :) = trials(i).Trajectory(rowNums(i,:), colNum)';
+        end
+    end
+
+    %------------------------------------------
+    function currMeasure = getInstVelocity(trials, rowNums)
+        currMeasure = NaN(length(trials), size(rowNums,2));
+        for itr = 1:length(trials)
+            trial = trials(itr);
+            trialRows = rowNums(itr, :);
+            velInf = tt.vel.getTrialVelocity(trial, 'Axis', 'xy');
+            v = velInf.velocity';
+            if length(v) < max(trialRows)
+                v = [v repmat(v(end), 1, max(trialRows)-length(v))];
+            end
+            currMeasure(itr, :) = v(trialRows);
         end
     end
 

@@ -5,10 +5,6 @@ function subjData = loadDataset(subDir, varargin)
 % dirName: A sub-directory under the base data path (which is specified by
 %          the "TrajTrackerDataPath" function)
 
-% Copyright (c) 2016 Dror Dotan
-% Licensed under the Academic Free License version 3.0
-% http://opensource.org/licenses/AFL-3.0
-
     [condName] = parseArgs(varargin);
     
     fprintf('Loading data from %s...\n', subDir);
@@ -29,7 +25,9 @@ function subjData = loadDataset(subDir, varargin)
         d = struct();
 
         for expData = loadedDataArray
-            expData.Group = subDir;
+            if isempty(expData.Group)
+                expData.Group = subDir;
+            end
             if isempty(expData.Custom)
                 expData.Custom = struct; % Backward compatibility
             end

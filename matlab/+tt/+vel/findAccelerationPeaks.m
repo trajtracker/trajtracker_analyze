@@ -8,7 +8,7 @@ function findAccelerationPeaks(allExpData, varargin)
 %                      this area around the first peak.
 
     trials = tt.util.getAllTrials(allExpData);
-    [convNRows, accelPeakIgnoreNRows] = parseArgs(varargin, trials(1).SamplingRate);
+    [convNRows, accelPeakIgnoreNRows, minNRowsFromEnd, xy_acc] = parseArgs(varargin, trials(1).SamplingRate);
     
     for trial = trials
         [p1, p2, p1t, p2t] = findPerTrial(trial, 1, convNRows, accelPeakIgnoreNRows);
@@ -26,8 +26,18 @@ function findAccelerationPeaks(allExpData, varargin)
         peak1Time = NaN;
         peak2Time = NaN;
 
-        accel = conv(trial.Trajectory(:, TrajCols.YAcceleration), ones(convNRows, 1), 'valid');
+        if xy_acc
+            vi = tt.vel.getTrialVelocity(trial, 'Axis', 'xy', 'Acc', 'VSmooth', 'Gauss', 0.02);
+            accel = vi.acceleration;
+        else
+            accel = trial.Trajectory(:, TrajCols.YAcceleration);
+        end
+        accel = conv(accel, ones(convNRows, 1), 'valid');
         times = trial.Trajectory(convNRows:end, TrajCols.AbsTime);
+        if ~isnan(minNRowsFromEnd)
+            accel = accel(1:end-minNRowsFromEnd);
+            times = times(1:end-minNRowsFromEnd);
+        end
 
         % Look only for accelerations in the required direction
         accel = accel * expectedSign;
@@ -57,10 +67,12 @@ function findAccelerationPeaks(allExpData, varargin)
 
 
     %--------------------------------------------------------------
-    function [convNRows, accelPeakIgnoreNRows] = parseArgs(args, samplingRate)
+    function [convNRows, accelPeakIgnoreNRows, minNRowsFromEnd, xy_acc] = parseArgs(args, samplingRate)
         
         convNRows = 15;
         accelPeakIgnoreNRows = 10;
+        xy_acc = false;
+        minNRowsFromEnd = NaN;
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -72,6 +84,13 @@ function findAccelerationPeaks(allExpData, varargin)
                 
                 case 'safezone'
                     accelPeakIgnoreNRows = round(args{2} / samplingRate);
+                    args = args(2:end);
+                    
+                case 'xy'
+                    xy_acc = true;
+                    
+                case 'minnrowsfromend'
+                    minNRowsFromEnd = args{2};
                     args = args(2:end);
                 
                 otherwise

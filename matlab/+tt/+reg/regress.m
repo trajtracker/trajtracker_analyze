@@ -272,6 +272,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     function times = getTimesSameRow(~, trialsToRegress, rowNums)
         [longestTrial, ltInd] = tt.util.getLongestTrial(trialsToRegress);
         times = longestTrial.Trajectory(rowNums(ltInd, :), TrajCols.AbsTime);
+        times = times - times(1);
     end
 
     %-------------------------------------------

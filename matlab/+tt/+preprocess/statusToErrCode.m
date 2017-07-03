@@ -21,7 +21,7 @@ function ec = statusToErrCode(errCodeStr)
             ec = TrialErrCodes.TooSlowGlobal;
         case 'ERR_TooSlowInstantaneous'
             ec = TrialErrCodes.TooSlowInstantaneous;
-        case 'ERR_MovedTooEarly'
+        case {'ERR_MovedTooEarly', 'ERR_FingerMovedTooEarly'}
             ec = TrialErrCodes.FingerMovedTooEarly;
         case 'ERR_MovedTooLate'
             ec = TrialErrCodes.FingerMovedTooLate;
@@ -29,6 +29,8 @@ function ec = statusToErrCode(errCodeStr)
             ec = TrialErrCodes.TooFast;
         case {'ERR_TrialTooShort', 'ERR_TooSlowMT'}
             ec = TrialErrCodes.TrialTooShort;
+        case 'ERR_TooManyCurves'
+            ec = TrialErrCodes.TooManyCurves;
         case 'ERR_NoResponse'
             ec = TrialErrCodes.NoResponse;
         case 'ERR_Manual'

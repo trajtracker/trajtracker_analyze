@@ -179,7 +179,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         [groupPerSubj, groupNames] = tt.inf.getSubjectGroups(expDataForGrouping, subjIDs);
         if length(groupNames) > 1
             fprintf('%d groups: %s, %s\n', length(groupNames), groupNames{1}, groupNames{2});
-            groupSubjectsArg = {'Group', groupPerSubj};
+            groupingArg = {'Group', groupPerSubj};
         end
 
     end

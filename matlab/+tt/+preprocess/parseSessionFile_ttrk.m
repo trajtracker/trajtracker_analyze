@@ -15,7 +15,7 @@ function parseSessionFile_ttrk(session)
         session.BuildNumber = source.software.Attributes.version;
         
         session.Platform = source.paradigm.Attributes.name;
-        session.PlatformVersion = source.paradigm.Attributes.version;
+        session.PlatformVersion = 0;  % source.paradigm.Attributes.version;
         
     end
 

@@ -1,5 +1,5 @@
 % -----------------------------------------
-% --     TrajTracker: package tt.reg     --
+% --    TrajTracker: package tt.reg      --
 % -----------------------------------------
 % 
 % Running regressions:
@@ -37,10 +37,10 @@
 % <a href="matlab:help tt.reg.getTrialDynamicMeasures">getTrialDynamicMeasures</a>: Extract per-timepoint measures from trials
 % 
 % 
-% The "tt.reg.Customize" package includes some dummy scripts that you can use as examples 
-% when customizing the regression scripts. You can clone & modify these scripts.
-% runRegressions: To run one or more specific regressions on all subjects,
+% The regression scripts can be customized in several ways.
+% The "tt.reg.customize" package includes templates for such cutomizations:
+% <a href="matlab:help tt.reg.customize.runRegressions">runRegressions</a>: Run one or more specific regressions on all subjects,
 %                 and save the results.
-% getMyTrialMeasures: for adding new trial-level predictors / dependent variable.
-% getMyTrialDynamicMeasures: for adding new per-timepoint predictors / dependent variable.
+% <a href="matlab:help tt.reg.customize.getMyTrialMeasures">getMyTrialMeasures</a>: for adding new trial-level predictors / dependent variable.
+% <a href="matlab:help tt.reg.customize.getMyTrialDynamicMeasures">getMyTrialDynamicMeasures</a>: for adding new per-timepoint predictors / dependent variable.
 % 

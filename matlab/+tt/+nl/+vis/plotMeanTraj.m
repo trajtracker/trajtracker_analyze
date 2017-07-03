@@ -35,7 +35,7 @@ function plotMeanTraj(expData, varargin)
         if createNormTraj
             tt.preprocess.createAverageTrials(expData, 'Norm');
         else
-            error('The given expData has no mean trajectories (expData.AvgTrialsNorm). Please create them or rerun the function with a "CreateNorm" flag if you want me to create them for you.');
+            error('The given expData has no mean trajectories (expData.AvgTrialsNorm). Please create them or rerun the function with a "CreateTraj" flag if you want me to create them for you.');
         end
     end
     
@@ -362,4 +362,8 @@ function plotMeanTraj(expData, varargin)
         
     end
     
+    function result = choose(value, varargin)
+        result = varargin{value};
+    end
+
 end

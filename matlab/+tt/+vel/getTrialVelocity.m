@@ -5,12 +5,15 @@ function velInfo = getTrialVelocity(trial, varargin)
 % 
 % Optional args:
 % Acc - also calculate acceleration
-% Axis X|Y - which velocity to get
-% CSmooth <args> - Smooth coordinates before deriving them into velocity
-% VSmooth <args> - Smooth velocity before deriving it into acceleration
-%        The smoothing arguments are either of:
-%        Gauss <sd> - Gaussian smoothing, specify standard deviation
-%        Conv <conv-vector> - Convolution with the given vector
+% Axis X|Y|XY|iEP - which velocity to get
+% CSmooth Gauss <sd> - Gaussian smooth coordinates before deriving them 
+%                      into velocity. Specify standard deviation (in seconds)
+% CSmooth Conv <conv-vector> - Smooth coordinates before deriving them 
+%                      into velocity, by convoluting with the given vector
+% VSmooth Gauss <sd> - Gaussian smooth velocities before deriving them 
+%                      into acceleration. Specify standard deviation (in seconds)
+% VSmooth Conv <conv-vector> - Smooth velocities before deriving them 
+%                      into acceleration, by convoluting with the given vector
 
     [xCol, velXY, showAcc, coordSmoothFunc, velSmoothFunc] = parseArgs(varargin);
     
