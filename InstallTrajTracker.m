@@ -31,15 +31,13 @@ function InstallTrajTracker()
     fprintf('%s version %s was installed\n\n', toolbox.Name, toolbox.Version);
     
     ttrk_dir = toolboxdir(toolbox.Name);
-    % addpath(ttrk_dir)
-    addpath([ttrk_dir '/tthelp'])
-    addpath([ttrk_dir '/util'])
-    savepath();
     
-    fprintf('\nThe TrajTracker toolbox was installed\n');
+    fprintf('\nThe TrajTracker toolbox was installed in %s\n', ttrk_dir);
     
     create_root_path_func(ttrk_dir, root_path)
     
+    fprintf('\n\nSuccessfully installed TrajTracker\n');
+    fprintf('\nFor more information, visit us at http://www.trajtracker.com\n');
     
     %------------------------------------------------------------------
     function create_root_path_func(directory, root_path)
