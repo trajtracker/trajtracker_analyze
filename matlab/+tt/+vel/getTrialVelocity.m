@@ -68,6 +68,8 @@ function velInfo = getTrialVelocity(trial, varargin)
                             xCol = TrajCols.X;
                         case 'y'
                             xCol = TrajCols.Y;
+                        case 'iep'
+                            xCol = TrajCols.ImpliedEP;
                         case 'xy'
                             velXY = true;
                             xCol = [];
