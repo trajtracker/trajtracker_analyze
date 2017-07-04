@@ -162,38 +162,12 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
         rawX = rawX(goodDT);
         rawY = rawY(goodDT);
 
-        
-        if sessionInf.is_trajtracker()
-            %-- The new TrajTracker software
-            [pixelsPerUnit, yShift] = getCoordinateSpaceConversionParams(sessionInf);
-            expData.PixelsPerUnit = pixelsPerUnit;
-            rawX = rawX / pixelsPerUnit;
-            rawY = (rawY + yShift) / pixelsPerUnit;
-            
-        else
-            %-- Older (iPad-based) version of TrajTracker:
-            %-- not used anymore, but still supported by the script
-            
-            if strcmp(sessionInf.Platform, 'NL') && sessionInf.BuildNumber < 10
-                %-- Very old versions used biased X coordinates
-                scaleFactor = tt.nl.MaxLogicalXValue;
-                expData.PixelsPerUnit = 1 / scaleFactor;
-                rawX = rawX .* scaleFactor;
-
-            elseif sessionInf.BuildNumber >= 69 || (strcmp(sessionInf.Platform, 'DC') && sessionInf.BuildNumber >= 62)
-                %-- The old iPad software: Convert X,Y coordinates to logical scale
-                pixelsPerUnit = getIPadPixelsPerUnit(sessionInf, expData);
-                expData.PixelsPerUnit = pixelsPerUnit;
-                rawX = rawX ./ pixelsPerUnit;
-                rawY = rawY ./ pixelsPerUnit;
-                
-            else
-                
-                expData.PixelsPerUnit = 1;
-                
-            end
+        %-- Change coordinate space from screen pixels to logical coordinates
+        rawX = rawX ./ expData.PixelsPerUnit;
+        if sessionInf.is_trajtracker() || sessionInf.BuildNumber >= 10
+            rawY = (rawY + expData.YPixelsShift) ./ expData.PixelsPerUnit;
         end
-
+        
         % Smooth the x values
         if ~isempty(splineXParam)
             if sum(diff(rawY) < 0) == 0
@@ -209,7 +183,7 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
 
         switch(sessionInf.Platform)
             case 'NL'
-                trajMatrix = tt.preprocess.createTrajectoryMatrixNL(absTimes, interpolatedX, interpolatedY, sessionInf.MaxTarget, createTrajMatrixArgs);
+                trajMatrix = tt.preprocess.createTrajectoryMatrixNL(absTimes, interpolatedX, interpolatedY, expData, createTrajMatrixArgs);
 
             case 'DC'
                 trajMatrix = tt.preprocess.createTrajectoryMatrixDC(absTimes, interpolatedX, interpolatedY, expData, createTrajMatrixArgs);
@@ -218,49 +192,6 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
                 error('Unsupported ExperimentPlatform (%s)', self.ExperimentPlatform);
         end
 
-    end
-
-    %------------------------------------------------------------
-    % Get the parameters for converting the coordinates from the screen's
-    % coordinate space to the toolbox' logical coordinate spaced.
-    % Note that the logical coordinate space is different for
-    % number-to-position experiments and discrete-choice experiments.
-    % 
-    function [pixelsPerUnit, yShift] = getCoordinateSpaceConversionParams(sessionInf)
-        
-        yShift = - sessionInf.CustomAttrs.TrajZeroCoordY;
-        
-        switch(sessionInf.Platform)
-            case 'NL'
-                %-- Number-to-position experiments: set a scaling factor such
-                %-- that the origin point is y=0 and the number line is y=1
-                y0 = sessionInf.CustomAttrs.TrajZeroCoordY;
-                screen_height = sessionInf.CustomAttrs.WindowHeight;
-                y1 = screen_height/2 - sessionInf.CustomAttrs.NLDistanceFromTop;
-                pixelsPerUnit = y1 - y0;
-
-            case 'DC'
-                %-- Discrete-choice experiments: set a scaling factor such that
-                %-- the left and right ends of the screen denote x=1 and x=-1
-                pixelsPerUnit = sessionInf.CustomAttrs.WindowWidth / 2;
-
-            otherwise
-                error('Unsupported platform (%s)', sessionInf.Platform);
-        end
-    end
-
-    %------------------------------------------------------------
-    function ppu = getIPadPixelsPerUnit(sessionInf, expData)
-        switch(sessionInf.Platform)
-            case 'NL'
-                ppu = 618; % Origin point = 698; number line Y = 80.
-
-            case 'DC'
-                ppu = expData.windowWidth() / 2;
-
-            otherwise
-                error('Unsupported platform (%s)', sessionInf.Platform);
-        end
     end
 
 end

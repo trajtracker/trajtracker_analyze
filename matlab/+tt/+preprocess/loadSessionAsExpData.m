@@ -56,25 +56,32 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
 %               trials, outliers etc.
 % STM or StimulusThenMove: The experiment used a stimulus-then-move
 %               paradigm. This affects the trial's zero time point.
-% SumCustomAttrs <cell-array>: Experiment-level numeric custom attributes are
-%               from the XML file (<session><expLevelCounters><counter>)
+% SumExpCustomAttrs <cell-array>: Experiment-level numeric custom attributes are
+%               loaded from the XML file (<session><exp_level_results><counter>)
 %               into expData.Custom.
-%               If an experiment is loaded from several sessions, the
+%               If one experiment is loaded from several session files, the
 %               custom attributes will be taken are taken from the first
 %               (earliest) session file, except some attributes that are
 %               summed over all files. Here you can specify names of
 %               additional attributes to sum.
 % 
 
+    MAX_NL_COORD_IPAD_VERSION = 0.68285;
+    
     sessionInfos = normalizeInput(sessionInfos);
     
-    [platform, trialGroupingFunc, trajT0Type, excludeEPOutliers, customColNames, customExpDataProcessFunc, ...
-    splineXParam, createTrajMatrixArgs, sumExpCustomAttrs, samplingRate, minMovementTime, message1Suffix] = parseArgs(varargin, sessionInfos(1).Platform);
+    [platform, trialGroupingFunc, trajT0Type, excludeEPOutliers, customColNames, ...
+        customExpDataProcessFunc, splineXParam, createTrajMatrixArgs, ...
+        sumExpCustomAttrs, samplingRate, minMovementTime, message1Suffix] = ...
+        parseArgs(varargin, sessionInfos(1).Platform);
         
     fprintf('\nLoading data of %s%s...\n', upper(sessionInfos(1).SubjInitials), message1Suffix);
     validateSessions(sessionInfos);
     
     expData = createExpData(sessionInfos(1));
+    
+    convertCoordinateSpace(sessionInfos(1), expData);
+    getNumberLineLength(sessionInfos(1), expData)
     
     %-- Load data
     loadTrialsAndTrajectories(sessionInfos, expData);
@@ -155,9 +162,90 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
             otherwise
                 error('Unsupported platform "%s" (file=%s)', platform, sessionInf.Filename);
         end
-        
     end
     
+    %-------------------------------------------------------------------
+    % Calculate the pixels-to-unit ratio. This converts the raw data
+    % coordinates (pixels) into the logical coordinates used in the 
+    % analysis scripts
+    function convertCoordinateSpace(sessionInf, expData)
+        
+        expData.PixelsPerUnit = 1;
+        expData.YPixelsShift = 0;
+        
+        if sessionInf.is_trajtracker()
+            %-- The new TrajTracker software
+            [expData.PixelsPerUnit, expData.YPixelsShift] = ...
+                getTTrkCoordinateSpaceConversionParams(sessionInf);
+            
+        elseif session.BuildNumber >= 69 || (strcmp(session.Platform, 'DC') && session.BuildNumber >= 62)
+            %-- The old iPad software: Convert X,Y coordinates to logical scale
+            expData.PixelsPerUnit = getIPadPixelsPerUnit(sessionInf, expData);
+            
+        elseif sessionInf.BuildNumber < 10
+            %-- Very old versions used fixed scaling, only for x coords
+            expData.PixelsPerUnit = MAX_NL_COORD_IPAD_VERSION;
+        end
+        
+    end
+
+    %------------------------------------------------------------
+    function getNumberLineLength(sessionInf, expData)
+        
+        if ~strcmp(sessionInf.Platform, 'NL')
+            return
+        end
+        
+        if sessionInf.is_trajtracker()
+            expData.NLLength = sessionInf.CustomAttrs.NLLength / expData.PixelsPerUnit;
+        else
+            expData.NLLength = MAX_NL_COORD_IPAD_VERSION*2;
+        end
+    end
+
+    %------------------------------------------------------------
+    % Get the parameters for converting the coordinates from the screen's
+    % coordinate space to the toolbox' logical coordinate spaced.
+    % Note that the logical coordinate space is different for
+    % number-to-position experiments and discrete-choice experiments.
+    % 
+    function [pixelsPerUnit, yShift] = getTTrkCoordinateSpaceConversionParams(sessionInf)
+        
+        yShift = - sessionInf.CustomAttrs.TrajZeroCoordY;
+        
+        switch(sessionInf.Platform)
+            case 'NL'
+                %-- Number-to-position experiments: set a scaling factor such
+                %-- that the origin point is y=0 and the number line is y=1
+                y0 = sessionInf.CustomAttrs.TrajZeroCoordY;
+                screen_height = sessionInf.CustomAttrs.WindowHeight;
+                y1 = screen_height/2 - sessionInf.CustomAttrs.NLDistanceFromTop;
+                pixelsPerUnit = y1 - y0;
+
+            case 'DC'
+                %-- Discrete-choice experiments: set a scaling factor such that
+                %-- the left and right ends of the screen denote x=1 and x=-1
+                pixelsPerUnit = sessionInf.CustomAttrs.WindowWidth / 2;
+
+            otherwise
+                error('Unsupported platform (%s)', sessionInf.Platform);
+        end
+    end
+
+    %------------------------------------------------------------
+    function ppu = getIPadPixelsPerUnit(sessionInf, expData)
+        switch(sessionInf.Platform)
+            case 'NL'
+                ppu = 618; % Origin point = 698; number line Y = 80.
+
+            case 'DC'
+                ppu = expData.windowWidth() / 2;
+
+            otherwise
+                error('Unsupported platform (%s)', sessionInf.Platform);
+        end
+    end
+
     %-------------------------------------------------------------------
     function loadTrialsAndTrajectories(sessionInfos, expData)
         
@@ -165,12 +253,12 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         trialsPerSession = cell(1, length(sessionInfos));
         for iSession = 1:length(sessionInfos)
             session = sessionInfos(iSession);
-            t0t = iif(~session.is_trajtracker() && session.BuildNumber <= 45, '0', trajT0Type); % Until build 45, the software exported trajectories with 0-based timeline
+            t0type = iif(~session.is_trajtracker() && session.BuildNumber <= 45, '0', trajT0Type); % Until build 45, the software exported trajectories with 0-based timeline
             
-            trials = tt.preprocess.loadOneSessionTrialData(session, t0t, customColNames);
+            trials = tt.preprocess.loadOneSessionTrialData(session, expData, t0type, customColNames);
             trialsPerSession{iSession} = trials;
             
-            tt.preprocess.loadOneSessionTrajData(session, expData, trials, t0t, splineXParam, samplingRate, createTrajMatrixArgs, minMovementTime);
+            tt.preprocess.loadOneSessionTrajData(session, expData, trials, t0type, splineXParam, samplingRate, createTrajMatrixArgs, minMovementTime);
         end
 
         %-- Fix trial numbers (which are duplicate in multiple sessions)

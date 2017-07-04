@@ -58,7 +58,7 @@ function plotMeanTraj(expData, varargin)
     xTicks = 0:xTickSize:expData.MaxTarget;
     set(gca, 'XLim', xLim);
     set(gca, 'YLim', [0 topY]);
-    set(gca, 'XTick', tt.nl.numberToX(xTicks, expData.MaxTarget));
+    set(gca, 'XTick', expData.numberToX(xTicks));
     set(gca, 'XTickLabel', arrayfun(@(x){sprintf('%d', x)}, xTicks));
     set(gca, 'TickLength', [0 0]);
     set(gca, 'FontSize', axisFontSize);
@@ -74,7 +74,8 @@ function plotMeanTraj(expData, varargin)
     function drawTrajectories(expData, targetsToShow, targetNumbersToPrint, lineWidth, textYCoord, textFontSize)
         
         colors = getColors(length(targetsToShow));
-        targetXCoords = -tt.nl.MaxLogicalXValue : (tt.nl.MaxLogicalXValue*2/expData.MaxTarget) : tt.nl.MaxLogicalXValue;
+        len = expData.NLLength;
+        targetXCoords = -(len/2) : (len/expData.MaxTarget) : (len/2);
 
         maximalExistingY = max(arrayfun(@(t)t.Trajectory(end,TrajCols.Y), expData.AvgTrialsNorm(targetsToShow+1)));
         yStretchFactor = iif(stretchY, 1/maximalExistingY, 1);
@@ -234,7 +235,7 @@ function plotMeanTraj(expData, varargin)
         axisFontSize = [];
         lineWidth = [];
         windowSize = [];
-        xLim = [-1 1] * tt.nl.MaxLogicalXValue * 1.05;
+        xLim = [-1 1] * expData.NLLength / 2 * 1.05;
         
         args = stripArgs(args);
         
@@ -315,7 +316,7 @@ function plotMeanTraj(expData, varargin)
                     args = args(2:end);
                     
                 case 'xlim'
-                    xLim = tt.nl.numberToX(args{2}, expData.MaxTarget);
+                    xLim = expData.numberToX(args{2});
                     args = args(2:end);
                     
                 otherwise

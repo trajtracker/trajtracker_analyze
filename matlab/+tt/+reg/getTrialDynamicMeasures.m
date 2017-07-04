@@ -53,7 +53,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 
             case 'x_nl'
                 x = getTrajectoryColumn(trials, TrajCols.X, rowNums);
-                measures(:, iMeasure, :) = tt.nl.xToNumber(x, expData.MaxTarget);
+                measures(:, iMeasure, :) = expData.xToNumber(x);
                 outMeasureNames{iMeasure} = 'x';
                 currMeasureDesc = 'x value';
                 

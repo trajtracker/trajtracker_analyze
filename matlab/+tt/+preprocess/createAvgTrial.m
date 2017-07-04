@@ -125,7 +125,7 @@ function avgTrial = createAvgTrial(expData, trials, absOrNorm, aggregationFunc)
     function trajData = createTrajectoryData(absTimes, x, y)
         switch(expData.ExperimentPlatform)
             case 'NL'
-                trajData = tt.preprocess.createTrajectoryMatrixNL(absTimes, x, y, expData.MaxTarget);
+                trajData = tt.preprocess.createTrajectoryMatrixNL(absTimes, x, y, expData);
             case 'DC'
                 trajData = tt.preprocess.createTrajectoryMatrixDC(absTimes, x, y, expData);
             otherwise
@@ -155,7 +155,7 @@ function avgTrial = createAvgTrial(expData, trials, absOrNorm, aggregationFunc)
         
         switch(expData.ExperimentPlatform)
             case 'NL'
-                trajData = tt.preprocess.createTrajectoryMatrixNL(absTimes, x, y, expData.MaxTarget);
+                trajData = tt.preprocess.createTrajectoryMatrixNL(absTimes, x, y, expData);
             case 'DC'
                 trajData = tt.preprocess.createTrajectoryMatrixDC(absTimes, x, y, expData);
             otherwise

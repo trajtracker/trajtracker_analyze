@@ -105,7 +105,7 @@ function rawTrajectory(expData, varargin)
         
         x = trial.Trajectory(:,xCol);
         if convertXToNumber
-            x = tt.nl.xToNumber(x, anyED.MaxTarget);
+            x = anyED.xToNumber(x); % todo: is this OK that we do it with any expData rather with the trial's specific one?
         end
         y = trial.Trajectory(:,yCol);
         

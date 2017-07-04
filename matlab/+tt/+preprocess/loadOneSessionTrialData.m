@@ -1,5 +1,5 @@
-function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames)
-% trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames) -
+function trials = loadOneSessionTrialData(sessionInf, expData, trajT0Type, customColNames)
+% trials = loadOneSessionTrialData(sessionInf, expData, trajT0Type, customColNames) -
 % Load the trials from file.
 
     minMovementTime = 0.2;
@@ -9,7 +9,7 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
     
     mtGetter = getMovementTimeGetter(sessionInf.Software, trajT0Type);
 
-    mandatoryCols = tt.preprocess.trialFileMandatoryColumns(sessionInf.Platform);
+    [mandatoryCols, defaultCols] = tt.preprocess.trialFileMandatoryColumns(sessionInf.Platform);
     [allTrialInfo, extraColNames] = tt.preprocess.readTrialDataFile(filPath, 'MandatoryCols', mandatoryCols, 'OutFormat', 'struct');
 
     missingCustomCols = customColNames(arrayfun(@(c)~ismember(lower(c{1}), lower(extraColNames)), customColNames));
@@ -18,12 +18,13 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
     end
 
     % Some custom columns are loaded anyway, even if they were not requested
-    for defaultCustomCol = {'PresentedTarget', 'Tag'}
+    for defaultCustomCol = defaultCols
         c = lower(defaultCustomCol{1});
         if ~ismember(c, lower(customColNames)) && ismember(c, lower(extraColNames))
             customColNames = [customColNames defaultCustomCol]; %#ok<AGROW>
         end
     end
+    nl_changes_position = ismember('nl_position_x', lower(customColNames));
 
     colsThatShouldBeIgnored = [{'subject', 'session'} lower(customColNames)];
     ignoredExtraCols = extraColNames(arrayfun(@(c)~ismember(lower(c{1}), colsThatShouldBeIgnored), extraColNames));
@@ -92,6 +93,13 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
         for i = 1:length(customColNames)
             td.Custom.(customColNames{i}) = trialInfo.(lower(customColNames{i}));
         end
+        
+        %-- If the number line changes its position on every trial: calc
+        %-- this position in the logical coordinate space
+        if nl_changes_position
+            td.Custom.nl_position_x_pixels = td.Custom.nl_position_x;
+            td.Custom.nl_position_x = td.Custom.nl_position_x / expData.PixelsPerUnit;
+        end
 
         trials = [trials td]; %#ok<AGROW>
 
@@ -100,13 +108,19 @@ function trials = loadOneSessionTrialData(sessionInf, trajT0Type, customColNames
     end
 
     %---------------------------------------------------------------
+    % Decide how to calculate the movement time
+    %
     function func = getMovementTimeGetter(software, trajT0Type)
         if strcmpi(software, 'trajtracker')
+            % In TrajTracker, movement time is saved correctly
             func = @(t)t.movementtime;
             return;
         end
+        
+        %-- For older versions (pre-TrajTracker):
         switch(lower(trajT0Type))
             case '0'
+                % Old software versions exported movement time correctly too
                 func = @(t)t.movementtime;
 
             case 'targetshown'
