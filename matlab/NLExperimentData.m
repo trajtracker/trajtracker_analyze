@@ -3,6 +3,8 @@ classdef NLExperimentData < ExperimentData
 
     properties
         MaxTarget % Maximal number on the number line
+        NLLength  % Length of the number line (specified in the same scale used
+                  % for x, y coordinates within the matlab scripts)
     end
     
     properties(Dependent=true)
@@ -48,6 +50,21 @@ classdef NLExperimentData < ExperimentData
             end
             result = self.clone@ExperimentData(cloneTrials);
             result.MaxTarget = self.MaxTarget;
+        end
+        
+        %--------------------------------------------------------------
+        % Convert x coordinate to a number on the line.
+        % x can be a vector.
+        function n = xToNumber(self, x)
+            n = x / (self.NLLength/2) * self.MaxTarget/2 + self.MaxTarget/2;
+        end
+
+        %--------------------------------------------------------------
+        % Convert a numberline value to x coordinate
+        % x can be a vector.
+        function x = numberToX(self, n)
+            halfAxis = self.MaxTarget / 2;
+            x = (n - halfAxis) / halfAxis * self.NLLength;
         end
         
     end

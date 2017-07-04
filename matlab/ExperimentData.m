@@ -19,7 +19,10 @@ classdef ExperimentData < handle
         BuildNumber       % Numeric value
         RunDate           % Of the experiment
         Custom            % Struct with custom attributes
-        PixelsPerUnit     % Coordinate space scaling factor: number of screen pixles per one logical unit
+        
+        % To convert coordinates from screen pixels to logical coord space
+        PixelsPerUnit     % Number of screen pixles per one logical unit
+        YPixelsShift      % Constant value to add to Y-pixels before rescaling
     end
     
     properties(Dependent=true)
