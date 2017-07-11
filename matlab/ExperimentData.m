@@ -180,6 +180,8 @@ classdef ExperimentData < handle
             result.SubjectInitials = self.SubjectInitials;
             result.Group = self.Group;
             result.TotalDuration = self.TotalDuration;
+            result.PixelsPerUnit = self.PixelsPerUnit;
+            result.YPixelsShift = self.YPixelsShift;
             result.Custom = self.Custom;
             
             if (cloneTrials)

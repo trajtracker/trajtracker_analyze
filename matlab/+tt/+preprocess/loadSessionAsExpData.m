@@ -178,7 +178,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
             [expData.PixelsPerUnit, expData.YPixelsShift] = ...
                 getTTrkCoordinateSpaceConversionParams(sessionInf);
             
-        elseif session.BuildNumber >= 69 || (strcmp(session.Platform, 'DC') && session.BuildNumber >= 62)
+        elseif sessionInf.BuildNumber >= 69 || (strcmp(sessionInf.Platform, 'DC') && sessionInf.BuildNumber >= 62)
             %-- The old iPad software: Convert X,Y coordinates to logical scale
             expData.PixelsPerUnit = getIPadPixelsPerUnit(sessionInf, expData);
             

@@ -20,6 +20,9 @@ function result = createExpDataAll(expDataArray)
             error('Unsupported platform: %s', expDataArray(1).ExperimentPlatform);
     end
     
+    result.PixelsPerUnit = expDataArray(1).PixelsPerUnit;
+    result.YPixelsShift = expDataArray(1).YPixelsShift;
+    
     for expData = expDataArray
         result.addAllTrialsOf(expData);
     end

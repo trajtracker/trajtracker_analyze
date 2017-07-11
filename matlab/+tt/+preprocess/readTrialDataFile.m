@@ -173,9 +173,7 @@ function [trialData, extraColNames] = readTrialDataFile(filename, varargin)
         colNames = regexp(headerLine, ',', 'split');
         colNamesToNums = struct;
         for i = 1:length(colNames)
-            colNames{i} = strrep(colNames{i}, '.', '_');
-            colNames{i} = strrep(colNames{i}, '%', '_pcnt');
-            colNamesToNums.(lower(colNames{i})) = i;
+            colNamesToNums.(lower(tt.preprocess.normalizeTrialsFileColumnName(colNames{i}))) = i;
         end
         
     end

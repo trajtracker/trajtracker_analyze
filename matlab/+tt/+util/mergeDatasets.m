@@ -36,6 +36,9 @@ function mergedDS = mergeDatasets(allExpData, varargin)
         sid = initials{iSubj};
         
         newExpData = NLExperimentData(genInfo.MaxTarget, sid, firstCond.(sid).SubjectName);
+        anyED = allExpData{1}.(sid);
+        newExpData.PixelsPerUnit = anyED.PixelsPerUnit;
+        newExpData.YPixelsShift = anyED.YPixelsShift;
         
         for iDS = 1:length(allExpData)
             origED = allExpData{iDS}.(sid);

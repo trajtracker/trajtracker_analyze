@@ -3,6 +3,7 @@ function trials = loadOneSessionTrialData(sessionInf, expData, trajT0Type, custo
 % Load the trials from file.
 
     minMovementTime = 0.2;
+    customColNames = arrayfun(@(c){tt.preprocess.normalizeTrialsFileColumnName(c{1})}, customColNames);
     
     fprintf('   Loading trials...\n');
     filPath = sprintf('%s/%s', sessionInf.RawDir, sessionInf.Files.trials);
