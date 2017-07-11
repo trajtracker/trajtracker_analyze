@@ -1,12 +1,8 @@
 % =======================================
 % ==   TrajTracker analysis toolbox    ==
 % =======================================
-% - To see this help again, run "help tt"
-% - To see documentation by topic (rather than by function), run <a href="matlab:help tt.Help">help tt.Help</a>
-%   This is recommended if you're new to the TrajTracker toolbox.
 % 
-% IMPORTANT: IF THIS IS THE FIRST TIME YOU RUN THE TOOLBOX, YOU MUST DEFINE
-% THE TrajTrackerDataPath() FUNCTION. See details in <a href="matlab:help tt.DirStruct">help tt.DirStruct</a>
+% To see this help again, run "help tt"
 % 
 % Preprocess/load data:
 % <a href="matlab:help tt.preprocessSet">tt.preprocessSet</a> - prepare a dataset
@@ -24,15 +20,13 @@
 % <a href="matlab:help tt.nl">tt.nl</a>: for number-to-position experiments
 % <a href="matlab:help tt.dc">tt.dc</a>: for discrete-choice experiments
 % 
+% -------------------------------------------------------------
 % 
-% THIS TOOLBOX IS PROVIDED AS-IS, WITH ABSOLUTELY NO WARRANTY. It is Licensed under
-% the Academic Free License version 3.0 http://opensource.org/licenses/AFL-3.0
+% Citing this toolbox in publications:
 % 
-% If you find any bugs, please let us know via the project's page in github:
-% https://github.com/droralef/trajtracker/issues
-% 
-% To see how to cite this toolbox in publications, run <a href="matlab:tt.citation">tt.citation()</a>
-% 
+% Dotan, D., & Dehaene, S. (2013). How do we convert a number into a finger trajectory? 
+% Cognition, 129, 512-529.
+%
 %
 % Copyright (c) 2016 Dror Dotan
 % 
@@ -46,3 +40,7 @@
 % 
 % You should have received a copy of the GNU General Public License along with TrajTracker.
 % If not, see <http://www.gnu.org/licenses/>.
+% 
+% If you find any bugs, please let us know via the project's page in github:
+% https://github.com/droralef/trajtracker/issues
+% 
