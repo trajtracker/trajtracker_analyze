@@ -62,7 +62,7 @@ sub main {
 		$line[$cols{condition}] = $1-1 if ($line[$cols{condition}] =~ m/^cond(\d+)$/);
 		my $cond = $condNames->[$line[$cols{condition}]];
 		
-		print OUT "setOnsetVelocityTime($cond.d, '$line[$cols{subject}]', $line[$cols{trialnum}], $line[$cols{onset}], $line[$cols{peak}], $line[$cols{wrongdir}], $line[$cols{changeofmind}], $line[$cols{override}]);\n";
+		print OUT "tt.vel.setOnsetVelocityTime($cond.d, '$line[$cols{subject}]', $line[$cols{trialnum}], $line[$cols{onset}], $line[$cols{peak}], $line[$cols{wrongdir}], $line[$cols{changeofmind}], $line[$cols{override}]);\n";
 	}
 	
 	close(IN);

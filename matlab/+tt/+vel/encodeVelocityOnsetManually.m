@@ -12,7 +12,7 @@ function encodeVelocityOnsetManually(allExpData, trialFilter, outFN, varargin)
 %            already done!)
 % 
 % plot-func-args: Arguments that will be transferred to the
-%            velocity-plotting func (<a href="matlab:help nl.vel.plotVelocityOnset">nl.vel.plotVelocityOnset</a>)
+%            velocity-plotting func (<a href="matlab:help tt.vel.plotVelocityProfile">tt.vel.plotVelocityProfile</a>)
 
     if isstruct(allExpData)
         allExpData = {allExpData};
@@ -112,7 +112,7 @@ function encodeVelocityOnsetManually(allExpData, trialFilter, outFN, varargin)
             innerFuncArgs = [innerFuncArgs {'Thrsh1Side'}];
         end
         
-        nl.vel.plotVelocityProfile(expData, 'Condition', sprintf('cond%d', iCond), 'TrialFilter', trialFilter, ...
+        tt.vel.plotVelocityProfile(expData, 'Condition', sprintf('cond%d', iCond), 'TrialFilter', trialFilter, ...
             'CustomOutFile', outFN, 'OnFinished', @gotoNextSubj, 'OnKey', @onKeyHit, 'Interactive', 'HideTarget', innerFuncArgs);
         
     end

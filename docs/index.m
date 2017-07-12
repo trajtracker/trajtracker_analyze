@@ -12,6 +12,6 @@
 % * How the toolbox stores the data as matlab objects. <DataFormat.html Read more...>
 % * How to start: prepare and load your data. <DataLoading.html Read more...>
 % * Analyzing the data with regressions. <Regressions.html Read more...>
-% * Analyzing horizontal movement onset. _We're still working on this bit of documentation._
-% * Analyzing deviations and changes of mind. _We're still working on this bit of documentation._
-% * Finger speed as a measure of confidence. _We're still working on this bit of documentation._
+% * Analysis of early effects: detecting the horizontal movement onset. <MovementOnset.html Read more...>
+% * Analyzing changes of mind and finger deviations. _We're still working on this bit of documentation._
+% * The finger speed as a real-time measure of subjective confidence. _We're still working on this bit of documentation._

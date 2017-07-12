@@ -5,8 +5,13 @@ function findVelocityOnset(expData, varargin)
 %  velocity. The function will return the last threshold-crossing index
 %  that is BEFORE the maximal velocity.
 %
-%  The x coordinates are smoothed prior to calculating the velocity using
-%  the convolution vector [1,1,1,1] (which can be overriden].
+%  The x coordinates are smoothed prior to calculating the velocity.
+% 
+%  Details about the onset detection algorithm are available in
+%  http://trajtracker.com/ttrk_analyze/MovementOnset.html
+%  The basic idea is that we detect several velocity peaks in the trial, and 
+%  find the onset of each peak. The trial's movement onset time is the onset of
+%  the first velocity peak.
 % 
 % expData - ExperimentData or struct of ExperimentData's
 %
@@ -33,6 +38,28 @@ function findVelocityOnset(expData, varargin)
 % OnsetMinPcnt <0-100>: A velocity onset is the time point that exceeds this
 %                percentage of the peak velocity.
 % TrialNum <n> - process only these trial numbers
+% 
+% 
+% Results
+% =======
+% This script detects the onset per trial and saves the following entries on
+% 'trial.Cusotm':
+% - XVelocityOnsetTimes: The onset time for each of the trial's velocity peaks.
+% - XVelocityOnsetRows: Row numbers in the trajectory matrix corresponding
+%                       with XVelocityOnsetTimes.
+% - XVelocityOnsetTime: The trial's movement onset time (= the onset
+%                       time of the first velocity peak).
+% - XVelocityOnsetRow: the first row number in XVelocityOnsetRows
+% - XVelocityLastOnsetTime: The last time in XVelocityOnsetTimes
+% - XVelocityLastOnsetRow: The row number corresponding with that time.
+% - XVelocityPeakTimes: The time point of peak velocity for each velocity peak.
+% - XVelocityPeakRows: Row numbers corresponding with XVelocityPeakTimes
+% - XVelocityPeaks: The velocities at these peak time points.
+% - XVelocityOnsetEncoder: Specifies who determined the onset of this
+%                          trial. The function sets this entry to the value
+%                          'auto', indicating automatic movement onset detection.
+% 
+% The prefix "XVelocity" can be modified via the "SaveAttr" argument.
 
     [getVelocityFunc, resultAttrs, minTime, maxTime, onsetPcntOfPeak, peakVelocityPercentileThreshold, ...
         minPeakVelThreshold, trialNums, debugLevel] = parseArgs(varargin);

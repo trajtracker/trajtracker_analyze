@@ -7,7 +7,7 @@
     <param.summary>Analyze the results of trajectory tracking experiments (see http://trajtracker.com)</param.summary>
     <param.description />
     <param.screenshot />
-    <param.version>1.0.0</param.version>
+    <param.version>1.1.0</param.version>
     <param.output>${PROJECT_ROOT}/TrajTracker Analyze.mltbx</param.output>
     <param.products.name />
     <param.products.id />
@@ -34,7 +34,8 @@
 % **/*.bak
 %
 TrajTrackerDataPath.m.txt
-**/.DS_Store</param.exclude.filters>
+**/.DS_Store
+tthelp</param.exclude.filters>
     <param.examples />
     <param.demosxml />
     <param.apps />
@@ -62,15 +63,14 @@ TrajTrackerDataPath.m.txt
     </fileset.rootdir>
     <fileset.rootfiles>
       <file>${PROJECT_ROOT}/matlab/+tt</file>
+      <file>${PROJECT_ROOT}/matlab/DCExperimentData.m</file>
+      <file>${PROJECT_ROOT}/matlab/DCOneTrialData.m</file>
       <file>${PROJECT_ROOT}/matlab/ExperimentData.m</file>
-      <file>${PROJECT_ROOT}/matlab/GDExperimentData.m</file>
-      <file>${PROJECT_ROOT}/matlab/GDOneTrialData.m</file>
       <file>${PROJECT_ROOT}/matlab/NLExperimentData.m</file>
       <file>${PROJECT_ROOT}/matlab/NLOneTrialData.m</file>
       <file>${PROJECT_ROOT}/matlab/OneTrialData.m</file>
       <file>${PROJECT_ROOT}/matlab/TrajCols.m</file>
       <file>${PROJECT_ROOT}/matlab/TrialErrCodes.m</file>
-      <file>${PROJECT_ROOT}/matlab/tthelp</file>
       <file>${PROJECT_ROOT}/matlab/util</file>
     </fileset.rootfiles>
     <fileset.depfun.included />

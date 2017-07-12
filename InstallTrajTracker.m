@@ -34,6 +34,9 @@ function InstallTrajTracker()
     
     fprintf('\nThe TrajTracker toolbox was installed in %s\n', ttrk_dir);
     
+    addpath(strcat(ttrk_dir, '/util'));
+    savepath();
+    
     create_root_path_func(ttrk_dir, root_path)
     
     fprintf('\n\nSuccessfully installed TrajTracker\n');
