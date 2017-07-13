@@ -120,5 +120,8 @@
 % 
 % 
 % 
-% To learn more about matlab classes, look
+% To learn about matlab classes, look
 % <https://www.mathworks.com/help/matlab/object-oriented-programming-in-matlab.html here>
+% 
+% A shorter explanation with a simple example is 
+% <https://www.mathworks.com/help/matlab/matlab_oop/create-a-simple-class.html here>.

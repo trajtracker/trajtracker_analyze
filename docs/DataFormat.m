@@ -78,14 +78,8 @@
 %%   ExperimentData and OneTrialData object - details
 % 
 % Experiment and trial data are objects defined using matlab classes.
-% If you are not familiar with matlab classes and objects, it's a good idea 
-% to read briefly about them. You will not have to write classes to use this
-% toolbox, but you will have to use them.
-% 
-% A good (extensive) starting point is 
-% <http://www.mathworks.com/discovery/object-oriented-programming.html here>.
-% A shorter explanation with a simple example is 
-% <https://www.mathworks.com/help/matlab/matlab_oop/create-a-simple-class.html here>.
+% If you are not familiar with matlab classes and objects, read
+% <matlab.html#2 this>.
 % 
 % Data from number-line experiments is stored as _NLExperimentData_
 % objects, data from discrete-choice experiments is stored as _DCExperimentData_
