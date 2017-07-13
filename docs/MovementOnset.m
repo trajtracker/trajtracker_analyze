@@ -120,3 +120,9 @@
 %     tt.vel.setOnsetVelocityTime(mydataset.d, 'pq', 155, 0.241, [], 0, 0, 0);
 % 
 % This script will be run every time after you load your dataset into matlab.
+
+%% Plotting horizontal movement onsets
+% 
+% For number-to-position experiments, you can plot the movement onset per
+% target number using _tt.nl.vis.plotValuePerTarget()_. 
+% 

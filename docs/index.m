@@ -7,6 +7,7 @@
 % 
 % Specific help topics - we recommend reading in this order:
 % 
+% * General programming concepts used by TrajTracker. <matlab.html Read more...>
 % * How to keep your data on the file system. <DirStruct.html Read more...>
 % * The format of the input data files. <FileFormats.html Read more...>
 % * How the toolbox stores the data as matlab objects. <DataFormat.html Read more...>
