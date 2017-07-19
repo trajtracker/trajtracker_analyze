@@ -14,8 +14,16 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 % predictorSpec: Specification of predictors (used by the get-measure function)
 % 
 % The dependent variable / predictor specifications are turned into actual
-% values using the <a href="matlab:help tt.reg.getTrialMeasures">tt.reg.getTrialMeasures</a> function or the
-% <a href="matlab:help tt.reg.getTrialDynamicMeasures">tt.reg.getTrialDynamicMeasures</a> function.
+% values using one of two functions:
+% - <a href="matlab:help tt.reg.getTrialMeasures">tt.reg.getTrialMeasures</a> defines per-trial measures
+%   (which have a single value per trial, e.g., movement time).
+% - <a href="matlab:help tt.reg.getTrialDynamicMeasures">tt.reg.getTrialDynamicMeasures</a> defines measures that
+%   change during the course of a trial (e.g., x coordinate).
+% To see the full list of supported predictors, look inside these functions.
+% 
+% If a predictor specification / the dependent variable specification are strings
+% starting with '#', this indicates that it is per-time point.
+% 
 % To add your own variables/predictors, you can create a custom version of
 % these functions and use the 'FMeasureFunc' or 'DMeasureFunc' flags (see
 % details below).
@@ -91,18 +99,21 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 %           Available keywords: $SUBJID$, $NTRIALS$, $NTP$ (# time points)
 % V: verbose - print more debug messages
 % Silent: don't print anything
-% SaveInput <filename>: Save in this file the regression input data, i.e.,
+% SaveInput <filename.mat>: Save in this file the regression input data, i.e.,
 %           the values of the predictors and the dependent variable. This
 %           is intended for debugging.
 
+    [predictorSpec, fixedPred] = fixMeasureSpec(predictorSpec);
+    onlyFixedPredictors = sum(fixedPred) == length(fixedPred);
+    [depVarSpec, fixedDepVar] = fixMeasureSpec(depVarSpec);
+    
     [timePoints, trimTimePointsByTrajEnd, getTrialsFunc, trialFilters, consolidateTrialsFunc, ...
-        timePointFilters, fixedDepVar, fixedPred, saveRegressionInputFilename, ...
+        timePointFilters, fixedDepVar, saveRegressionInputFilename, ...
         minSamplesToPredictorsRatio, getTrialMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
         timePointToRowFunc, getTimePerTpFunc, verbose, ...
-        regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(varargin, expData);
+        regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(varargin, expData, onlyFixedPredictors, fixedDepVar);
     
-    nPredictors = length(predictorSpec)+1;
-    
+    %-- Get the trials to work on
     allTrials = getTrialsFunc(expData);
     trialsToRegress = tt.util.filterTrials(allTrials, trialFilters);
     if ~isempty(consolidateTrialsFunc), trialsToRegress = consolidateTrialsFunc(trialsToRegress, expData); end
@@ -111,25 +122,28 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     end
 
     %-- Get dependent and independent factors
-    [predValues, predNames, predDesc, depVarValues, depVarDesc, rowNums, includeTrial] = getRegressionData(trialsToRegress, timePoints);
-    predNames = [{'const'} predNames];
-    predDesc = [{'Intercept'} predDesc];
+    [predValues, predNames, predDesc, depVarValues, depVarDesc, rowNums, includeTrial] = ...
+        getRegressionData(trialsToRegress, timePoints);
     
+    %-- Filter trials
     [trialsToRegress, predValues, depVarValues, rowNums, includeTrial, nTimePoints] = ...
         removeUnregressableTrials(trialsToRegress, predValues, depVarValues, rowNums, includeTrial);
     
     %-- Get absolute time per time point
     times = getTimePerTpFunc(timePoints, trialsToRegress, rowNums);
     
+    %-- Save for debugging
     if ~isempty(saveRegressionInputFilename)
-        save(saveRegressionInputFilename, 'predValues', 'depVarValues', 'times', 'predNames');
+        trialsToRegressInds = arrayfun(@(t)t.TrialIndex, trialsToRegress); %#ok<NASGU>
+        save(saveRegressionInputFilename, 'predValues', 'depVarValues', 'times', 'predNames', 'trialsToRegressInds');
     end
 
+    nPredictors = length(predictorSpec) + 1;  % The "+1" is the const factor
+    
     if length(trialsToRegress) < nPredictors * minSamplesToPredictorsRatio
         error('There are only %d trials. This is insufficient for %d predictors (including const). Minimal trial/predictor ratio = %.2f', ...
             length(trialsToRegress), nPredictors, minSamplesToPredictorsRatio);
     end
-    
     
     %-- tell user we're starting
     regressionEndMsg = printStartMessage(printRegressionMsg, regressionStartMsg, expData, length(trialsToRegress), length(timePoints));
@@ -162,7 +176,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             continue;
         end
         
-        currPred = predValues(includeTrial(:,iTP), :, iif(fixedPred, 1, iTP));
+        currPred = predValues(includeTrial(:,iTP), :, iif(onlyFixedPredictors, 1, iTP));
         currDepVar = depVarValues(includeTrial(:,iTP), iif(fixedDepVar, 1, iTP));
         
         oneRR = tt.reg.internal.runSingleRegression(regressionType, currPred, currDepVar, 'Silent');
@@ -179,6 +193,38 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     
     result.MaxMovementTime = expData.MaxMovementTime;
     
+    
+    %----------------------------------------------------------------------
+    % Fix the predictor-spec: If a predictor name starts with '#', this does
+    % not count as part of the predictor name; it is merely an indication
+    % that the predictor is per time point.
+    % 
+    % Returns:
+    % spec - same as input, but stripped from the leading '#' character
+    % isFixed - array of boolean flags, same size as 'spec', indicating
+    %           whether each specifier is a per-trial measure (true) or 
+    %           a per time point measure (false)
+    % 
+    function [spec, isFixed] = fixMeasureSpec(spec)
+        
+        single = ischar(spec);
+        if single
+            spec = {spec};
+        end
+        
+        isFixed = true(1, length(spec));
+        
+        for i = 1:length(spec)
+            if ~isempty(spec{i}) && spec{i}(1) == '#'
+                isFixed(i) = false;
+                spec{i} = spec{i}(2:end);
+            end
+        end
+        
+        if single, spec = spec{1}; end
+        
+    end
+
     %-------------------------------------------
     function regressionEndMsg = printStartMessage(printRegressionMsg, regressionStartMsg, expData, nTrials, nTimePoints)
         regressionEndMsg = '';
@@ -186,7 +232,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         if printRegressionMsg
             if isempty(regressionStartMsg)
                 %-- Default message
-                if fixedDepVar && fixedPred
+                if fixedDepVar && onlyFixedPredictors
                     regressionStartMsg = '.';
                 else
                     regressionStartMsg = 'Regressing $SUBJID$ ($NTRIALS$ trials, $NTP$ time points)\n';
@@ -294,7 +340,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         	result.sd_y = repmat(result.sd_y, nRows, 1);
         end
         
-        if fixedPred
+        if onlyFixedPredictors
             result.sd_x = repmat(result.sd_x, nRows, 1);
         end
     end
@@ -304,27 +350,58 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
     % Data structures differ depending on whether the predictor / dependent
     % variable are per-trial or per-timepoint
     % 
+    % Return values:
+    % predictors: If at least some predictors are per time point, this is a #trials x #predictors x #TP matrix
+    %             If all predictors are pre-trial(fixed), this is a #trials x #predictors matrix
     % dependentVar: either an array (#trials) or a #trials x #TP matrix
-    % predictors: either a #trials x #predictors matrix; or a #trials x #predictors x #TP matrix
-    % includeTrial: a #trials x #rows matrix indicating whether to include each trial in each timepoint's regression
-    function [predictors, predNames, predDesc, dependentVar, dvDesc, rowNums, includeTrial] = getRegressionData(trialsToRegress, timePoints)
+    % rowNums: the row number from the trajectory matrix to use for each
+    %          trial (a #trials x #timePoints matrix)
+    % includeTrial: a #trials x #timePoints matrix indicating whether to include each trial in each timepoint's regression
+    %
+    function [predictors, predNames, predDesc, dependentVar, dvDesc, rowNums, includeTrial] = ...
+            getRegressionData(trialsToRegress, timePoints)
+        
+        nTP = length(timePoints);
+        nTrials = length(trialsToRegress);
+        nPredsNoConst = length(predictorSpec);
         
         %-- Convert time points to row numbers.
-        %-- "rowNums" is a #trials x #rows matrix 
-        rowNums = myarrayfun(@(trial)reshape(timePointToRowFunc(timePoints, trial), length(timePoints), 1), trialsToRegress)';
+        %-- "rowNums" is a #trials x #timePoints matrix 
+        rowNums = myarrayfun(@(trial)reshape(timePointToRowFunc(timePoints, trial), nTP, 1), trialsToRegress)';
         
         %-- If asked: exclude time points that exceed end of all trials
         if trimTimePointsByTrajEnd
             trialLen = arrayfun(@(trial)trial.NTrajSamples, trialsToRegress)';
-            timePointsExceedingAllTrials = arrayfun(@(i)sum(rowNums(:, i) <= trialLen) == 0, 1:size(rowNums, 2));
+            timePointsExceedingAllTrials = arrayfun(@(i)sum(rowNums(:, i) <= trialLen) == 0, 1:nTP);
             rowNums = rowNums(:, ~timePointsExceedingAllTrials);
+            nTP = size(rowNums, 2);
         end
         
         %-- Get values for predictors
-        if fixedPred
+        if onlyFixedPredictors
+            % All predictors are per-trial measures
             [predictors, predNames, predDesc] = getTrialMeasureFunc(expData, trialsToRegress', predictorSpec);
         else
-            [predictors, predNames, predDesc] = getDynamicMeasureFunc(expData, trialsToRegress', predictorSpec, rowNums);
+            % At least some predictors are per-timepoint measures
+            predictors = NaN(nTrials, nPredsNoConst, nTP);
+            predNames = cell(1, nPredsNoConst);
+            predDesc = cell(1, nPredsNoConst);
+            
+            %-- Get values of the per-timepoint predictors
+            [prd, pn, pd] = getDynamicMeasureFunc(expData, trialsToRegress', predictorSpec(~fixedPred), rowNums);
+            predictors(:, ~fixedPred, :) = prd;
+            predNames(~fixedPred) = pn;
+            predDesc(~fixedPred) = pd;
+            
+            %-- Get values of the fixed predictors
+            if sum(fixedPred) > 0
+                [prd, pn, pd] = getTrialMeasureFunc(expData, trialsToRegress', predictorSpec(fixedPred));
+                predNames(fixedPred) = pn;
+                predDesc(fixedPred) = pd;
+                for iii = 1:length(timePoints) % Copy the same values for all time points
+                    predictors(:, fixedPred, iii) = prd;
+                end
+            end
         end
 
         %-- Get values for dependent variable
@@ -335,18 +412,25 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             dependentVar = reshape(dependentVar, size(dependentVar, 1), size(dependentVar, 3));
         end
         
-        %-- Apply timepoint-level filters
-        if ~isempty(timePointFilters) && (~fixedPred || ~fixedDepVar)
-            includeTrial = myarrayfun(@(i)applyTPFilters(trialsToRegress, timePointFilters, rowNums(:, i))', 1:size(rowNums,2));
-            includeTrial = logical(includeTrial);
+        %-- Apply timepoint-level filters.
+        %-- "includeTrial" is a #trials x #timepoints matrix indicating whether to include each trial in each time point
+        if isempty(timePointFilters)
+            %-- Include all time points
+            includeTrial = true(nTrials, nTP);
         else
-            includeTrial = true(size(rowNums,1), size(rowNums,2));
+            %-- Filter out some trials from some timepoints
+            includeTrial = myarrayfun(@(i)applyTPFilters(trialsToRegress, timePointFilters, rowNums(:, i))', 1:nTP);
         end
+        
+        predNames = [{'const'} predNames];
+        predDesc = [{'Intercept'} predDesc];
         
     end
 
     %-------------------------------------------
-    % Apply timepoint-level filters
+    % Apply timepoint-level filters:
+    % rowNumsPerTrial: vector with one row number per trial
+    % Return: vector with one entry (true/false) per trial
     function flags = applyTPFilters(trials, filters, rowNumsPerTrial)
         flags = true(1, length(trials));
         
@@ -354,6 +438,9 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             incl = arrayfun(@(i)filter{1}(trials(i), min(rowNumsPerTrial(i), trials(i).NTrajSamples)), find(flags));
             flags(flags) = logical(incl);
         end
+        
+        flags = logical(flags);
+        
     end
 
     %-------------------------------------------
@@ -409,10 +496,10 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 
     %-------------------------------------------------------------------
     function [timePoints, trimRowNumbersByTrajEnd, getTrialsFunc, trialFilters, consolidateTrialsFunc, ...
-            timePointFilters, fixedDepVar, fixedPred, saveRegressionInputFilename, ...
+            timePointFilters, fixedDepVar, saveRegressionInputFilename, ...
             minSamplesToPredictorsRatio, getMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
             timePointToRowFunc, getTimePerTpFunc, verbose, ...
-            regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(args, expData)
+            regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(args, expData, onlyFixedPredictors, fixedDepVar)
 
         timePoints = [];
         trimRowNumbersByTrajEnd = true;
@@ -423,8 +510,6 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         consolidateTrialsFunc = [];
         trialFilters = {};
         timePointFilters = {};
-        fixedDepVar = true;
-        fixedPred = true;
         getMeasureFunc = @tt.reg.getTrialMeasures;
         getDynamicMeasureFunc = @tt.reg.getTrialDynamicMeasures;
         outputFullStats = false;
@@ -517,9 +602,6 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
                 case 'tpdep'
                     fixedDepVar = false;
                     
-                case 'tppred'
-                    fixedPred = false;
-                    
                 case 'fullstat'
                     outputFullStats = true;
                     
@@ -536,8 +618,8 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             args = stripArgs(args(2:end));
         end
 
-        if fixedPred && fixedDepVar
-            %-- Timepoints are meaningless
+        %-- Timepoints are meaningless if no regression element is per-timepoint
+        if onlyFixedPredictors && fixedDepVar
             timePoints = 1;
             timePointToRowFunc = @(tp,~)tp;
         end
@@ -562,6 +644,10 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         end
         
         timePoints = reshape(timePoints, numel(timePoints), 1);
+        
+        if ~isempty(timePointFilters) && onlyFixedPredictors && fixedDepVar
+            error('Time-point filters ("TPFilter" argument) cannot be used when the dependent variable and all predictors are not per time point');
+        end
         
     end
 

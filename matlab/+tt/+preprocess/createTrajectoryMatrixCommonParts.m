@@ -41,8 +41,8 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
             end
         end
         
-        x = smoothg(x, args.coordSmoothingSd/samplingRate);
-        y = smoothg(y, args.coordSmoothingSd/samplingRate);
+        x = smoothg(x, args.coordSmoothingSd/samplingRate, NaN, 'symmetric');
+        y = smoothg(y, args.coordSmoothingSd/samplingRate, NaN, 'symmetric');
         
         x = x(1:nTP);
         y = y(1:nTP);
@@ -74,12 +74,12 @@ function [trajData,trajSlope] = createTrajectoryMatrixCommonParts(absTimes, x, y
     trajData(:, TrajCols.RadialAccel) = d2r / (samplingRate ^ 2);
 
     % Instantaneous X velocity and acceleration
-    velocity = [0; diff(smoothg(x, args.velocitySmoothingSd / samplingRate)) / samplingRate];
+    velocity = [0; diff(smoothg(x, args.velocitySmoothingSd / samplingRate, NaN, 'symmetric')) / samplingRate];
     trajData(:, TrajCols.XVelocity) = velocity;
     trajData(:, TrajCols.XAcceleration) = [0; diff(smoothg(velocity, args.velocitySmoothingSd / samplingRate)) / samplingRate];
 
     % Instantaneous Y velocity and acceleration
-    velocity = [0; diff(smoothg(y, args.velocitySmoothingSd / samplingRate)) / samplingRate];
+    velocity = [0; diff(smoothg(y, args.velocitySmoothingSd / samplingRate, NaN, 'symmetric')) / samplingRate];
     trajData(:, TrajCols.YVelocity) = velocity;
     trajData(:, TrajCols.YAcceleration) = [0; diff(smoothg(velocity, args.velocitySmoothingSd / samplingRate)) / samplingRate];
 

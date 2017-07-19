@@ -1,4 +1,4 @@
-function [o,weights] = smoothg(x, sd, smoothRange)
+function [o,weights] = smoothg(x, sd, smoothRange, endValuesPolicy)
 %o = smoothg(x, sd[, smoothRange]) - Gaussian smoothing of vector x:
 % x(i) is smoothed using adjacent entries according to gaussian
 % distribution: x(i) gets the maximal weight; the weight of x(i+n) and
@@ -13,11 +13,13 @@ function [o,weights] = smoothg(x, sd, smoothRange)
 % sd - the standard deviation of gauss distribution
 % smoothRange - maximal distance to consider when smoothing (specified as
 %               the number of indices in the vector x). Default = 3*SD.
-% 
-% Written by Dror Dotan, 2016
+% endValuesPolicy - See <a href="matlab:help smoothw">smoothw</a>
 
-    if ~exist('smoothRange', 'var')
+    if ~exist('smoothRange', 'var') || isnan(smoothRange)
         smoothRange = sd*3;
+    end
+    if ~exist('endValuesPolicy', 'var')
+        endValuesPolicy = 'extrapolate';
     end
     
     if (sd == 0)
@@ -25,7 +27,7 @@ function [o,weights] = smoothg(x, sd, smoothRange)
         weights = [];
     else
         weights = gauss(0:smoothRange, 0, sd);
-        o = smoothw(x, weights, true);
+        o = smoothw(x, weights, endValuesPolicy);
     end
     
 

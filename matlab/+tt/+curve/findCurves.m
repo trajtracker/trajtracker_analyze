@@ -12,7 +12,8 @@ function findCurves(allExpData, varargin)
 % Smooth <seconds> : Apply Gaussian smoothing to theta values before starting
 % TrialNum <#> : process only this trial (for debugging).
 
-    [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, smoothFactor, dbgSingleTrialNumber] = parseArgs(varargin);
+    [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, ...
+        smoothFactor, dbgSingleTrialNumber, outAttrNames] = parseArgs(varargin);
 
     if isa(allExpData, 'ExperimentData')
         samplingRate = allExpData.SamplingRate;
@@ -44,7 +45,7 @@ function findCurves(allExpData, varargin)
     %-------------------------------------------------
     function processTrial(trial, ~)
         
-        theta = trial.Trajectory(:, TrajCols.InstTheta);
+        theta = trial.Trajectory(:, TrajCols.Theta);
         if (smoothFactor > 0)
             theta = smoothg(theta, smoothFactor/samplingRate);
         end
@@ -61,7 +62,7 @@ function findCurves(allExpData, varargin)
         [startRows, sortInd] = sort(startRows);
         endRows = endRows(sortInd);
         
-        thetaChangeSize = (trial.Trajectory(endRows, TrajCols.InstTheta) - trial.Trajectory(startRows, TrajCols.InstTheta))';
+        thetaChangeSize = (trial.Trajectory(endRows, TrajCols.Theta) - trial.Trajectory(startRows, TrajCols.Theta))';
         timeWindowDuration = (endRows - startRows) * samplingRate;
         
         % Filter the results
@@ -79,7 +80,7 @@ function findCurves(allExpData, varargin)
                 % Trim
                 endRows(i) = startRows(i) + find(aboveThreshold, 1, 'last') - 1;
                 startRows(i) = startRows(i) + find(aboveThreshold, 1) - 1;
-                thetaChangeSize(i) = trial.Trajectory(endRows(i), TrajCols.InstTheta) - trial.Trajectory(startRows(i), TrajCols.InstTheta);
+                thetaChangeSize(i) = trial.Trajectory(endRows(i), TrajCols.Theta) - trial.Trajectory(startRows(i), TrajCols.Theta);
             end
         end
                 
@@ -102,15 +103,16 @@ function findCurves(allExpData, varargin)
         else
             trial.Custom.ThetaChange1StartRow = startRows(find(goodCurves, 1));
         end
-        trial.Custom.ThetaChangeStartRows = startRows(goodCurves);
-        trial.Custom.ThetaChangeEndRows = endRows(goodCurves);
-        trial.Custom.ThetaChangeDirection = thetaDirection(startRows(goodCurves));
-        trial.Custom.ThetaChangeSize = thetaChangeSize(goodCurves);
+        trial.Custom.(outAttrNames.StartRows) = startRows(goodCurves);
+        trial.Custom.(outAttrNames.EndRows) = endRows(goodCurves);
+        trial.Custom.(outAttrNames.Direction) = thetaDirection(startRows(goodCurves));
+        trial.Custom.(outAttrNames.Size) = thetaChangeSize(goodCurves);
         
     end
     
     %-------------------------------------------------
-    function [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, smoothFactor, dbgSingleTrialNumber] = parseArgs(args)
+    function [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, ...
+            smoothFactor, dbgSingleTrialNumber, outAttrNames] = parseArgs(args)
         
         minDuration = [];
         minDTheta = [];
@@ -118,6 +120,8 @@ function findCurves(allExpData, varargin)
         thetaTrimThreshold = 0.000000001;
         smoothFactor = 0;
         dbgSingleTrialNumber = [];
+        
+        outAttrPrefix = 'Curve';
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -146,12 +150,22 @@ function findCurves(allExpData, varargin)
                     dbgSingleTrialNumber = args{2};
                     args = args(2:end);
                     
+                case 'outattrprefix'
+                    outAttrPrefix = args{2};
+                    args = args(2:end);
+                    
                 otherwise
                     error('Unsupported argument "%s"', args{1});
             end
             
             args = stripArgs(args(2:end));
         end
+        
+        outAttrNames = struct;
+        outAttrNames.StartRows = strcat(outAttrPrefix, 'StartRows');
+        outAttrNames.EndRows = strcat(outAttrPrefix, 'EndRows');
+        outAttrNames.Direction = strcat(outAttrPrefix, 'Direction');
+        outAttrNames.Size = strcat(outAttrPrefix, 'Size');
         
     end
     

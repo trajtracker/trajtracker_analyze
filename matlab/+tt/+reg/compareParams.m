@@ -70,6 +70,9 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     end
     
     [params, times, subjIDs] = getAllParamValues(allRR, regressionKeys, paramNames, pValNames, subjIDs);
+    for ip = 1:length(params)
+        params{ip} = params{ip} * paramMultiplyFactors(ip);
+    end
     groupSubjectsArg = getGroupingArg(expDataForGrouping, subjIDs);
     
     result = createResultObj(allRR, regressionKeys, paramNames, subjIDs, times);
@@ -110,7 +113,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     end
     
     updateParamName(result, paramNames, allRR);
-    updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs, paramMultiplyFactors);
+    updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs);
     
     %-- Compare two parameters vs. one another
     if ~isempty(comparedIndices)
@@ -124,7 +127,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
             cmpArgs = [cmpArgs {'ValOffset', compare2TOffsetInds}];
         end
         
-        if isempty(groupSubjectsArg);
+        if isempty(groupSubjectsArg)
             result.comparePair = tt.reg.internal.compareParamValues(params(comparedIndices), 'PT', cmpArgs);
         else
             result.comparePair = tt.reg.internal.compareParamValues(params(comparedIndices), 'RMAnova', groupSubjectsArg, cmpArgs);
@@ -251,7 +254,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
             allRR = arrayfun(@(i){allRR}, 1:length(paramNames));
         end
         
-        paramMultiplyFactors = NaN(1, length(paramNames));
+        paramMultiplyFactors = ones(1, length(paramNames));
         for i = 1:length(paramNames)
             tokens = regexp(paramNames{i}, '^(.*)([*/])([0-9.-]+)$', 'tokens');
             if isempty(tokens)
@@ -297,7 +300,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     end
 
     %--------------------------------------------------------------------
-    function updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs, paramMultiplyFactors)
+    function updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs)
         
         % Get mean values (per time slot) across subject of several parameters.
         % Return a format acceptable by "plotParamComparison"
@@ -337,11 +340,6 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
                 v = [v; repmat(v(end), nExtend, 1)]; %#ok<AGROW>
                 sd = [sd; repmat(sd(end), nExtend, 1)];  %#ok<AGROW>
                 nsubj = [nsubj; repmat(nsubj(end), nExtend, 1)];  %#ok<AGROW>
-            end
-            
-            if ~isnan(paramMultiplyFactors(i))
-                v = v .* paramMultiplyFactors(i);
-                sd = sd .* paramMultiplyFactors(i);
             end
             
             result.cmpParam(i).values = v;

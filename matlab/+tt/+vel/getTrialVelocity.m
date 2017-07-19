@@ -92,7 +92,7 @@ function velInfo = getTrialVelocity(trial, varargin)
                             args = args(2:end);
                             dt = diff(trial.Trajectory(1:2, TrajCols.AbsTime));
                             if (stDev > 0)
-                                coordSmoothFunc = @(x)smoothg(x, stDev / dt);
+                                coordSmoothFunc = @(x)smoothg(x, stDev / dt, 'symmetric');
                             end
                             
                         otherwise

@@ -43,47 +43,54 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
             continue;
         end
         
-        [measureName, measureArgs] = tt.reg.internal.parseMeasureName(inMeasureNames{iMeasure}); %#ok<ASGLU>
+        [measureName, measureArgs] = tt.reg.internal.parseMeasureName(inMeasureNames{iMeasure});
         currMeasureDesc = ''; %#ok<NASGU>
         
         switch(measureName)
+            %-- X coordinate
             case 'x'
                 currMeasure = getTrajectoryColumn(trials, TrajCols.X, rowNums);
                 currMeasureDesc = 'x coord';
                 
+            %-- X position, specified using the numberline's scale
             case 'x_nl'
                 x = getTrajectoryColumn(trials, TrajCols.X, rowNums);
                 measures(:, iMeasure, :) = expData.xToNumber(x);
                 outMeasureNames{iMeasure} = 'x';
                 currMeasureDesc = 'x value';
                 
+            %-- X velocity
             case 'xvel'
                 currMeasure = getTrajectoryColumn(trials, TrajCols.XVelocity, rowNums);
                 currMeasureDesc = 'x speed';
                 
+            %-- Y coordinate
             case 'y'
                 currMeasure = getTrajectoryColumn(trials, TrajCols.Y, rowNums);
                 currMeasureDesc = 'y coord';
                 
+            %-- Y velocity
             case 'yvel'
                 currMeasure = getTrajectoryColumn(trials, TrajCols.YVelocity, rowNums);
                 currMeasureDesc = 'y speed';
                 
+            %-- Y acceleration
             case 'yacc'
                 currMeasure = getTrajectoryColumn(trials, TrajCols.YAcceleration, rowNums);
                 currMeasureDesc = 'y acceleration';
                 
+            %-- Instantaneous speed (= speed in the xy direction)
             case 'ivel'
-                % Instantaneous speed (= speed in the xy direction)
                 currMeasure = getInstVelocity(trials, rowNums);
                 currMeasureDesc = 'xy speed';
-                
+               
+            %-- Implied endpoint
             case {'ep', 'iep'}
                 currMeasure = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 currMeasureDesc = 'Implied endpoint';
                 
+            %-- Currently pointing to right/left
             case {'rldir', 'rldir_like_final', 'rldir_like_final01'}
-                % Currently pointing to right/left
                 iep = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 if isNL
                     currDir = (iep > expData.MaxTarget/2) * 2 - 1;
@@ -106,8 +113,9 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 end
                 currMeasureDesc = 'L/R';
                 
+            %-- Implied endpoint, multiplied by expected response (this is
+            %-- relevant only for discrete-decision experiments)
             case 'iep_vs_expected_response'
-                % Implied endpoint, multiplied by expected response
                 iep = getTrajectoryColumn(trials, TrajCols.ImpliedEP, rowNums);
                 expectedResp = sign(arrayfun(@(t)t.RequiredResponse, trials) - 0.5); % code as -1 or +1
                 for ii = 1:size(iep, 2)
@@ -116,6 +124,30 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 currMeasure = iep;
                 
                 currMeasureDesc = 'L/R correct';
+
+            %-- The time derivative of the finger direction (theta): this
+            %-- is essentially the curvature at a time point
+            case 'dtheta'
+                
+                args = tt.reg.internal.parseMeasureArgs(measureArgs, {'smoothsd'}, true, true, 'SmoothSD');
+                smoothSD = args{1};
+                if isempty(smoothSD)
+                    smoothSD = NaN;
+                else
+                    dt = diff(trials(1).Trajectory(1:2, TrajCols.AbsTime));
+                    smoothSD = round(str2double(smoothSD) / dt);
+                end
+                
+                currMeasure = NaN(nTrials, nTimePoints);
+                thetas = getTrajectoryColumn(trials, TrajCols.Theta, rowNums);
+                for iTrial = 1:nTrials
+                    theta = thetas(iTrial, :);
+                    if ~isnan(smoothSD)
+                        theta = smoothg(theta, smoothSD);
+                    end
+                    currMeasure(iTrial, :) = [0 diff(theta)];
+                end
+                currMeasureDesc = 'Curvature';
 
             otherwise
                 error('Unknown measure name "%s"', measureName);
@@ -157,9 +189,9 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
     function currMeasure = getInstVelocity(trials, rowNums)
         currMeasure = NaN(length(trials), size(rowNums,2));
         for itr = 1:length(trials)
-            trial = trials(itr);
+            tr = trials(itr);
             trialRows = rowNums(itr, :);
-            velInf = tt.vel.getTrialVelocity(trial, 'Axis', 'xy');
+            velInf = tt.vel.getTrialVelocity(tr, 'Axis', 'xy');
             v = velInf.velocity';
             if length(v) < max(trialRows)
                 v = [v repmat(v(end), 1, max(trialRows)-length(v))];

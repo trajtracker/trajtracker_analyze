@@ -131,7 +131,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
     % 
     function [values, name] = tryParseCustomAttrMeasure(measureName, trials)
         
-        tokens = regexp(measureName, '^Custom\.(\w+)(\(.+\))?$', 'tokens');
+        tokens = regexp(measureName, '^[cC]ustom\.(\w+)(\(.+\))?$', 'tokens');
         if isempty(tokens) || (~isempty(tokens) && isempty(tokens{1}))
             values = [];
             name = '';
