@@ -49,9 +49,9 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 % ---- Specifying predictors and the dependent variable
 % 
 % TpDep: a flag indicating that the dependent variable is per time
-%        point rather than per trial
-% TpPred: a flag indicating that the dependent variable is per time
-%         point rather than per trial
+%        point rather than per trial. 
+%        Instead of this flag, you can also add a '#' prefix to the 
+%        'depVarSpec' argument of regress()
 % FMeasureFunc <func>: Function to return a fixed (per-trial) measure
 %                      Same signature as tt.reg.getTrialMeasures.
 %                      Example: tt.reg.customize.getMyTrialMeasures
@@ -102,6 +102,8 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 % SaveInput <filename.mat>: Save in this file the regression input data, i.e.,
 %           the values of the predictors and the dependent variable. This
 %           is intended for debugging.
+% Progress [i, n]: the regression printout message will indicate that this is
+%                  is subject #i out of n.
 
     [predictorSpec, fixedPred] = fixMeasureSpec(predictorSpec);
     onlyFixedPredictors = sum(fixedPred) == length(fixedPred);
@@ -111,7 +113,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         timePointFilters, fixedDepVar, saveRegressionInputFilename, ...
         minSamplesToPredictorsRatio, getTrialMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
         timePointToRowFunc, getTimePerTpFunc, verbose, ...
-        regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(varargin, expData, onlyFixedPredictors, fixedDepVar);
+        regressionStartMsg, printRegressionMsg, isSilent, progressInfo] = parseArgs(varargin, expData, onlyFixedPredictors, fixedDepVar);
     
     %-- Get the trials to work on
     allTrials = getTrialsFunc(expData);
@@ -235,7 +237,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
                 if fixedDepVar && onlyFixedPredictors
                     regressionStartMsg = '.';
                 else
-                    regressionStartMsg = 'Regressing $SUBJID$ ($NTRIALS$ trials, $NTP$ time points)\n';
+                    regressionStartMsg = 'Regressing $SUBJID$$PROGRESS$ ($NTRIALS$ trials, $NTP$ time points)\n';
                 end
             end
             
@@ -249,6 +251,12 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         
         %-- Replace keywords in used-defined message
         regressionStartMsg = strrep(regressionStartMsg, '$SUBJID$', upper(expData.SubjectInitials));
+        if isempty(progressInfo)
+            progressMsg = '';
+        else
+            progressMsg = sprintf(' (%d/%d)', progressInfo(1), progressInfo(2));
+        end
+        regressionStartMsg = strrep(regressionStartMsg, '$PROGRESS$', progressMsg);
         regressionStartMsg = strrep(regressionStartMsg, '$NTP$', num2str(nTimePoints));
         regressionStartMsg = strrep(regressionStartMsg, '$NTRIALS$', num2str(nTrials));
         
@@ -499,7 +507,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
             timePointFilters, fixedDepVar, saveRegressionInputFilename, ...
             minSamplesToPredictorsRatio, getMeasureFunc, getDynamicMeasureFunc, outputFullStats, ...
             timePointToRowFunc, getTimePerTpFunc, verbose, ...
-            regressionStartMsg, printRegressionMsg, isSilent] = parseArgs(args, expData, onlyFixedPredictors, fixedDepVar)
+            regressionStartMsg, printRegressionMsg, isSilent, progressInfo] = parseArgs(args, expData, onlyFixedPredictors, fixedDepVar)
 
         timePoints = [];
         trimRowNumbersByTrajEnd = true;
@@ -523,6 +531,7 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
         
         regressionStartMsg = '';
         printRegressionMsg = true;
+        progressInfo = [];
         
         args = stripArgs(args);
         while ~isempty(args)
@@ -594,6 +603,10 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
                     
                 case 'saveinput'
                     saveRegressionInputFilename = args{2};
+                    args = args(2:end);
+                    
+                case 'progress'
+                    progressInfo = args{2};
                     args = args(2:end);
                     
                 case 'avgtrials'

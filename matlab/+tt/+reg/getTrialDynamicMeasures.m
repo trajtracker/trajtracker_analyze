@@ -64,6 +64,11 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                 currMeasure = getTrajectoryColumn(trials, TrajCols.XVelocity, rowNums);
                 currMeasureDesc = 'x speed';
                 
+            %-- X absolute velocity
+            case 'xabsvel'
+                currMeasure = abs(getTrajectoryColumn(trials, TrajCols.XVelocity, rowNums));
+                currMeasureDesc = '|x speed|';
+                
             %-- Y coordinate
             case 'y'
                 currMeasure = getTrajectoryColumn(trials, TrajCols.Y, rowNums);
@@ -127,7 +132,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
 
             %-- The time derivative of the finger direction (theta): this
             %-- is essentially the curvature at a time point
-            case 'dtheta'
+            case {'dtheta', 'absdtheta'}
                 
                 args = tt.reg.internal.parseMeasureArgs(measureArgs, {'smoothsd'}, true, true, 'SmoothSD');
                 smoothSD = args{1};
@@ -147,8 +152,14 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
                     end
                     currMeasure(iTrial, :) = [0 diff(theta)];
                 end
-                currMeasureDesc = 'Curvature';
-
+                
+                if strcmpi(measureName, 'absdtheta')
+                    currMeasure = abs(currMeasure);
+                    currMeasureDesc = '|Curvature|';
+                else
+                    currMeasureDesc = 'Curvature';
+                end
+                
             otherwise
                 error('Unknown measure name "%s"', measureName);
         end
