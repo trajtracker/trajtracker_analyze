@@ -15,6 +15,11 @@ function [o,weights] = smoothg(x, sd, smoothRange, endValuesPolicy)
 %               the number of indices in the vector x). Default = 3*SD.
 % endValuesPolicy - See <a href="matlab:help smoothw">smoothw</a>
 
+    if exist('smoothRange', 'var') && ~exist('endValuesPolicy', 'var') && ischar(smoothRange)
+        endValuesPolicy = smoothRange;
+        smoothRange = NaN;
+    end
+
     if ~exist('smoothRange', 'var') || isnan(smoothRange)
         smoothRange = sd*3;
     end
