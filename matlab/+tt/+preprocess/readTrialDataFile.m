@@ -109,7 +109,7 @@ function [trialData, extraColNames] = readTrialDataFile(filename, varargin)
         end
         
         % Get numbers of columns to read
-        readCols = lower(readCols);
+        readCols = tt.preprocess.normalizeTrialsFileColumnName(lower(readCols));
         readColNums = arrayfun(@(c)fileColNamesToNums.(c{1}), readCols);
         
         fh = fopen(filename, 'r');

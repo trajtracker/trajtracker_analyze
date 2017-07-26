@@ -58,7 +58,8 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
             error('Some trajectory times in trial #%d ended up being negative! Perhaps you wrongly specified the "StimulusThenMove" flag?', trialNum);
         end
 
-        trial.Trajectory = createTrajMatrix(rawTimes, x, y, expData, sessionInf, createTrajMatrixArgs, trialNum);
+        movementTime = iif(sessionInf.is_trajtracker(), trial.MovementTime, max(rawTimes));
+        trial.Trajectory = createTrajMatrix(rawTimes, x, y, expData, sessionInf, createTrajMatrixArgs, trialNum, movementTime);
         trial.TrajectoryLength = tt.preprocess.getTrajectoryLength(x, y);
     end
     
@@ -141,9 +142,9 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
     end
 
     %------------------------------------------------------------
-    function trajMatrix = createTrajMatrix(rawTimes, rawX, rawY, expData, sessionInf, createTrajMatrixArgs, trialNum)
+    function trajMatrix = createTrajMatrix(rawTimes, rawX, rawY, expData, sessionInf, createTrajMatrixArgs, trialNum, movementTime)
 
-        absTimes = (0:samplingRate:max(rawTimes))';
+        absTimes = (0:samplingRate:movementTime)';
         
         if (length(absTimes) < 10)
             if (length(absTimes) < 2)

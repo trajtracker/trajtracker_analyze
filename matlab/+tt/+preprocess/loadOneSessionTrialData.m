@@ -21,7 +21,7 @@ function trials = loadOneSessionTrialData(sessionInf, expData, trajT0Type, custo
     % Some custom columns are loaded anyway, even if they were not requested
     for defaultCustomCol = defaultCols
         c = lower(defaultCustomCol{1});
-        if ~ismember(c, lower(customColNames)) && ismember(c, lower(extraColNames))
+        if isempty(customColNames) || (~ismember(c, lower(customColNames)) && ismember(c, lower(extraColNames)))
             customColNames = [customColNames defaultCustomCol]; %#ok<AGROW>
         end
     end
