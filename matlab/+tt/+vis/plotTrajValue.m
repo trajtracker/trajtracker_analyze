@@ -110,7 +110,7 @@ function plotTrajValue(inData, varargin)
                     getValueArgs = [getValueArgs args(1:2)]; %#ok<AGROW>
                     args = args(2:end);
                     
-                case {'extrapolate'}
+                case {'extrapolate', 'grpall'}
                     getValueArgs = [getValueArgs args(1)]; %#ok<AGROW>
                     
                 case {'linewidth', 'xlim', 'ylim', 'xtick', 'ytick', 'fontsize', 'figid', 'winsize'}

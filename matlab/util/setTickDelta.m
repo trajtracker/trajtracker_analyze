@@ -35,7 +35,7 @@ function setTickDelta(axis, tickDelta, varargin)
 
     % -- Find default precision
     if isempty(precision)
-        precision = findPrecision(ticks);
+        precision = findPrecision(ticks, 3);
     end
     
     labels = arrayfun(@(y){formatRealNumber(y, 'Precision', precision)}, ticks);

@@ -118,7 +118,7 @@ function exportRR(allRR, rrKey, outFN, varargin)
         subjIDs = origSIDs;
         anyRR = allRR{1}.(subjIDs{1}).(rrKey);
         
-        paramNames = strcat('b_', anyRR.predictorNames);
+        paramNames = arrayfun(@(n){strcat(n{1}, '.b')}, anyRR.predictorNames);
         condNames = arrayfun(@(i){sprintf('cond%d',i)}, 1:length(allRR));
         paramDesc = {};
         

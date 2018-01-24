@@ -50,6 +50,7 @@ classdef NLExperimentData < ExperimentData
             end
             result = self.clone@ExperimentData(cloneTrials);
             result.MaxTarget = self.MaxTarget;
+            result.NLLength = self.NLLength;
         end
         
         %--------------------------------------------------------------
@@ -64,7 +65,7 @@ classdef NLExperimentData < ExperimentData
         % x can be a vector.
         function x = numberToX(self, n)
             halfAxis = self.MaxTarget / 2;
-            x = (n - halfAxis) / halfAxis * self.NLLength;
+            x = (n - halfAxis) / halfAxis * self.NLLength / 2;
         end
         
     end

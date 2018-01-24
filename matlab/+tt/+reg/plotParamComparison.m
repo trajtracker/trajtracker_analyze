@@ -11,9 +11,14 @@ function figHandle = plotParamComparison(cmpData, varargin)
 %   cmpData: the output of tt.reg.compareParams()
 %   Flags:
 %   Print <basic|details|raw> - set printing format
-%   Fill none|trapped|box - If cmpData contains the
-%                    comparison results of two parameters, this flag
-%                    indicates how to print significance values.
+%   Fill <format> - Indicates how to print the comparison results of two parameters
+%                   (if cmpData contains such comparison):
+%           None - don't print
+%           Trapped - grey the area between the compared regression lines
+%           Box - grey a full-height bar
+%           Bottom - plot significance as a bar plot on the bottom of the graph
+%   HSigBar - Maximal height of the bottom-of-screen significance bars 
+%             (relevant only when argument 'Fill' is 'Bottom')
 %   Description <cell-array> - Legend description of each parameter. \n = newline
 %   LegendNames - Print series names as legend. If not specified - they are
 %           printed as floating text which you should reposition (the script
@@ -77,6 +82,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
     FILL_FORMAT_NONE = 0;
     FILL_FORMAT_BETWEEN_LINES = 1;
     FILL_FORMAT_BOX = 2;
+    FILL_FORMAT_BOTTOM = 3;
     
     PRINT_MODE_BASIC = 1;
     PRINT_MODE_DETAILED = 2;
@@ -100,7 +106,7 @@ function figHandle = plotParamComparison(cmpData, varargin)
         regDescriptions, errBarLength, varianceAsArea, shadeAlpha, confIntervalSize, labels, usingDefaultMarkers, seriesToPlot, axesForConst, ...
         explicitXLim, explicitYLim, xTickDelta, yTickDelta, showTickLabels, xTickLabelSkip, comparePairMarginally, seriesFormat, tpMarkerOverride, ...
         highlightTimeWindows, windowSize, seriesMultiplyFactor, bgColor, textColor, ...
-        y2SeriesInds, ax2Format, figID, doCLF] = parseArgs(varargin, cmpData);
+        y2SeriesInds, ax2Format, significanceBarsMaxHeight, figID, doCLF] = parseArgs(varargin, cmpData);
     
     if ~ isfield(cmpData, 'comparedIndices') || isempty(cmpData.comparedIndices)
         fillFormat = FILL_FORMAT_NONE;
@@ -116,14 +122,22 @@ function figHandle = plotParamComparison(cmpData, varargin)
     end
     hold on;
     
-    if (fillFormat ~= FILL_FORMAT_NONE)
-        fillSeriesDescriptions = plotFilledArea(cmpData, fillFormat, yRange);
+    if fillFormat ~= FILL_FORMAT_NONE
+        [cmp2SignificanceLevels, fillSeriesDescriptions, cmp2Colors] = getPairCmpInfo(cmpData);
+    end
+
+    if ismember(fillFormat, [FILL_FORMAT_BOX, FILL_FORMAT_BETWEEN_LINES])
+        plotSignificantDifferences(cmpData, fillFormat, yRange, cmp2SignificanceLevels, cmp2Colors);
     end
     
     ax2 = plotValues(cmpData, yRange, seriesNamesLocation, regDescriptions, ...
                 timeIndsToPrint, t0, dotStyle, ...
                 seriesToPlot, seriesFormat, labels, tpMarkerOverride);
     
+    if fillFormat == FILL_FORMAT_BOTTOM
+        plotSignificantDifferencesBottom(cmpData, cmp2SignificanceLevels, cmp2Colors);
+    end
+
     if (seriesNamesLocation.Legend)
         if exist('fillSeriesDescriptions', 'var')
             regDescriptions = [fillSeriesDescriptions, regDescriptions];
@@ -148,7 +162,23 @@ function figHandle = plotParamComparison(cmpData, varargin)
     end
     
     %---------------------------------------------------------
-    function lineSeriesDescriptions = plotFilledArea(cmpData, fillFormat, yRange)
+    function [significanceLevels, desc, colors] = getPairCmpInfo(cmpData)
+        
+        ALL_LEVEL_DESC = {'p <= .1', 'p <= .05', 'p <= .01', 'p <= .001'};
+        if (comparePairMarginally)
+            colors = {[.75 .75 .75], [.65 .65 .65], [.4 .4 .4], [.2 .2 .2]};
+        else
+            colors = {[.7 .7 .7], [.55 .55 .55], [.4 .4 .4]};
+            ALL_LEVEL_DESC = ALL_LEVEL_DESC(2:end);
+        end
+        
+        significanceLevels = getSignificanceLevel(cmpData.comparePair.pPred)';
+        desc = ALL_LEVEL_DESC(1:max(significanceLevels));
+
+    end
+
+    %---------------------------------------------------------
+    function plotSignificantDifferences(cmpData, fillFormat, yRange, significanceLevels, colors)
         
         if (fillFormat == FILL_FORMAT_BETWEEN_LINES)
             ind = cmpData.comparedIndices;
@@ -159,19 +189,6 @@ function figHandle = plotParamComparison(cmpData, varargin)
             values2 = ones(size(cmpData.cmpParam(1).values)) * yRange(2);
         end
         
-        
-        ALL_LEVEL_DESC = {'p <= .1', 'p <= .05', 'p <= .01', 'p <= .001'};
-        if (comparePairMarginally)
-            COLORS = {[.75 .75 .75], [.65 .65 .65], [.4 .4 .4], [.2 .2 .2]};
-        else
-            COLORS = {[.7 .7 .7], [.55 .55 .55], [.4 .4 .4]};
-            ALL_LEVEL_DESC = ALL_LEVEL_DESC(2:end);
-        end
-        lineSeriesDescriptions = {};
-        
-        significanceLevels = getSignificanceLevel(cmpData.comparePair.pPred)';
-        times = cmpData.times;
-        
         for significanceLevel = 1:max(significanceLevels)
             
             relevantInds = find(significanceLevels == significanceLevel);
@@ -179,29 +196,54 @@ function figHandle = plotParamComparison(cmpData, varargin)
                 continue;
             end
             
-            lineSeriesDescriptions = [lineSeriesDescriptions  ALL_LEVEL_DESC(significanceLevel)]; %#ok<AGROW>
-            
             isFirst = 1;
             
             for ind = relevantInds
 
-                [polX, polY] = createPolygon(values1, values2, times, ind);
+                [polX, polY] = createPolygon(values1, values2, cmpData.times, ind);
                 if (isempty(polX))
                     continue;
                 end
-                h = fill(polX, polY, COLORS{significanceLevels(ind)}, 'LineStyle', 'none');
-                if (~ isFirst)
+                h = fill(polX, polY, colors{significanceLevels(ind)}, 'LineStyle', 'none');
+                if ~isFirst
                     set(h, 'HandleVisibility', 'off');
                 end
                 
                 isFirst = 0;
-
             end
-            
         end
         
     end
     
+    %---------------------------------------------------------
+    function plotSignificantDifferencesBottom(cmpData, significanceLevels, colorsPerLevel)
+        
+        minPlottedP = 0.0001;
+
+        p = log(cmpData.comparePair.pPred);
+
+        py = (p / log(minPlottedP) * significanceBarsMaxHeight);
+
+        yy = ylim;
+
+        colorsPerLevel = [{'white'}, colorsPerLevel];
+
+        for iLevel = 0:max(significanceLevels)
+            relevantInds = find(significanceLevels == iLevel);
+            if isempty(relevantInds)
+                continue;
+            end
+            
+            h = bar(cmpData.times(relevantInds), yy(1) + py(relevantInds), 'FaceColor', colorsPerLevel{iLevel+1});
+            h(1).BaseValue = yy(1);
+
+            if iLevel == 0
+                set(h(1), 'HandleVisibility', 'off');
+            end
+        end
+
+    end
+
     %---------------------------------------------------------
     function [polX, polY] = createPolygon(values1, values2, times, ind)
         
@@ -607,11 +649,12 @@ function figHandle = plotParamComparison(cmpData, varargin)
     function [printMode, fillFormat, seriesNamesLocation, timeIndsToPrint, t0, dotStyle, fontSize, lineWidth, ...
                 regDescriptions, errBarLength, varianceAsArea, shadeAlpha, confIntervalSize, labels, usingDefaultMarkers, seriesToPlot, axesForConst, ...
                 explicitXLim, explicitYLim, xTickDelta, yTickDelta, showTickLabels, xTickLabelSkip, comparePairMarginally, seriesFormat, tpMarkerOverride, ...
-                highlightTimeWindows, windowSize, seriesMultiplyFactor, bgColor, textColor, ax2SeriesInds, ax2Format, figID, doCLF] = ...
+                highlightTimeWindows, windowSize, seriesMultiplyFactor, bgColor, textColor, ax2SeriesInds, ax2Format, significanceBarsMaxHeight, figID, doCLF] = ...
                     parseArgs(args, cmpData)
         
         printMode = PRINT_MODE_BASIC;
         fillFormat = FILL_FORMAT_BETWEEN_LINES;
+        significanceBarsMaxHeight = 0.15;
         dotStyle = DOT_STYLE_COMPARE_0;
         varianceAsArea = false;
         shadeAlpha = 0.15;
@@ -696,6 +739,8 @@ function figHandle = plotParamComparison(cmpData, varargin)
                             fillFormat = FILL_FORMAT_BETWEEN_LINES;
                         case 'box'
                             fillFormat = FILL_FORMAT_BOX;
+                        case 'bottom'
+                            fillFormat = FILL_FORMAT_BOTTOM;
                         otherwise
                             error('Invalid fill format');
                     end
@@ -944,6 +989,10 @@ function figHandle = plotParamComparison(cmpData, varargin)
                     
                 case 'multby'
                     seriesMultiplyFactor = args{2};
+                    args = args(2:end);
+                    
+                case 'hsigbar'
+                    significanceBarsMaxHeight = args{2};
                     args = args(2:end);
                     
                 case 'invert'

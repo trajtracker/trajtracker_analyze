@@ -9,7 +9,7 @@ classdef OneTrialData < handle
         TrajectoryLength
         ErrCode
         SubSession
-        TimeInSubSession
+        TimeInSession
         TimeUntilTargetShown
         TimeUntilFingerMoved
         
@@ -52,7 +52,7 @@ classdef OneTrialData < handle
             self.MovementTime = c.MovementTime;
             self.ErrCode = c.ErrCode;
             self.SubSession = c.SubSession;
-            self.TimeInSubSession = c.TimeInSubSession;
+            self.TimeInSession = c.TimeInSession;
             self.TimeUntilTargetShown = c.TimeUntilTargetShown;
             self.TimeUntilFingerMoved = c.TimeUntilFingerMoved;
             self.Trajectory = c.Trajectory;

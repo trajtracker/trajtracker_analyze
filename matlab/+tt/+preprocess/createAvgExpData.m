@@ -24,6 +24,7 @@ function mergedExpData = createAvgExpData(allExpData)
     nAvgTrials = length(expDataArray(1).AvgTrialsAbs);
     mergedExpData.PixelsPerUnit = expDataArray(1).PixelsPerUnit;
     mergedExpData.YPixelsShift = expDataArray(1).YPixelsShift;
+    mergedExpData.NLLength = expDataArray(1).NLLength;
     
     for iAvgTrial = 1:nAvgTrials
 

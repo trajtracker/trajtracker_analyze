@@ -26,7 +26,12 @@ function averages = averageTrajectoryByTime(trials, samplingRate, numPoints, tra
     trajectories = zeros(numPoints, 1+length(trajColumns), length(trials));
     i=1;
     for td = trials
-        trajectories(:,:,i) = td.getTrajectoryWithFixedSamplingRate(samplingRate, numPoints, trajColumns);
+        try
+            trajectories(:,:,i) = td.getTrajectoryWithFixedSamplingRate(samplingRate, numPoints, trajColumns);
+        catch e
+            fprintf('Error in trial #%d\n', td.TrialNum);
+            e.rethrow()
+        end
         i = i+1;
     end
 

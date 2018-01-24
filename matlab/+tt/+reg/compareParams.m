@@ -113,7 +113,7 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     end
     
     updateParamName(result, paramNames, allRR);
-    updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs);
+    updateMeanValues(result, paramNames, params);
     
     %-- Compare two parameters vs. one another
     if ~isempty(comparedIndices)
@@ -300,15 +300,12 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
     end
 
     %--------------------------------------------------------------------
-    function updateMeanValues(result, allRR, regressionKeys, paramNames, subjIDs)
+    function updateMeanValues(result, paramNames, params)
         
         % Get mean values (per time slot) across subject of several parameters.
         % Return a format acceptable by "plotParamComparison"
         % 
         % allRR, regressionKeys: both can be either a cell array or a single value
-        % 
-        % Optional arguments:
-        % SubjIDs : subject IDs
 
         nParams = length(paramNames);
 
@@ -316,15 +313,9 @@ function [result,params] = compareParams(allRR, regressionKeys, paramNames, vara
         allValues = cell(1, nParams);
         nAvailableSubjectsPerTimePoint = cell(1, nParams);
         allSD = cell(1, nParams);
-        rTimes = [];
         for i = 1:nParams
-            [paramValues, pTimes, subjIDs] = tt.reg.getRRCoeffs(allRR{i}, regressionKeys{i}, paramNames{i}, 'SubjIDs' , subjIDs);
-            allValues{i} = nanmean(paramValues, 2);
-            allSD{i} = nanstd(paramValues, 0, 2);
-            nAvailableSubjectsPerTimePoint{i} = sum(~isnan(paramValues), 2);
-            if length(pTimes) > length(rTimes)
-                rTimes = pTimes;
-            end
+            allValues{i} = nanmean(params{i}, 2);
+            allSD{i} = nanstd(params{i}, 0, 2);
         end
 
         %-- Extend values so that all are of the same lengths

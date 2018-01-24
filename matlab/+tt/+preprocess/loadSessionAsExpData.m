@@ -72,7 +72,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
     
     [platform, trialGroupingFunc, trajT0Type, excludeEPOutliers, customColNames, ...
         customExpDataProcessFunc, splineXParam, createTrajMatrixArgs, ...
-        sumExpCustomAttrs, samplingRate, minMovementTime, message1Suffix] = ...
+        sumExpCustomAttrs, samplingRate, minMovementTime, calcDeviations, message1Suffix] = ...
         parseArgs(varargin, sessionInfos(1).Platform);
         
     fprintf('\nLoading data of %s%s...\n', upper(sessionInfos(1).SubjInitials), message1Suffix);
@@ -88,7 +88,9 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
     loadGeneralAttrs(expData, sessionInfos, createTrajMatrixArgs, sumExpCustomAttrs);
     
     runCustomPreProcess(expData, customExpDataProcessFunc);
-    identifyDeviatingTrials(expData, excludeEPOutliers);
+    if calcDeviations
+        identifyDeviatingTrials(expData, excludeEPOutliers);
+    end
     
     fprintf('   Calculating some more trial parameters...\n');
     tt.preprocess.markBackMovementError(expData);
@@ -379,7 +381,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
 
     %-------------------------------------------------------------------
     function [platform, trialGroupingFunc, trajT0Type, excludeEPOutliers, customColNames, customExpDataProcessFunc, ...
-            splineXParam, trajMatrixArgs, sumExpCustomAttrs, samplingRate, minMovementTime, message1Suffix] = parseArgs(args, platform)
+            splineXParam, trajMatrixArgs, sumExpCustomAttrs, samplingRate, minMovementTime, calcDeviations, message1Suffix] = parseArgs(args, platform)
         
         trialGroupingFunc = iif(strcmp(platform, 'NL'), @(t)t.Target, []);
         trajT0Type = 'TargetShown';
@@ -393,6 +395,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
 		trajMatrixArgs.velocitySmoothingSd = .02;
         samplingRate = 0.01;
         minMovementTime = 0.2;
+        calcDeviations = true;
         message1Suffix = '';
         
         sumExpCustomAttrs = {'nExpectedGoodTrials', 'nExpectedTrials', 'nTrialsCompleted', 'nTrialsFailed', 'nTrialsSucceeded'};
@@ -456,6 +459,9 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
                 case 'platform'
                     platform = args{2};
                     args = args(2:end);
+                    
+                case 'nodeviations'
+                    calcDeviations = false;
                     
                 otherwise
                     error('Unknown flag "%s"', args{1});

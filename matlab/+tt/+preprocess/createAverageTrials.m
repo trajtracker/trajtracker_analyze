@@ -26,9 +26,17 @@ function createAverageTrials(expData, varargin)
     
     averageTrials = [];
     
+    allBadTrials = [];
+    
     for group = trialGroups
         
         grpTrials = trials(groupPerTrial==group);
+        
+        if sum(arrayfun(@(t)isempty(t.Trajectory), grpTrials)) > 0
+            isBad = arrayfun(@(t)isempty(t.Trajectory), grpTrials);
+            allBadTrials = [allBadTrials, grpTrials(isBad)];
+            grpTrials = grpTrials(~isBad);
+        end
         
         switch (length(grpTrials))
             case 0
@@ -49,6 +57,13 @@ function createAverageTrials(expData, varargin)
         end
         
     end
+    
+    if ~isempty(allBadTrials)
+        badTrialNums = sort(arrayfun(@(t)t.TrialNum, allBadTrials));
+        fprintf('>>> ERROR: For subject %s, some trials had ErrCode=OK but no trajectory information; these trials were ignored.\nTrial nums = %s\n', ...
+            expData.SubjectInitials, join(',', arrayfun(@(t){sprintf('%d', t)}, badTrialNums)));
+    end
+    
     
     if byAbsTimes
         expData.AvgTrialsAbs = averageTrials;

@@ -90,7 +90,7 @@ function exportDataset(dataset, outDir, varargin)
             
             fprintf(fp, '%d,%d,%s,%s,%s,%.3f,%.3f,%.3f,%.3f,%.3f', ...
                 trial.SubSession, trial.TrialNum, status, toStr(trial.Target), presentedTarget, trial.MovementTime,...
-                trial.TimeInSubSession, trial.TimeUntilFingerMoved, trial.TimeUntilTargetShown);
+                trial.TimeInSession, trial.TimeUntilFingerMoved, trial.TimeUntilTargetShown);
             for attr = customAttrNames
                 fprintf(fp, ',%s', toStr(trial.Custom.(attr{1})));
             end

@@ -87,7 +87,7 @@ function trials = loadOneSessionTrialData(sessionInf, expData, trajT0Type, custo
         else
             td.SubSession = 1;
         end
-        td.TimeInSubSession = trialInfo.timeinsession;
+        td.TimeInSession = trialInfo.timeinsession;
         td.TimeUntilTargetShown = trialInfo.timeuntiltarget;
         td.TimeUntilFingerMoved = trialInfo.timeuntilfingermoved;
 

@@ -215,7 +215,7 @@ function preprocessSet(subDir, varargin)
         
         while ~isempty(args)
             switch(lower(args{1}))
-                case {'noavg', 'oldtheta', 'extrapolatedsmoothing', 'stm', 'stimulusthenmove', 'excludeoutliers'}
+                case {'noavg', 'oldtheta', 'extrapolatedsmoothing', 'stm', 'stimulusthenmove', 'excludeoutliers', 'nodeviations'}
                     loadExpDataArgs = [loadExpDataArgs args(1)]; %#ok<AGROW>
                     
                 case {'processedfunc', 'customcols', 'splinex', 'iepycoord', 'velocitysmoothingsd', 'smoothcoords', 'sumexpcustomattrs', 'avgby'}
