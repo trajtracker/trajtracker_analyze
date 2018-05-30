@@ -18,7 +18,7 @@ function [result, moreInfo] = findBuildupDelay(allRR, rrKey, paramName, timeRang
 % CondName <cell-array> - name of each condition (for printing)
 % Print - print results
 % 
-% See also <a href="matlab:help tt.reg.findBThresholdDelay">tt.reg.findBThresholdDelay</a> - another method for finding delay between
+% See also <a href="matlab:help tt.reg.findReachThresholdDelay">tt.reg.findReachThresholdDelay</a> - another method for finding delay between
 % regression parameter pairs.
 
     INTERPOLATED_DT = 0.001;

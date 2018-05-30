@@ -1,5 +1,5 @@
-function [thresholdCrossTimes, moreInfo] = findBThresholdTime(allRR, rrKey, paramName, varargin)
-%result = findBThresholdTime(allRR, rrKey, paramName, ...) -
+function [thresholdCrossTimes, moreInfo] = findReachThresholdTime(allRR, rrKey, paramName, varargin)
+%result = findReachThresholdTime(allRR, rrKey, paramName, ...) -
 % Find the first time when the regression b value crosses a certain threshold
 % 
 % Optional arguments:

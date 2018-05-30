@@ -1,9 +1,9 @@
-function delays = findBThresholdDelay(allRR, rrKey, paramName, condNames, varargin)
-% delays = findBThresholdDelay(allRR, rrKey, paramName, condNames, ...) -
+function delays = findReachThresholdDelay(allRR, rrKey, paramName, condNames, varargin)
+% delays = findReachThresholdDelay(allRR, rrKey, paramName, condNames, ...) -
 % Find the first time when the b value crosses a certain threshold, and
 % calculate the delay between two conditions
 % 
-% Optional arguments: see <a href="matlab:help tt.reg.findBThresholdTime">findBThresholdTime</a>
+% Optional arguments: see <a href="matlab:help tt.reg.findReachThresholdTime">findReachThresholdTime</a>
 % 
 % See also <a href="matlab:help tt.reg.findBuildupDelay">tt.reg.findBuildupDelay</a> - another method for finding delay between
 % regression parameter pairs.
@@ -25,7 +25,7 @@ function delays = findBThresholdDelay(allRR, rrKey, paramName, condNames, vararg
         paramName = repmat({paramName}, 1, n);
     end
     
-    thresholdTimes = arrayfun(@(i)tt.reg.findBThresholdTime(allRR{i}, rrKey{i}, paramName{i}, 'SubjIDs', {'avg'}, varargin), 1:n);
+    thresholdTimes = arrayfun(@(i)tt.reg.findReachThresholdTime(allRR{i}, rrKey{i}, paramName{i}, 'SubjIDs', {'avg'}, varargin), 1:n);
     delays = thresholdTimes-thresholdTimes(1);
 
     for i = 2:length(delays)

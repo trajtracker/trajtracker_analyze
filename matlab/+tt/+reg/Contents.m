@@ -26,8 +26,8 @@
 % <a href="matlab:help tt.reg.reformatOneRRForPlots">reformatOneRRForPlots</a>: reformat one subject results for plotParamComparison().
 % 
 % Calculating and comparing the timing of regression effects:
-% <a href="matlab:help tt.reg.findBThresholdTime">findBThresholdTime</a>: Find the time when a regression effect reached some threshold.
-% <a href="matlab:help tt.reg.findBThresholdDelay">findBThresholdDelay</a>: Compare the regression effect reach-threshold time between 2 conditions.
+% <a href="matlab:help tt.reg.findReachThresholdTime">findReachThresholdTime</a>: Find the time when a regression effect reached some threshold.
+% <a href="matlab:help tt.reg.findReachThresholdDelay">findReachThresholdDelay</a>: Compare the regression effect reach-threshold time between 2 conditions.
 % <a href="matlab:help tt.reg.findBuildupDelay">findBuildupDelay</a>: Compare the regression effect timing between 2 conditions.
 % 
 % 

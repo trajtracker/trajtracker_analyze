@@ -24,14 +24,15 @@ function result = reformatOneRRForPlots(subjRR, rrKey, varargin)
     for i = 1:length(paramNames)
         b = rr.getPredResult(paramNames{i}).(bFactorType);
         cmp = tt.reg.OnePredGrpRes('1', length(b));
+        cmp.ParamDesc = rr.getPredDesc(paramNames{i});
         cmp.values = b;
         if strcmp(bFactorType, 'b')
-            cmp.sd_values = rr.(paramNames{i}).se_b;
+            cmp.sd_values = rr.getPredResult(paramNames{i}).se_b;
         else
-            cmp.sd_values = rr.(paramNames{i}).se_beta;
+            cmp.sd_values = rr.getPredResult(paramNames{i}).se_beta;
         end
         
-        cmp.pPred = rr.(paramNames{i}).p;
+        cmp.pPred = rr.getPredResult(paramNames{i}).p;
         
         cmpParam = [cmpParam cmp];
     end
