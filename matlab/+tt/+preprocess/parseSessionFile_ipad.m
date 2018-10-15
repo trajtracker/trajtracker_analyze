@@ -44,7 +44,7 @@ function parseSessionFile_ipad(session)
     function value = getSubEntity(xml, subEntityNames, entityName)
         
         value = xml;
-        if ischar(subEntityNames), subEntityNames = {subEntityNames}; end;
+        if ischar(subEntityNames), subEntityNames = {subEntityNames}; end
         
         for i = 1:length(subEntityNames)
             e = subEntityNames{i};
