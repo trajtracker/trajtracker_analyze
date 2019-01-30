@@ -1,5 +1,5 @@
 function [result, moreInfo] = findBuildupDelay(allRR, rrKey, paramName, timeRange, varargin)
-%result = findBuildupDelay(allRR, rrKey, paramName, ...) -
+%result = findBuildupDelay(allRR, rrKey, paramName, timeRange, ...) -
 % Find the delay between two regression lines. The idea is to look at a
 % time window when the two regression lines are changing (building up) and
 % to find the delay that would minimize the area between the two lines.
@@ -8,12 +8,14 @@ function [result, moreInfo] = findBuildupDelay(allRR, rrKey, paramName, timeRang
 % allRR, rrKey, paramName - each of these can be either a single value or
 %              a cell array with several entries. All entries are compared
 %              vs. the first.
+% timeRange - look for b threshold only in this [from to] time window
 % 
 % Optional arguments:
 % Offset [from to] - the offsets to test
 % ScaleByTime [from to] - the asymptote value is the average over this
-%                        time range
-% TimeRange [from to] - look for b threshold only in this time window
+%                        time range. If 'from' is negative, both 'from' and
+%                        'to' are interpreted as offset from the
+%                        end-of-trial (i.e. expecting 'to' <= 0).
 % SubjIDs <cell-array> - work on these subject ID's
 % CondName <cell-array> - name of each condition (for printing)
 % Print - print results

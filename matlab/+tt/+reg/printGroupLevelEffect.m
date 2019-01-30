@@ -97,7 +97,7 @@ function printGroupLevelEffect(allRR, rrKey, varargin)
 
                 case 'prefix'
                     pref = args{2};
-                    paramNameFilter = @(p)startsWith(p, pref, true);
+                    paramNameFilter = @(p)startsWith(p, pref, 'IgnoreCase', true);
                     args = args(2:end);
 
                 case 'paramnamefilter'

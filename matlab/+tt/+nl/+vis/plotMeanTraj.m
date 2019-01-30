@@ -7,6 +7,13 @@ function plotMeanTraj(expData, varargin)
 % LabeledTargets <array>: target numbers to print on top
 % Display <mode> : print formats - std/print/small
 % Title <text> : title to show (for display mode = std)
+% Colors <def>: define the colors of the lines.
+%      Colors <color-spec>: all lines have the same color. color-spec is a
+%                      color name (char) or an array with 3 numbers (R, G, B).
+%      Colors <function>: the function should get a list of targets and
+%                      return a cell array with the color of each target.
+%      Colors <cell-array>: specify one color per target number, starting
+%                      from target=1
 % XTick : The delta between 2 subsequent x ticks
 % HLines <type> : Determine how to show horizontal lines (connect identical times)
 %       None : don't show
@@ -28,7 +35,7 @@ function plotMeanTraj(expData, varargin)
     HLINES_NORM = 2;
     
     [createNormTraj, targetsToShow, titleText, xTickSize, hLinesType, hLinesTick, hLineColor, ...
-        targetNumbersToPrint, stretchY, topY, textYCoord, textFontSize, axisFontSize, ...
+        getColorfunc, targetNumbersToPrint, stretchY, topY, textYCoord, textFontSize, axisFontSize, ...
         lineWidth, winSize, xLim] = parseArgs(varargin, expData);
     
     if isempty(expData.AvgTrialsNorm)
@@ -73,7 +80,7 @@ function plotMeanTraj(expData, varargin)
     %------------------------------------------------
     function drawTrajectories(expData, targetsToShow, targetNumbersToPrint, lineWidth, textYCoord, textFontSize)
         
-        colors = getColors(length(targetsToShow));
+        colors = getColorfunc(targetsToShow);
         len = expData.NLLength;
         targetXCoords = -(len/2) : (len/expData.MaxTarget) : (len/2);
 
@@ -195,7 +202,9 @@ function plotMeanTraj(expData, varargin)
     
     
     %------------------------------------------------
-    function colors = getColors(nTargets)
+    function colors = getDefaultColors(targets)
+        
+        nTargets = len(targets);
         
         if (nTargets == expData.MaxTarget+1)
             
@@ -214,8 +223,13 @@ function plotMeanTraj(expData, varargin)
     end
 
     %--------------------------------------------
+    function c = getColorPerTarget_cell(targets, colorPerTarget)
+        c = arrayfun(@(t)colorPerTarget(t), targets);
+    end
+
+    %--------------------------------------------
     function [createNormTraj, targetsToShow, titleText, xTickSize, hLinesType, ...
-              hLinesTick, hLineColor, targetNumbersToPrint, stretchY, topY, ...
+              hLinesTick, hLineColor, getColorfunc, targetNumbersToPrint, stretchY, topY, ...
               textYCoord, textFontSize, axisFontSize, lineWidth, windowSize, xLim] = parseArgs(args, expData)
         
         createNormTraj = false;
@@ -227,6 +241,7 @@ function plotMeanTraj(expData, varargin)
         hLinesType = HLINES_NONE;
         hLinesTick = [];
         hLineColor = mycolors.grey;
+        getColorfunc = @getDefaultColors;
         targetNumbersToPrint = [];
         stretchY = false;
         topY = 1.1;
@@ -269,6 +284,20 @@ function plotMeanTraj(expData, varargin)
                             error('Invalid displayMode: %s', args{2});
                     end
                     args = args(2:end);
+                    
+                case 'colors'
+                    colorArg = args{2};
+                    args = args(2:end);
+                    if ischar(colorArg) || len(colorArg) == 3
+                        % A particular color name
+                        getColorfunc = @(targets) arrayfun(@(t){colorArg}, targets);
+                    elseif class(colorArg) == class(@(t)1)
+                        % A function that gets colors
+                        getColorfunc = colorArg;
+                    elseif iscell(colorArg)
+                        % A cell array with one color per target number
+                        getColorfunc = @(targets)getColorPerTarget_cell(targets, colorArg);
+                    end
                     
                 case 'title'
                     titleText = args{2};
@@ -320,8 +349,12 @@ function plotMeanTraj(expData, varargin)
                     args = args(2:end);
                     
                 otherwise
-                    args{1} %#ok<NOPRT>
-                    error('Unknown argument');
+                    if ischar(args{1})
+                        error('Unknown flag "%s"', args{1});
+                    else
+                        args{1} %#ok<NOPRT>
+                        error('Invalid argument');
+                    end
             end
             
             args = stripArgs(args(2:end));

@@ -134,7 +134,7 @@ function exportDataset(dataset, outDir, varargin)
     %---------------------------------------------------------------
     function [customAttrNames, xCol, yCol] = parseArgs(args)
 
-        xCol = Trajcols.X;
+        xCol = TrajCols.X;
         yCol = TrajCols.Y;
         customAttrNames = {};
         

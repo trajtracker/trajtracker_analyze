@@ -55,7 +55,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialDynamicMeasures(exp
             %-- X position, specified using the numberline's scale
             case 'x_nl'
                 x = getTrajectoryColumn(trials, TrajCols.X, rowNums);
-                measures(:, iMeasure, :) = expData.xToNumber(x);
+                currMeasure = expData.xToNumber(x);
                 outMeasureNames{iMeasure} = 'x';
                 currMeasureDesc = 'x value';
                 

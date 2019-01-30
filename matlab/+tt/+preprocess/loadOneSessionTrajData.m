@@ -15,7 +15,7 @@ function loadOneSessionTrajData(sessionInf, expData, trials, trajT0Type, splineX
         nPerNum = arrayfun(@(n)sum(trialNums==n), un);
         dup = sprintf(',%d', un(nPerNum>1));
         dup = dup(2:end);
-        error('There are duplicate trial numbers: %s', dup);
+        error('There are duplicate trial numbers for subject %s: %s', sessionInf.SubjInitials, dup);
     end
 
     trialT0Getter = getT0Getter(trajT0Type);

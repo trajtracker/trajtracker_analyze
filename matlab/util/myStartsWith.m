@@ -1,4 +1,4 @@
-function yesOrNo = startsWith(string, prefix, ignoreCase)
+function yesOrNo = myStartsWith(string, prefix, ignoreCase)
 %STARTSWITH(string, prefix) - check if string starts with the given prefix
     
     if exist('ignoreCase', 'var') && ignoreCase

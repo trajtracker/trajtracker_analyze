@@ -76,6 +76,7 @@ function expData = loadSessionAsExpData(sessionInfos, varargin)
         parseArgs(varargin, sessionInfos(1).Platform);
         
     fprintf('\nLoading data of %s%s...\n', upper(sessionInfos(1).SubjInitials), message1Suffix);
+    fprintf('   Session file(s): %s\n', join(',', arrayfun(@(s){s.Filename}, sessionInfos)))
     validateSessions(sessionInfos);
     
     expData = createExpData(sessionInfos(1));

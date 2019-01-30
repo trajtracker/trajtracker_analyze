@@ -140,7 +140,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
         
         attrName = tokens{1}{1};
         attrInd = tokens{1}{2};
-        if ~isempty(attrInd), attrInd = attrInd(2:end-1); end;
+        if ~isempty(attrInd), attrInd = attrInd(2:end-1); end
         
         if isempty(attrInd)
             %-- No index provided
@@ -258,7 +258,7 @@ function [measures, outMeasureNames, measureDescs] = getTrialMeasures(expData, t
             
             case 'x'
                 currMeasure = arrayfun(@(t)t.Trajectory(end, TrajCols.X), trials);
-                measureDesc = 'Endpoint';
+                measureDesc = 'X coord';
             
             case 'mt'
                 currMeasure = arrayfun(@(t)t.MovementTime, trials);
