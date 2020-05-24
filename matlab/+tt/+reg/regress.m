@@ -25,8 +25,9 @@ function result = regress(expData, regressionType, depVarSpec, predictorSpec, va
 % starting with '#', this indicates that it is per-time point.
 % 
 % To add your own variables/predictors, you can create a custom version of
-% these functions and use the 'FMeasureFunc' or 'DMeasureFunc' flags (see
-% details below).
+% these functions and use the 'FMeasureFunc' flag (for fixed measures, replaces 
+% getTrialMeasures()) or the 'DMeasureFunc' flag (for dynamic measures,
+% replaces getTrialDynamicMeasures()). See details below.
 % 
 %
 % Optional arguments:
