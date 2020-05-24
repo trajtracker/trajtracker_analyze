@@ -131,8 +131,8 @@ function rawTrajectory(expData, varargin)
     
     if showElements.Grid, grid on; end
     
-    if isfield(args, 'xTicks')
-        set(gca, 'XTick', args.xTicks);
+    if isfield(args, 'xticks')
+        set(gca, 'XTick', args.xticks);
     elseif isfield(args, 'xtick')
         setTickDelta('x', args.xtick);
     end
@@ -248,7 +248,7 @@ function rawTrajectory(expData, varargin)
         
         if isNL
             generalArgs.ylim = [0 1];
-            generalArgs.xTicks = 0 : (anyED.MaxTarget/4) : anyED.MaxTarget;
+            generalArgs.xticks = 0 : (anyED.MaxTarget/4) : anyED.MaxTarget;
         else
             generalArgs.ylim = getDefaultYLimForDecisionExp(anyED);
         end
@@ -368,7 +368,7 @@ function rawTrajectory(expData, varargin)
                     args = args(2:end);
                     
                 %-- Standard args - copy their value
-                case {'title', 'xlabel', 'ylabel', 'xlim', 'ylim', 'xtick', 'ytick', 'winsize', 'figid', 'fontsize', 'linewidth', 'respbuttoncolor'}
+                case {'title', 'xlabel', 'ylabel', 'xlim', 'ylim', 'xtick', 'ytick', 'xticks', 'winsize', 'figid', 'fontsize', 'linewidth', 'respbuttoncolor'}
                     generalArgs.(lower(args{1})) = args{2};
                     args = args(2:end);
                     

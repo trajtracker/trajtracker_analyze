@@ -79,6 +79,11 @@ function [result,subjIDs] = printBasicStats(allED, varargin)
         
         r = struct;
         
+        nTrials = sum(arrayfun(@(ed)length(ed.Trials), rawExpData));
+        nBadTrials = sum(arrayfun(@(ed)sum(arrayfun(@(t)t.ErrCode > 0, ed.Trials)), rawExpData));
+        errRate = arrayfun(@(ed)sum(arrayfun(@(t)t.ErrCode > 0, ed.Trials)) / length(ed.Trials), rawExpData);
+        fprintf('  Error trials: %d/%d (%.1f%% +/- %.1f%%)\n', nBadTrials, nTrials, 100*mean(errRate), 100*std(errRate));
+        
         r.MovementTime = arrayfun(@(ed)ed.MeanMovementTime, cleanExpData);
         fprintf('  Movement time: %.3f +/- %.3f\n', mean(r.MovementTime), std(r.MovementTime));
         

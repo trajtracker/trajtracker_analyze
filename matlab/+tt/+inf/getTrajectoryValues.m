@@ -98,6 +98,8 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
     end
     
     data = NaN(length(times), length(groups));
+    data_sd = NaN(length(times), length(groups));
+    data_se = NaN(length(times), length(groups));
     nTimePointsPerGroup = NaN(1, length(groups));
     
     %-- Process one group at a time
@@ -118,6 +120,7 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
             end
         end
         v = nanmean(currGroupData, 2);
+        s = nanstd(currGroupData, 0, 2);
         nTimePointsPerGroup(iGroup) = max(lastValidTP);
         extraInf.lastGrpData = currGroupData;
         
@@ -125,12 +128,19 @@ function [data, extraInf] = getTrajectoryValues(inData, varargin)
             v(1:nTimePointsPerGroup(iGroup)) = smoothg(v(1:nTimePointsPerGroup(iGroup)), smoothSD);
         end
         data(:, iGroup) = v;
+        data_sd(:, iGroup) = s;
+        
+        nTP = sum(~isnan(currGroupData), 2);
+        data_sd(:, iGroup) = s;
+        data_se(:, iGroup) = s ./ sqrt(nTP);
         
     end
     
     extraInf.times = times;
     extraInf.groups = groups;
     extraInf.nTimePointsPerGroup = nTimePointsPerGroup;
+    extraInf.sd = data_sd;
+    extraInf.se_within = data_se;
     
 
     %-------------------------------------------

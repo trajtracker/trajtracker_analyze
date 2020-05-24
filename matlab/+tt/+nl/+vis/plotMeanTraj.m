@@ -35,7 +35,7 @@ function plotMeanTraj(expData, varargin)
     HLINES_NORM = 2;
     
     [createNormTraj, targetsToShow, titleText, xTickSize, hLinesType, hLinesTick, hLineColor, ...
-        getColorfunc, targetNumbersToPrint, stretchY, topY, textYCoord, textFontSize, axisFontSize, ...
+        getColorfunc, targetNumbersToPrint, stretchY, topY, textYCoord, textFontSize, axisFontSize, useDashes, ...
         lineWidth, winSize, xLim] = parseArgs(varargin, expData);
     
     if isempty(expData.AvgTrialsNorm)
@@ -95,7 +95,7 @@ function plotMeanTraj(expData, varargin)
             % traj = expData.AvgTrialsAbs(target+1).NormalizedTrajectory;
 
             % Draw the trajectory
-            if (target > 0 && target < expData.MaxTarget && mod(target,10)==0)
+            if useDashes && target > 0 && target < expData.MaxTarget && mod(target,10)==0
                 h = plot(traj(:,TrajCols.X), traj(:,TrajCols.Y)*yStretchFactor, 'LineStyle', '--');
             else
                 h = plot(traj(:,TrajCols.X), traj(:,TrajCols.Y)*yStretchFactor);
@@ -204,7 +204,7 @@ function plotMeanTraj(expData, varargin)
     %------------------------------------------------
     function colors = getDefaultColors(targets)
         
-        nTargets = len(targets);
+        nTargets = length(targets);
         
         if (nTargets == expData.MaxTarget+1)
             
@@ -230,7 +230,7 @@ function plotMeanTraj(expData, varargin)
     %--------------------------------------------
     function [createNormTraj, targetsToShow, titleText, xTickSize, hLinesType, ...
               hLinesTick, hLineColor, getColorfunc, targetNumbersToPrint, stretchY, topY, ...
-              textYCoord, textFontSize, axisFontSize, lineWidth, windowSize, xLim] = parseArgs(args, expData)
+              textYCoord, textFontSize, axisFontSize, useDashes, lineWidth, windowSize, xLim] = parseArgs(args, expData)
         
         createNormTraj = false;
         targetsToShow = 0:expData.MaxTarget;
@@ -250,6 +250,7 @@ function plotMeanTraj(expData, varargin)
         axisFontSize = [];
         lineWidth = [];
         windowSize = [];
+        useDashes = true;
         xLim = [-1 1] * expData.NLLength / 2 * 1.05;
         
         args = stripArgs(args);
@@ -338,8 +339,8 @@ function plotMeanTraj(expData, varargin)
                 case 'winsize'
                     windowSize = args{2};
                     if ~isempty(windowSize)
-                        if length(windowSize) ~= 2 || sum(windowSize<0) > 0 || sum(windowSize>1) > 0
-                            error('Invalid "WinSize" argument! Specify [x,y] percentage of screen size');
+                        if length(windowSize) ~= 2 || sum(windowSize<0) > 0
+                            error('Invalid "WinSize" argument! Specify [x,y] in pixels');
                         end
                     end
                     args = args(2:end);
@@ -347,6 +348,13 @@ function plotMeanTraj(expData, varargin)
                 case 'xlim'
                     xLim = expData.numberToX(args{2});
                     args = args(2:end);
+                    
+                case 'linewidth'
+                    lineWidth = args{2};
+                    args = args(2:end);
+                    
+                case 'nodash'
+                    useDashes = false;
                     
                 otherwise
                     if ischar(args{1})

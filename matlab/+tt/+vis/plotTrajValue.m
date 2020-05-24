@@ -19,9 +19,11 @@ function plotTrajValue(inData, varargin)
 % FigID <n> - set the figure ID
 % WinSize [width height] - set size of the figure window
 % NoCLF: don't clear the figure before plotting
+% SD: Plot the standard deviation as shading
+% Shade <alpha>: Shading level (alpha) for standard deviation
 % - and any argument of <a href="matlab:help tt.inf.getTrajectoryValues">tt.inf.getTrajectoryValues</a>
 
-    [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs, doCLF] = parseArgs(varargin);
+    [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs, doCLF, showSE, sdAlpha] = parseArgs(varargin);
     
     [dataToPlot, info] = tt.inf.getTrajectoryValues(inData, getValueArgs);
     nGroups = size(dataToPlot, 2);
@@ -30,28 +32,28 @@ function plotTrajValue(inData, varargin)
         colors = varycolor(nGroups, true);
     end
     
-    if ~isempty(displayArgs.figid), setFigure(displayArgs.figid); end;
+    if ~isempty(displayArgs.figid), setFigure(displayArgs.figid); end
     if doCLF, clf; end
     
     if ~isempty(nGroupsPerSubPlot) && nGroupsPerSubPlot<nGroups
         nSP = ceil(nGroups/nGroupsPerSubPlot);
         spnum = 1;
         for ii = 1:nGroupsPerSubPlot:nGroups
-            doPlot(dataToPlot, info, ii:min(nGroups, ii+nGroupsPerSubPlot-1), [nSP, 1, spnum], subPlotArgs);
+            doPlot(dataToPlot, info, ii:min(nGroups, ii+nGroupsPerSubPlot-1), [nSP, 1, spnum], subPlotArgs, showSE, sdAlpha);
             spnum = spnum+1;
         end
     else
-        doPlot(dataToPlot, info, 1:nGroups, [], []);
+        doPlot(dataToPlot, info, 1:nGroups, [], [], showSE, sdAlpha);
     end
     
     if ~isempty(grpDesc), legend(grpDesc); end
     
     set(gcf, 'color', 'white');
-    if ~isempty(displayArgs.winsize), setFigWindowSize(displayArgs.winsize); end;
+    if ~isempty(displayArgs.winsize), setFigWindowSize(displayArgs.winsize); end
     
 
     %-------------------------------------------
-    function doPlot(data, info, groupNums, subplotInf, subPlotArgs)
+    function doPlot(data, info, groupNums, subplotInf, subPlotArgs, showSE, sdAlpha)
         
         if ~isempty(subplotInf)
             
@@ -69,6 +71,21 @@ function plotTrajValue(inData, varargin)
         
         hold on;
         
+        if showSE
+            for i = 1:length(groupNums)
+                iGrp = groupNums(i);
+                n = info.nTimePointsPerGroup(iGrp);
+                se = info.se(1:n, iGrp);
+                x = info.times(1:n);
+                y = data(1:n, iGrp);
+                
+                h = area(gca, x, [y-se, se*2], 'EdgeAlpha', 0, 'HandleVisibility', 'off');
+                h(1).FaceAlpha = 0;
+                h(2).FaceAlpha = sdAlpha;
+                h(2).FaceColor = colors{i};
+            end
+        end
+        
         for i = 1:length(groupNums)
             iGrp = groupNums(i);
             n = info.nTimePointsPerGroup(iGrp);
@@ -76,10 +93,10 @@ function plotTrajValue(inData, varargin)
             plot(info.times(1:n), y(1:n), 'Color', colors{i}, 'LineWidth', displayArgs.linewidth);
         end
 
-        if ~isempty(displayArgs.xlim), xlim(displayArgs.xlim); end;
-        if ~isempty(displayArgs.ylim), ylim(displayArgs.ylim); end;
-        if ~isempty(displayArgs.xtick), setTickDelta('x', displayArgs.xtick); end;
-        if ~isempty(displayArgs.ytick), setTickDelta('y', displayArgs.ytick); end;
+        if ~isempty(displayArgs.xlim), xlim(displayArgs.xlim); end
+        if ~isempty(displayArgs.ylim), ylim(displayArgs.ylim); end
+        if ~isempty(displayArgs.xtick), setTickDelta('x', displayArgs.xtick); end
+        if ~isempty(displayArgs.ytick), setTickDelta('y', displayArgs.ytick); end
         
         if ~isempty(subplotInf) && subplotInf(1) ~= subplotInf(3)
             set(gca, 'XTickLabel', {});
@@ -91,10 +108,13 @@ function plotTrajValue(inData, varargin)
     end
     
     %-------------------------------------------
-    function [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs, doCLF] = parseArgs(args)
+    function [getValueArgs, colors, displayArgs, grpDesc, nGroupsPerSubPlot, subPlotArgs, doCLF, showSE, sdAlpha] = parseArgs(args)
 
         getValueArgs = {};
         colors = [];
+        showSE = false;
+        sdAlpha = .15;
+        winSize = [];
         
         displayArgs = struct('linewidth', 1, 'xlim', [], 'ylim', [], 'xtick', [], 'ytick', [], 'fontsize', 30, 'figid', [], 'winsize', []);
         
@@ -106,7 +126,7 @@ function plotTrajValue(inData, varargin)
         args = stripArgs(args);
         while ~isempty(args)
             switch(lower(args{1}))
-                case {'getvaluefunc', 'trajcol', 'trialfilter', 'grpfunc', 'smooth', 'maxtime'}
+                case {'getvaluefunc', 'trajcol', 'trialfilter', 'grpfunc', 'smooth', 'mintime', 'maxtime'}
                     getValueArgs = [getValueArgs args(1:2)]; %#ok<AGROW>
                     args = args(2:end);
                     
@@ -129,8 +149,15 @@ function plotTrajValue(inData, varargin)
                     nGroupsPerSubPlot= args{2};
                     args = args(2:end);
                     
+                case 'sdalpha'
+                    sdAlpha = args{2};
+                    args = args(2:end);
+                    
                 case 'noclf'
                     doCLF = false;
+                    
+                case 'se'
+                    showSE = true;
                     
                 otherwise
                     error('Unsupported argument "%s"!', args{1});
