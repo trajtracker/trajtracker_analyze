@@ -1,12 +1,14 @@
-function markNTrialsPerTarget(allExpData, nTrials, markFirst, customAttrName)
+function markTrialsPerTarget(allExpData, nTrials, trialToMark, customAttrName)
 % markNTrialsPerTarget(dataset, n, first, attrName) -
 % Find the first or last N trials per target, and mark them using a custom
 % attribute.
 % 
 % dataset: struct of ExpData's
-% n: number of trials
-% first: boolean flag indicating whether to mark n first or last trials per
-%        target.
+% n: number of trials to mark
+% trialToMark: Indicates which trial to mark, out of all trials that have the same target number:
+%      'first': the first N trials
+%      'last': the last N trials
+%      'random': N random trials
 % attrName: name of custom attribute. It will be updated with true/false values.
 
     for expData = tt.util.structToArray(allExpData)
@@ -24,10 +26,15 @@ function markNTrialsPerTarget(allExpData, nTrials, markFirst, customAttrName)
         for target = targets
             targetInds = find(targets == target);
             n = min(nTrials, length(targetInds));
-            if markFirst
+            if strcmpi(trialToMark, 'first')
                 i = targetInds(1:n);
-            else
+            elseif strcmpi(trialToMark, 'last')
                 i = targetInds(end-n+1:end);
+            elseif strcmpi(trialToMark, 'random')
+                tmp = randperm(length(targetInds));
+                i = targetInds(tmp(1:n));
+            else
+                error('Invalid "trialToMark" (%s)', trialToMark);
             end
             markInds = [markInds i];
         end

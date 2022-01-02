@@ -1,18 +1,20 @@
 function findCurves(allExpData, varargin)
 %findCurves(allExpData, ...) -
-% Find curves in trajectories - deviations of finger direction.
-% A "deviation" is defined by several criteria, listed below.
+% Find curves (bends) in trajectories. A bend is defined by several criteria, listed below.
 % 
 % Optional arguments:
-% MinDur # : minimal duration (seconds) of the change
-% MinChange # : the minimal total change of direction (degrees)
+% MinDur # : minimal duration (seconds) of the bend
+% MinChange # : the minimal total change of direction (degrees) duribng the bend
 % MinCurvature # : minimal speed of changing theta (mean degrees per second)
 % TrimThreshold # : theta/second values lower than this will be trimmed in the
-%                   beginning and end of trajectories
+%                   beginning and end of each bend
+% MinY #: Consider only time points after this Y value
+% MaxY #: Consider only time points before this Y value
 % Smooth <seconds> : Apply Gaussian smoothing to theta values before starting
+% OutAttrPrefix <name>: Prefix for the custom attributes saved for each trial (default: 'Curve').
 % TrialNum <#> : process only this trial (for debugging).
 
-    [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, ...
+    [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, minY, maxY, minTime, ...
         smoothFactor, dbgSingleTrialNumber, outAttrNames] = parseArgs(varargin);
 
     if isa(allExpData, 'ExperimentData')
@@ -45,7 +47,9 @@ function findCurves(allExpData, varargin)
     %-------------------------------------------------
     function processTrial(trial, ~)
         
-        theta = trial.Trajectory(:, TrajCols.Theta);
+        trial_theta = trial.Trajectory(:, TrajCols.Theta);
+
+        theta = trial_theta;
         if (smoothFactor > 0)
             theta = smoothg(theta, smoothFactor/samplingRate);
         end
@@ -58,11 +62,29 @@ function findCurves(allExpData, varargin)
         
         startRows = [positiveStartRows negativeStartRows];
         endRows = [positiveEndRows negativeEndRows];
+
+        if ~isempty(minY)
+            goodInds = trial.Trajectory(endRows, TrajCols.Y) > minY;
+            startRows = startRows(goodInds);
+            endRows = endRows(goodInds);
+        end
+        
+        if ~isempty(maxY)
+            goodInds = trial.Trajectory(startRows, TrajCols.Y) < maxY;
+            startRows = startRows(goodInds);
+            endRows = endRows(goodInds);
+        end
+        
+        if ~isempty(minTime)
+            goodInds = trial.Trajectory(endRows, TrajCols.AbsTime) > minTime;
+            startRows = startRows(goodInds);
+            endRows = endRows(goodInds);
+        end
         
         [startRows, sortInd] = sort(startRows);
         endRows = endRows(sortInd);
         
-        thetaChangeSize = (trial.Trajectory(endRows, TrajCols.Theta) - trial.Trajectory(startRows, TrajCols.Theta))';
+        thetaChangeSize = (trial_theta(endRows) - trial_theta(startRows))';
         timeWindowDuration = (endRows - startRows) * samplingRate;
         
         % Filter the results
@@ -80,7 +102,7 @@ function findCurves(allExpData, varargin)
                 % Trim
                 endRows(i) = startRows(i) + find(aboveThreshold, 1, 'last') - 1;
                 startRows(i) = startRows(i) + find(aboveThreshold, 1) - 1;
-                thetaChangeSize(i) = trial.Trajectory(endRows(i), TrajCols.Theta) - trial.Trajectory(startRows(i), TrajCols.Theta);
+                thetaChangeSize(i) = trial_theta(endRows(i)) - trial_theta(startRows(i));
             end
         end
                 
@@ -111,13 +133,16 @@ function findCurves(allExpData, varargin)
     end
     
     %-------------------------------------------------
-    function [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, ...
+    function [minDuration, minDTheta, minThetaChangeSpeed, thetaTrimThreshold, minY, maxY, minTime, ...
             smoothFactor, dbgSingleTrialNumber, outAttrNames] = parseArgs(args)
         
         minDuration = [];
         minDTheta = [];
         minThetaChangeSpeed = [];
         thetaTrimThreshold = 0.000000001;
+        minY = [];
+        maxY = [];
+        minTime = [];
         smoothFactor = 0;
         dbgSingleTrialNumber = [];
         
@@ -152,6 +177,18 @@ function findCurves(allExpData, varargin)
                     
                 case 'outattrprefix'
                     outAttrPrefix = args{2};
+                    args = args(2:end);
+                    
+                case 'miny'
+                    minY = args{2};
+                    args = args(2:end);
+                    
+                case 'maxy'
+                    maxY = args{2};
+                    args = args(2:end);
+                    
+                case 'mintime'
+                    minTime = args{2};
                     args = args(2:end);
                     
                 otherwise
